@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Palette — Ledger */
+  --color-ink: #131a17;
+  --color-ink-muted: #4a5752;
+  --color-forest: #1b5e3e;
+  --color-forest-hover: #236b49;
+  --color-forest-subtle: #e8f2ec;
+  --color-mist: #edf2ef;
+  --color-paper: #f8fbf9;
+  --color-rule: #d2e0d8;
+  --color-rule-strong: #b8cfc5;
+  --color-amber: #92600a;
+  --color-amber-bg: #fef7ec;
+  --color-danger: #b91c1c;
+  --color-danger-bg: #fef2f2;
+  --color-sidebar-text: #c8d9d3;
+  --color-sidebar-text-muted: #6b8880;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --color-sidebar-active: rgba(255, 255, 255, 0.10);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Animations */
+  --animate-fade-up: fadeUp 0.35s ease-out both;
+  --animate-fade-in: fadeIn 0.3s ease-out both;
+
+  /* Typography */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-dm-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-mist);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Tabular numbers everywhere for data */
+[data-amount],
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono), monospace;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-rule) 25%,
+    var(--color-mist) 50%,
+    var(--color-rule) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
