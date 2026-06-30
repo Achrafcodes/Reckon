@@ -40,20 +40,20 @@
 }
 
 .dark {
-  /* Surfaces (dark) */
-  --c-bg:          #0a0f1a;   /* deeper than slate-900 for rich dark */
-  --c-surface:     #111827;   /* gray-900 — card background */
-  --c-surface-r:   #1f2937;   /* gray-800 — raised surface */
+  /* Surfaces (dark) — pure zinc, no blue tint */
+  --c-bg:          #0a0a0a;   /* zinc-950 */
+  --c-surface:     #18181b;   /* zinc-900 */
+  --c-surface-r:   #27272a;   /* zinc-800 */
   /* Borders (dark) */
-  --c-border:      #1f2937;   /* gray-800 */
-  --c-border-s:    #374151;   /* gray-700 */
+  --c-border:      #27272a;   /* zinc-800 */
+  --c-border-s:    #3f3f46;   /* zinc-700 */
   /* Ink (dark) */
-  --c-ink:         #f1f5f9;   /* slate-100 — primary text */
-  --c-ink-muted:   #94a3b8;   /* slate-400 */
-  --c-ink-faint:   #64748b;   /* slate-500 */
+  --c-ink:         #fafafa;   /* zinc-50 */
+  --c-ink-muted:   #a1a1aa;   /* zinc-400 */
+  --c-ink-faint:   #71717a;   /* zinc-500 */
   /* Input chrome */
-  --c-input-bg:    #1f2937;
-  --c-input-border:#374151;
+  --c-input-bg:    #27272a;
+  --c-input-border:#3f3f46;
 }
 
 /* ─── Tailwind design tokens ─────────────────────────────────────────────── */
@@ -256,9 +256,9 @@ body {
 }
 
 @keyframes pulseRing {
-  0%   { box-shadow: 0 0 0 0   rgba(96,165,250,0.45); }
-  70%  { box-shadow: 0 0 0 8px rgba(96,165,250,0); }
-  100% { box-shadow: 0 0 0 0   rgba(96,165,250,0); }
+  0%   { box-shadow: 0 0 0 0   rgba(161,161,170,0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(161,161,170,0); }
+  100% { box-shadow: 0 0 0 0   rgba(161,161,170,0); }
 }
 
 @keyframes popIn {

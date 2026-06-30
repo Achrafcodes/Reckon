@@ -5,6 +5,7 @@ import type { CategorySpend } from '@/server/services/analytics.service'
 
 interface Props {
   topCategories: CategorySpend[]
+  currency?: string
 }
 
 const PRESETS = [
@@ -41,7 +42,7 @@ function Spinner() {
   )
 }
 
-export function ReportDownloader({ topCategories }: Props) {
+export function ReportDownloader({ topCategories, currency = 'MAD' }: Props) {
   const [preset, setPreset] = useState(0)
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -71,7 +72,7 @@ export function ReportDownloader({ topCategories }: Props) {
 
     setLoading(true)
     try {
-      const params = new URLSearchParams({ currency: 'MAD' })
+      const params = new URLSearchParams({ currency })
       if (from) params.set('from', from)
       if (to) params.set('to', to)
 
@@ -161,7 +162,7 @@ export function ReportDownloader({ topCategories }: Props) {
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cat.color }} />
                 <span className="text-xs text-ink flex-1 truncate">{cat.name}</span>
                 <span className="text-xs font-medium text-ink tabular-nums">
-                  {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cat.total)} MAD
+                  {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cat.total)} {currency}
                 </span>
               </div>
             ))}

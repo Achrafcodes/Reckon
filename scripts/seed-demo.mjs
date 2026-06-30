@@ -48,8 +48,9 @@ const User = mongoose.models.User ?? mongoose.model('User', UserSchema)
 
 // ── Find user ────────────────────────────────────────────────────────────────
 
-const user = await User.findOne().lean()
-if (!user) { console.error('No user found — register first at /register'); process.exit(1) }
+const TARGET_EMAIL = process.argv[2] ?? 'demo@reckon.app'
+const user = await User.findOne({ email: TARGET_EMAIL }).lean()
+if (!user) { console.error(`No user found with email: ${TARGET_EMAIL}`); process.exit(1) }
 const userId = user._id
 console.log(`Seeding for user: ${user.email}`)
 

@@ -73,11 +73,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const hasData = summary.transactionCount > 0
   const topCategories = categorySpend.slice(0, 5)
+  const currency = user.settings?.baseCurrency ?? 'MAD'
 
   const kpis = [
     {
       label: 'Total spent',
-      value: hasData ? `${fmt(summary.totalExpenses)} MAD` : '—',
+      value: hasData ? `${fmt(summary.totalExpenses)} ${currency}` : '—',
       sub: hasData ? `${summary.transactionCount} transactions` : 'No data yet',
       icon: (
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -87,7 +88,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Total income',
-      value: hasData ? `${fmt(summary.totalIncome)} MAD` : '—',
+      value: hasData ? `${fmt(summary.totalIncome)} ${currency}` : '—',
       sub: hasData ? (summary.balance >= 0 ? `+${fmt(summary.balance)} saved` : `${fmt(Math.abs(summary.balance))} over budget`) : 'No data yet',
       subColor: hasData ? (summary.balance >= 0 ? 'text-forest' : 'text-danger') : undefined,
       icon: (
@@ -99,7 +100,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     {
       label: 'Top category',
       value: topCategories[0]?.name ?? '—',
-      sub: topCategories[0] ? `${fmt(topCategories[0].total)} MAD spent` : 'No expenses yet',
+      sub: topCategories[0] ? `${fmt(topCategories[0].total)} ${currency} spent` : 'No expenses yet',
       icon: (
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
@@ -109,7 +110,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Biggest expense',
-      value: hasData && summary.biggestExpense > 0 ? `${fmt(summary.biggestExpense)} MAD` : '—',
+      value: hasData && summary.biggestExpense > 0 ? `${fmt(summary.biggestExpense)} ${currency}` : '—',
       sub: 'Single transaction',
       icon: (
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -202,7 +203,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: cat.color }} />
                           <span className="text-ink font-medium">{cat.name}</span>
                         </div>
-                        <span className="text-ink-muted tabular-nums">{fmt(cat.total)} MAD</span>
+                        <span className="text-ink-muted tabular-nums">{fmt(cat.total)} {currency}</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-rule overflow-hidden">
                         <div

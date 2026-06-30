@@ -11,6 +11,7 @@ export default async function ReportsPage() {
   const from = new Date('2000-01-01')
   const to = new Date('2099-12-31')
 
+  const currency = user.settings?.baseCurrency ?? 'MAD'
   const [summary, categories] = await Promise.all([
     getSummary(String(user._id), from, to),
     getSpendByCategory(String(user._id), from, to),
@@ -29,14 +30,14 @@ export default async function ReportsPage() {
           <p className="text-xs text-ink-muted">Total Income</p>
           <p className="text-xl font-semibold text-forest">
             {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(summary.totalIncome)}
-            <span className="text-xs font-normal text-ink-muted ml-1">MAD</span>
+            <span className="text-xs font-normal text-ink-muted ml-1">{currency}</span>
           </p>
         </div>
         <div className="card p-4 space-y-1">
           <p className="text-xs text-ink-muted">Total Expenses</p>
           <p className="text-xl font-semibold text-danger">
             {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(summary.totalExpenses)}
-            <span className="text-xs font-normal text-ink-muted ml-1">MAD</span>
+            <span className="text-xs font-normal text-ink-muted ml-1">{currency}</span>
           </p>
         </div>
         <div className="card p-4 space-y-1">
@@ -46,7 +47,7 @@ export default async function ReportsPage() {
       </div>
 
       {/* Download card */}
-      <ReportDownloader topCategories={categories.slice(0, 5)} />
+      <ReportDownloader topCategories={categories.slice(0, 5)} currency={currency} />
 
       {/* What's included */}
       <div className="card divide-y divide-rule overflow-hidden">

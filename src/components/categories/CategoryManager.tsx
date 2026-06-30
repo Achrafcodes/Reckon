@@ -10,9 +10,9 @@ import { Select } from '@/components/ui/Select'
 import type { CategorySummary } from '@/server/services/category.service'
 
 const COLOR_PRESETS = [
-  '#1e40af', '#2563eb', '#0891b2', '#059669', '#16a34a',
-  '#ca8a04', '#d97706', '#dc2626', '#e11d48', '#7c3aed',
-  '#9333ea', '#db2777', '#64748b', '#475569', '#0f172a',
+  '#059669', '#16a34a', '#0891b2', '#2563eb', '#7c3aed',
+  '#9333ea', '#db2777', '#e11d48', '#dc2626', '#d97706',
+  '#ca8a04', '#64748b', '#475569', '#27272a', '#0f172a',
 ]
 
 interface EditingState {
@@ -34,7 +34,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
-  const [addForm, setAddForm] = useState<AddFormState>({ name: '', type: 'expense', color: '#1e40af' })
+  const [addForm, setAddForm] = useState<AddFormState>({ name: '', type: 'expense', color: '#059669' })
   const [addError, setAddError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const addNameRef = useRef<HTMLInputElement>(null)

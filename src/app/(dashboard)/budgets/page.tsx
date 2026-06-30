@@ -22,6 +22,7 @@ export default async function BudgetsPage({
   const now = new Date()
   const currentMonth = sp.month ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
+  const currency = user.settings?.baseCurrency ?? 'MAD'
   const [budgets, categories] = await Promise.all([
     listBudgets(String(user._id), currentMonth),
     listCategories(String(user._id)),
@@ -78,7 +79,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold text-danger uppercase tracking-widest">Over budget</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {over.map((b, i) => <BudgetCard key={b._id} budget={b} />)}
+                {over.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
               </div>
             </section>
           )}
@@ -88,7 +89,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#92600a' }}>Near limit</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {warning.map((b) => <BudgetCard key={b._id} budget={b} />)}
+                {warning.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
               </div>
             </section>
           )}
@@ -98,7 +99,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold text-forest uppercase tracking-widest">On track</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ok.map((b) => <BudgetCard key={b._id} budget={b} />)}
+                {ok.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
               </div>
             </section>
           )}

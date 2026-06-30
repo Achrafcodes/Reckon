@@ -40,15 +40,19 @@ export function ThemeProvider({
   children: React.ReactNode
   defaultTheme?: Theme
 }) {
-  // Lazy init reads localStorage on the client only — avoids setState-in-effect
-  const [theme, setThemeState] = useState<Theme>(() => readStored(defaultTheme))
-  const [resolvedTheme, setResolved] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light'
-    const t = readStored(defaultTheme)
-    const r = resolveTheme(t)
+  // Always initialize with defaultTheme on both server and client to avoid
+  // hydration mismatch. Sync from localStorage in the effect below.
+  const [theme, setThemeState] = useState<Theme>(defaultTheme)
+  const [resolvedTheme, setResolved] = useState<'light' | 'dark'>('light')
+
+  // After hydration: read stored preference and apply it
+  useEffect(() => {
+    const stored = readStored(defaultTheme)
+    const r = resolveTheme(stored)
     applyClass(r)
-    return r
-  })
+    setThemeState(stored)
+    setResolved(r)
+  }, [defaultTheme])
 
   // Listen for OS preference changes when in 'system' mode
   useEffect(() => {

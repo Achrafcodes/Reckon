@@ -33,6 +33,7 @@ export default async function AnalyticsPage() {
   ])
 
   const hasData = summary.transactionCount > 0
+  const currency = user.settings?.baseCurrency ?? 'MAD'
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -62,7 +63,7 @@ export default async function AnalyticsPage() {
                 <p className="text-xs text-ink-muted uppercase tracking-widest font-medium">{s.label}</p>
                 <p className={`mt-2 text-2xl font-semibold tabular-nums tracking-tight ${s.color}`} style={{ fontFamily: 'var(--font-geist-mono)' }}>
                   {s.value}
-                  <span className="ml-1 text-sm font-normal text-ink-muted">MAD</span>
+                  <span className="ml-1 text-sm font-normal text-ink-muted">{currency}</span>
                 </p>
               </div>
             ))}
@@ -75,7 +76,7 @@ export default async function AnalyticsPage() {
                 <h2 className="text-sm font-semibold text-ink">Income vs Expenses</h2>
                 <p className="text-xs text-ink-muted mt-0.5">Monthly breakdown</p>
               </div>
-              <MonthlyBarChart data={trends} />
+              <MonthlyBarChart data={trends} currency={currency} />
             </div>
           )}
 
@@ -87,7 +88,7 @@ export default async function AnalyticsPage() {
                 <h2 className="text-sm font-semibold text-ink">Spending breakdown</h2>
                 <p className="text-xs text-ink-muted mt-0.5">By category</p>
               </div>
-              <SpendingDonut data={categorySpend} />
+              <SpendingDonut data={categorySpend} currency={currency} />
               {/* Legend */}
               <div className="mt-3 space-y-1.5">
                 {categorySpend.slice(0, 5).map((c) => (
@@ -118,7 +119,7 @@ export default async function AnalyticsPage() {
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: cat.color }} />
                       </div>
                       <span className="text-xs text-ink-muted tabular-nums w-10 text-right shrink-0">{pct.toFixed(1)}%</span>
-                      <span className="text-sm font-semibold tabular-nums text-ink w-24 sm:w-32 text-right shrink-0">{fmt(cat.total)} MAD</span>
+                      <span className="text-sm font-semibold tabular-nums text-ink w-24 sm:w-32 text-right shrink-0">{fmt(cat.total)} {currency}</span>
                     </div>
                   )
                 })}

@@ -11,6 +11,11 @@ interface DataPoint {
   expenses: number
 }
 
+interface Props {
+  data: DataPoint[]
+  currency?: string
+}
+
 function formatMonth(m: string) {
   const [year, month] = m.split('-')
   return new Date(Number(year), Number(month) - 1).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })
@@ -27,23 +32,23 @@ interface TooltipPayload {
   color: string
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="bg-ink text-white text-xs rounded-lg px-3 py-2.5 shadow-lg space-y-1 min-w-[140px]">
-      <p className="font-medium mb-1.5 text-sidebar-text">{label}</p>
-      {payload.map((p) => (
-        <div key={p.name} className="flex justify-between gap-4">
-          <span style={{ color: p.color }}>{p.name}</span>
-          <span className="tabular-nums font-medium">{p.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} MAD</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-export function MonthlyBarChart({ data }: { data: DataPoint[] }) {
+export function MonthlyBarChart({ data, currency = 'MAD' }: Props) {
   const formatted = data.map((d) => ({ ...d, month: formatMonth(d.month) }))
+
+  function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {
+    if (!active || !payload?.length) return null
+    return (
+      <div className="bg-ink text-white text-xs rounded-lg px-3 py-2.5 shadow-lg space-y-1 min-w-[140px]">
+        <p className="font-medium mb-1.5 text-sidebar-text">{label}</p>
+        {payload.map((p) => (
+          <div key={p.name} className="flex justify-between gap-4">
+            <span style={{ color: p.color }}>{p.name}</span>
+            <span className="tabular-nums font-medium">{p.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[200px]">
