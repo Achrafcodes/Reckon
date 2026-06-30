@@ -44,7 +44,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="w-full max-w-[400px]">
             <div
               className="bg-white rounded-2xl border border-zinc-200 px-8 py-9"
-              style={{ boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)' }}
+              style={{ boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06)', colorScheme: 'light' }}
             >
               {children}
             </div>

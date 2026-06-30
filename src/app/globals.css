@@ -281,6 +281,14 @@ body {
   color-scheme: light;
 }
 
+/* Defeat browser dark-mode autofill override on light surfaces */
+.input-base:autofill,
+.input-base:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #09090b !important;
+  caret-color: #09090b;
+}
+
 .input-base::placeholder {
   color: var(--c-ink-faint);
 }
