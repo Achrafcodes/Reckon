@@ -28,17 +28,17 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
   const to = Math.min(page * limit, total)
 
   return (
-    <div className={`px-4 py-3 border-t border-rule flex items-center justify-between text-sm transition-opacity ${isPending ? 'opacity-60' : ''}`}>
-      <span className="text-xs text-ink-muted">
-        Showing {from}–{to} of {total}
+    <div className={`px-4 py-3 border-t border-rule flex items-center justify-between gap-2 text-sm transition-opacity ${isPending ? 'opacity-60' : ''}`}>
+      <span className="text-xs text-ink-muted shrink-0">
+        {from}–{to} <span className="hidden sm:inline">of {total}</span>
       </span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => go(page - 1)}
           disabled={page <= 1}
-          className="rounded-lg border border-rule px-3 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="rounded-lg border border-rule px-2.5 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          ← Prev
+          ← <span className="hidden sm:inline">Prev</span>
         </button>
         {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
           const p = totalPages <= 5 ? i + 1 : page <= 3 ? i + 1 : page >= totalPages - 2 ? totalPages - 4 + i : page - 2 + i
@@ -47,7 +47,7 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
               key={p}
               onClick={() => go(p)}
               className={[
-                'rounded-lg border px-3 py-1.5 text-xs transition-colors',
+                'rounded-lg border px-2.5 py-1.5 text-xs transition-colors hidden sm:inline-flex',
                 p === page
                   ? 'border-forest bg-forest text-white'
                   : 'border-rule text-ink-muted hover:bg-mist hover:text-ink',
@@ -57,12 +57,16 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
             </button>
           )
         })}
+        {/* Mobile: show current/total page indicator */}
+        <span className="sm:hidden text-xs text-ink-muted px-2">
+          {page}/{totalPages}
+        </span>
         <button
           onClick={() => go(page + 1)}
           disabled={page >= totalPages}
-          className="rounded-lg border border-rule px-3 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="rounded-lg border border-rule px-2.5 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          Next →
+          <span className="hidden sm:inline">Next</span> →
         </button>
       </div>
     </div>

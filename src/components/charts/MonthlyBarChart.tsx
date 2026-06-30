@@ -46,6 +46,7 @@ export function MonthlyBarChart({ data }: { data: DataPoint[] }) {
   const formatted = data.map((d) => ({ ...d, month: formatMonth(d.month) }))
 
   return (
+    <div className="min-h-[200px]">
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={formatted} barCategoryGap="30%" barGap={4}>
         <CartesianGrid vertical={false} stroke="#d2e0d8" strokeDasharray="3 3" />
@@ -71,5 +72,6 @@ export function MonthlyBarChart({ data }: { data: DataPoint[] }) {
         <Bar dataKey="expenses" name="Expenses" fill="#b91c1c" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
+    </div>
   )
 }

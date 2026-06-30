@@ -32,6 +32,7 @@ export function SpendingDonut({ data }: { data: CategorySpend[] }) {
   )
 
   return (
+    <div className="min-h-[200px]">
     <ResponsiveContainer width="100%" height={220}>
       <PieChart>
         <Pie
@@ -52,5 +53,6 @@ export function SpendingDonut({ data }: { data: CategorySpend[] }) {
         <Tooltip content={<CustomTooltip />} />
       </PieChart>
     </ResponsiveContainer>
+    </div>
   )
 }

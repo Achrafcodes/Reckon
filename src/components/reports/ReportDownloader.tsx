@@ -127,7 +127,7 @@ export function ReportDownloader({ topCategories }: Props) {
 
       {/* Custom date inputs */}
       {preset === 4 && (
-        <div className="grid grid-cols-2 gap-3 animate-fade-up">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-up">
           <div className="space-y-1">
             <label className="text-xs text-ink-muted" htmlFor="report-from">From</label>
             <input
@@ -172,7 +172,7 @@ export function ReportDownloader({ topCategories }: Props) {
       {error && <p className="text-xs text-danger">{error}</p>}
 
       {/* Download buttons */}
-      <div className="grid grid-cols-2 gap-3 pt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
         <button
           type="button"
           onClick={() => download('/api/reports/pdf', `reckon-report-${dateStr}.pdf`, setLoadingPdf)}

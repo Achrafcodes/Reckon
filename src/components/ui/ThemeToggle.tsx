@@ -8,6 +8,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   // Only render after mount so aria-label/title match between server and client.
   // Before mount we render an inert placeholder of the same dimensions.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true) }, [])
 
   if (!mounted) {

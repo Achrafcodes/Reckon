@@ -171,7 +171,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
       <input type="hidden" name="month" value={month} />
       <input type="hidden" name="currency" value="MAD" />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="col-span-2 space-y-1">
           <label className="text-xs font-medium text-ink-muted" htmlFor="budget-category">Category</label>
           <select
@@ -221,18 +221,18 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
 
       {error && <p className="text-xs text-danger">{error}</p>}
 
-      <div className="flex gap-2 justify-end pt-1">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1">
         <button
           type="button"
           onClick={() => { setOpen(false); setError(null) }}
-          className="px-4 py-2 text-sm text-ink-muted hover:text-ink border border-rule rounded-lg hover:bg-mist transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm text-ink-muted hover:text-ink border border-rule rounded-lg hover:bg-mist transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Saving…' : 'Save budget'}
         </button>

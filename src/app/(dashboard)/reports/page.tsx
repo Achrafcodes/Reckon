@@ -24,7 +24,7 @@ export default async function ReportsPage() {
       </div>
 
       {/* Preview strip */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card p-4 space-y-1">
           <p className="text-xs text-ink-muted">Total Income</p>
           <p className="text-xl font-semibold text-forest">

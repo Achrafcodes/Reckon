@@ -41,7 +41,7 @@ export function TransactionFilters({ categories, total }: Props) {
   return (
     <div className={`flex flex-col gap-3 transition-opacity ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       {/* Search + sort row */}
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -58,7 +58,7 @@ export function TransactionFilters({ categories, total }: Props) {
         <select
           value={sort}
           onChange={(e) => update('sort', e.target.value)}
-          className="rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors cursor-pointer"
+          className="w-full sm:w-auto rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors cursor-pointer"
           aria-label="Sort transactions"
         >
           <option value="date_desc">Newest first</option>

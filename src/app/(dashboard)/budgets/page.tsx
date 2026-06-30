@@ -42,12 +42,12 @@ export default async function BudgetsPage({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-ink tracking-tight">Budgets</h1>
           <p className="mt-1 text-sm text-ink-muted">Set monthly limits per category and track your spending.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <MonthPicker value={currentMonth} options={monthOptions} />
           <AddBudgetForm categories={categories} month={currentMonth} />
         </div>

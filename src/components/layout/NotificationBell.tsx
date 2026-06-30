@@ -135,7 +135,7 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
         <div
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 top-full mt-2 w-80 bg-surface border border-border rounded-xl shadow-lg shadow-black/8 animate-scale-in z-50 origin-top-right overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-[min(320px,calc(100vw-2rem))] bg-surface border border-border rounded-xl shadow-lg shadow-black/8 animate-scale-in z-50 origin-top-right overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-border">

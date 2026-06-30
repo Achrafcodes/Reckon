@@ -87,7 +87,7 @@ export function ProfileForm({ name, email, baseCurrency }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Saving…' : 'Save changes'}
         </button>

@@ -52,7 +52,7 @@ export default async function AnalyticsPage() {
       ) : (
         <>
           {/* Summary strip */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { label: 'Total income', value: fmt(summary.totalIncome), color: 'text-forest' },
               { label: 'Total expenses', value: fmt(summary.totalExpenses), color: 'text-danger' },
@@ -118,7 +118,7 @@ export default async function AnalyticsPage() {
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: cat.color }} />
                       </div>
                       <span className="text-xs text-ink-muted tabular-nums w-10 text-right shrink-0">{pct.toFixed(1)}%</span>
-                      <span className="text-sm font-semibold tabular-nums text-ink w-32 text-right shrink-0">{fmt(cat.total)} MAD</span>
+                      <span className="text-sm font-semibold tabular-nums text-ink w-24 sm:w-32 text-right shrink-0">{fmt(cat.total)} MAD</span>
                     </div>
                   )
                 })}

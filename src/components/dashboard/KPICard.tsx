@@ -33,7 +33,7 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'neutral' }) {
 export function KPICard({ label, value, sub, subColor, icon, trend, style }: KPICardProps) {
   return (
     <div
-      className="animate-fade-up card p-5 flex flex-col gap-3 cursor-default"
+      className="animate-fade-up card p-4 sm:p-5 flex flex-col gap-3 cursor-default"
       style={style}
     >
       {/* Header row: label + icon */}
@@ -50,7 +50,7 @@ export function KPICard({ label, value, sub, subColor, icon, trend, style }: KPI
       <div className="flex flex-col gap-1">
         <div className="flex items-baseline gap-2">
           <span
-            className="text-2xl font-semibold text-ink tabular-nums tracking-tight leading-none"
+            className="text-xl sm:text-2xl font-semibold text-ink tabular-nums tracking-tight leading-none"
             style={{ fontFamily: 'var(--font-geist-mono)' }}
           >
             {value}

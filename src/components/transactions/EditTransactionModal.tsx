@@ -182,7 +182,7 @@ export function EditTransactionModal({
       {/* Panel */}
       <div
         ref={panelRef}
-        className="card relative w-full max-w-lg animate-[scaleIn_0.2s_cubic-bezier(0.34,1.56,0.64,1)_both] overflow-hidden"
+        className="card relative w-[calc(100vw-2rem)] max-w-lg animate-[scaleIn_0.2s_cubic-bezier(0.34,1.56,0.64,1)_both] overflow-hidden"
         style={{ zIndex: 1 }}
       >
         {/* Header */}
@@ -206,7 +206,7 @@ export function EditTransactionModal({
         <form onSubmit={handleSubmit} noValidate>
           <div className="space-y-4 px-5 py-5">
             {/* Date + Type row */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="edit-date" className={labelClass}>Date</label>
                 <input
@@ -279,7 +279,7 @@ export function EditTransactionModal({
             </div>
 
             {/* Amount + Category row */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="edit-amount" className={labelClass}>Amount</label>
                 <input

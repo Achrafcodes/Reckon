@@ -95,7 +95,7 @@ function BatchRow({ batch }: { batch: ImportBatchRow }) {
   }
 
   return (
-    <div className={`flex items-center gap-4 px-5 py-3.5 transition-opacity ${isPending ? 'opacity-40' : ''} ${isReverted ? 'opacity-50' : ''}`}>
+    <div className={`flex items-start sm:items-center gap-3 px-4 sm:px-5 py-3.5 transition-opacity ${isPending ? 'opacity-40' : ''} ${isReverted ? 'opacity-50' : ''}`}>
       {/* Icon */}
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isReverted ? 'bg-rule text-ink-muted' : 'bg-forest-subtle text-forest'}`}>
         <FileIcon />
@@ -115,26 +115,24 @@ function BatchRow({ batch }: { batch: ImportBatchRow }) {
         </p>
       </div>
 
-      {/* Status badge */}
+      {/* Status badge + Delete — aligned right */}
       {!isReverted && (
-        <span className="shrink-0 text-xs font-medium text-forest bg-forest-subtle px-2 py-0.5 rounded-full">
-          Active
-        </span>
-      )}
-
-      {/* Delete button */}
-      {!isReverted && (
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={isPending}
-          className="shrink-0 flex items-center gap-1.5 text-xs text-ink-muted hover:text-danger transition-colors disabled:opacity-40 px-2 py-1 rounded hover:bg-red-50"
-          aria-label={`Delete transactions from ${batch.fileName}`}
-        >
-          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          Delete
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="hidden sm:inline text-xs font-medium text-forest bg-forest-subtle px-2 py-0.5 rounded-full">
+            Active
+          </span>
+          <button
+            onClick={() => setShowModal(true)}
+            disabled={isPending}
+            className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-danger transition-colors disabled:opacity-40 px-2 py-1 rounded hover:bg-red-50"
+            aria-label={`Delete transactions from ${batch.fileName}`}
+          >
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span className="hidden sm:inline">Delete</span>
+          </button>
+        </div>
       )}
 
       {showModal && (

@@ -73,18 +73,18 @@ export function DangerZone() {
 
           {error && <p className="text-xs text-danger">{error}</p>}
 
-          <div className="flex gap-2">
+          <div className="flex flex-col-reverse sm:flex-row gap-2">
             <button
               type="button"
               onClick={() => { setOpen(false); setError(null); setConfirmText('') }}
-              className="px-4 py-2 text-sm text-ink-muted border border-rule rounded-lg hover:bg-mist transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-sm text-ink-muted border border-rule rounded-lg hover:bg-mist transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!confirmed || isPending}
-              className="px-4 py-2 text-sm font-medium bg-danger text-white rounded-lg hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-danger text-white rounded-lg hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? 'Deleting…' : 'Delete everything'}
             </button>

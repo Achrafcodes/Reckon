@@ -207,18 +207,18 @@ function SuccessBanner({ imported, skipped, onReset }: { imported: number; skipp
           {imported} transaction{imported !== 1 ? 's' : ''} imported
           {skipped > 0 ? `, ${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped` : ''}
         </p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <a href="/transactions" className="text-xs font-medium text-forest hover:underline">
-          View transactions →
-        </a>
-        <button
-          onClick={onReset}
-          className="text-xs text-ink-muted hover:text-ink transition-colors"
-          aria-label="Import another file"
-        >
-          Import another
-        </button>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+          <a href="/transactions" className="text-xs font-medium text-forest hover:underline">
+            View transactions →
+          </a>
+          <button
+            onClick={onReset}
+            className="text-xs text-ink-muted hover:text-ink transition-colors"
+            aria-label="Import another file"
+          >
+            Import another
+          </button>
+        </div>
       </div>
     </div>
   )

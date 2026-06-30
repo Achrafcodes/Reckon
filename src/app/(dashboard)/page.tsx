@@ -238,12 +238,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     {item.categoryName && <> · {item.categoryName}</>}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={frequencyBadgeClass(item.frequency)}>
-                    {item.frequency}
-                  </span>
+                <div className="flex flex-col items-end gap-0.5 shrink-0">
                   <span className="text-sm font-semibold tabular-nums text-danger">
                     {fmt(item.amount)} {item.currency}
+                  </span>
+                  <span className={frequencyBadgeClass(item.frequency)}>
+                    {item.frequency}
                   </span>
                 </div>
               </div>
