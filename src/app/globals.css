@@ -278,8 +278,7 @@ body {
   font-size: 0.875rem;            /* text-sm */
   line-height: 1.5;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  /* Let the browser inherit the light/dark colour-scheme from html */
-  color-scheme: inherit;
+  color-scheme: light;
 }
 
 .input-base::placeholder {
