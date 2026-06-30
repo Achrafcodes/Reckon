@@ -72,7 +72,7 @@ export function LoginForm() {
 
       <p className="mt-7 text-sm text-ink-muted">
         No account?{' '}
-        <Link href="/register" className="font-medium text-forest hover:text-forest-hover transition-colors">
+        <Link href="/register" className="font-medium text-zinc-900 underline underline-offset-2 hover:text-zinc-600 transition-colors">
           Create one
         </Link>
       </p>
