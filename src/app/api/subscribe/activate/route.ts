@@ -13,27 +13,50 @@
  *   X-Webhook-Secret: <value of WEBHOOK_SECRET env var>
  */
 import { type NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
+import { z } from 'zod'
 import { connectDB } from '@/server/db/connect'
 import { User } from '@/server/db/models'
 import { env } from '@/lib/env'
 
+const activateBodySchema = z.object({
+  email: z.string().email().optional(),
+  userId: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid userId').optional(),
+  paymentRef: z.string().max(256).optional(),
+  plan: z.enum(['pro_monthly', 'pro_annual']).default('pro_monthly'),
+}).refine((d) => d.email || d.userId, { message: 'email or userId required' })
+
+function timingSafeStringEqual(a: string, b: string): boolean {
+  try {
+    const bufA = Buffer.from(a)
+    const bufB = Buffer.from(b)
+    if (bufA.length !== bufB.length) return false
+    return timingSafeEqual(bufA, bufB)
+  } catch {
+    return false
+  }
+}
+
 export async function POST(req: NextRequest) {
   // ── Authenticate the webhook call ───────────────────────────────────────
   const secret = req.headers.get('x-webhook-secret')
-  if (!secret || !env.WEBHOOK_SECRET || secret !== env.WEBHOOK_SECRET) {
+  if (!secret || !env.WEBHOOK_SECRET || !timingSafeStringEqual(secret, env.WEBHOOK_SECRET)) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
   }
 
-  let body: { email?: string; userId?: string; paymentRef?: string; plan?: string }
+  let rawBody: unknown
   try {
-    body = await req.json() as typeof body
+    rawBody = await req.json()
   } catch {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 })
   }
 
-  if (!body.email && !body.userId) {
-    return NextResponse.json({ ok: false, error: 'email or userId required' }, { status: 400 })
+  const parsed = activateBodySchema.safeParse(rawBody)
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid request' }, { status: 400 })
   }
+
+  const body = parsed.data
 
   await connectDB()
 
@@ -49,7 +72,7 @@ export async function POST(req: NextRequest) {
         'subscription.status': 'active',
         'subscription.activatedAt': now,
         'subscription.expiresAt': expiresAt,
-        'subscription.plan': body.plan ?? 'pro_monthly',
+        'subscription.plan': body.plan,
         'subscription.paymentRef': body.paymentRef ?? '',
       },
     },

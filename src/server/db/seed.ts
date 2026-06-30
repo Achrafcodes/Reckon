@@ -20,6 +20,11 @@ const SYSTEM_CATEGORIES = [
 ] as const
 
 async function seed() {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[seed] Refusing to run in production. Set NODE_ENV=development to proceed.')
+    process.exit(1)
+  }
+
   await connectDB()
   console.log('🌱 Seeding system categories...')
 

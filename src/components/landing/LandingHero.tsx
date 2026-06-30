@@ -36,9 +36,9 @@ export function LandingHero() {
           Personal finance · Morocco
         </motion.p>
 
-        {/* Headline — big, plain, no tricks */}
+        {/* Headline */}
         <motion.h1
-          className="text-[clamp(2.8rem,7vw,5.5rem)] font-bold leading-[0.95] tracking-[-0.03em] max-w-4xl"
+          className="font-display text-[clamp(2.8rem,7vw,5.5rem)] font-normal leading-[1.0] tracking-[-0.01em] max-w-4xl"
           initial={reduce ? undefined : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.05, ease }}

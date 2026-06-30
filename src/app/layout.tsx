@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Geist_Mono, DM_Serif_Display } from 'next/font/google'
+import { Inter, JetBrains_Mono, Calistoga } from 'next/font/google'
 import { ThemeProvider } from '@/components/ui/ThemeProvider'
 import './globals.css'
 
@@ -9,18 +9,18 @@ const inter = Inter({
   display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-mono',
   subsets: ['latin'],
   display: 'swap',
+  weight: ['400', '500'],
 })
 
-const dmSerifDisplay = DM_Serif_Display({
-  weight: '400',
-  style: 'italic',
+const calistoga = Calistoga({
+  variable: '--font-display',
   subsets: ['latin'],
-  variable: '--font-dm-serif',
   display: 'swap',
+  weight: '400',
 })
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://reckon.app'
@@ -99,7 +99,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${geistMono.variable} ${dmSerifDisplay.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${calistoga.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />

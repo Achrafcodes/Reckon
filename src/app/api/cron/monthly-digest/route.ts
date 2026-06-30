@@ -3,6 +3,7 @@ import { connectDB } from '@/server/db/connect'
 import { User } from '@/server/db/models'
 import { getSummary, getSpendByCategory } from '@/server/services/analytics.service'
 import { sendMonthlyDigest } from '@/server/services/email.service'
+import { env } from '@/lib/env'
 
 /* Vercel Cron — runs on the 1st of every month at 08:00 UTC
  * Add to vercel.json:
@@ -11,7 +12,7 @@ import { sendMonthlyDigest } from '@/server/services/email.service'
  */
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!env.CRON_SECRET || authHeader !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -55,11 +56,11 @@ export async function GET(req: Request) {
       if (result.ok) sent++
       else {
         failed++
-        console.error(`[cron:digest] Failed for ${user.email}:`, result.error)
+        console.error('[cron:digest] Email send failed for user id:', userId, result.error)
       }
     } catch (err) {
       failed++
-      console.error(`[cron:digest] Error for ${user.email}:`, err)
+      console.error('[cron:digest] Unexpected error for user id:', userId, err)
     }
   }
 

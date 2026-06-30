@@ -3,28 +3,46 @@ import { jwtVerify } from 'jose'
 
 const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/demo'])
 const PUBLIC_PREFIXES = ['/login', '/register', '/demo']
-// Routes accessible while logged-in but unsubscribed
 const SUBSCRIBE_EXACT = new Set(['/subscribe'])
 const SUBSCRIBE_PREFIXES = ['/subscribe']
 
+const AUTH_COOKIES = ['access_token', 'refresh_token']
+
 function getSecret() {
-  return new TextEncoder().encode(process.env.JWT_SECRET ?? '')
+  const secret = process.env.JWT_SECRET
+  if (!secret) throw new Error('JWT_SECRET environment variable is not set')
+  return new TextEncoder().encode(secret)
 }
 
-async function getSubscriptionStatus(token: string): Promise<'pending' | 'active' | 'cancelled' | null> {
+interface TokenPayload {
+  subscriptionStatus?: 'pending' | 'active' | 'cancelled'
+}
+
+/** Returns payload if token is cryptographically valid, null otherwise. */
+async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret())
-    return (payload.subscriptionStatus as 'pending' | 'active' | 'cancelled') ?? 'pending'
+    return payload as TokenPayload
   } catch {
     return null
   }
 }
 
+/** Redirect to login and clear any stale auth cookies to break redirect loops. */
+function redirectToLogin(request: NextRequest, pathname: string): NextResponse {
+  const loginUrl = new URL('/login', request.url)
+  if (pathname.startsWith('/') && !pathname.startsWith('//')) {
+    loginUrl.searchParams.set('callbackUrl', pathname)
+  }
+  const res = NextResponse.redirect(loginUrl)
+  for (const name of AUTH_COOKIES) {
+    res.cookies.delete(name)
+  }
+  return res
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const accessToken = request.cookies.get('access_token')?.value
-  const hasRefreshToken = request.cookies.has('refresh_token')
-  const isAuthenticated = !!accessToken || hasRefreshToken
 
   const isPublicPath =
     PUBLIC_EXACT.has(pathname) ||
@@ -34,21 +52,25 @@ export async function proxy(request: NextRequest) {
     SUBSCRIBE_EXACT.has(pathname) ||
     SUBSCRIBE_PREFIXES.some((p) => pathname.startsWith(p + '/'))
 
-  // Not logged in → send to login (unless public)
+  const accessToken = request.cookies.get('access_token')?.value
+
+  // Verify the access token — don't just check presence
+  const payload = accessToken ? await verifyToken(accessToken) : null
+  const isAuthenticated = payload !== null
+
+  // Not logged in → clear stale cookies and send to login
   if (!isAuthenticated && !isPublicPath) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
+    return redirectToLogin(request, pathname)
   }
 
-  // Logged-in users hitting public auth pages → send to dashboard or subscribe
+  // Logged-in users hitting auth pages → send to dashboard
   if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Check subscription for protected routes (not public, not /subscribe itself)
+  // Check subscription for protected routes
   if (isAuthenticated && !isPublicPath && !isSubscribePath) {
-    const status = accessToken ? await getSubscriptionStatus(accessToken) : 'pending'
+    const status = payload?.subscriptionStatus ?? 'pending'
     if (status !== 'active') {
       return NextResponse.redirect(new URL('/subscribe', request.url))
     }

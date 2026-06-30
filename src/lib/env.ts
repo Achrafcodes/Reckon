@@ -12,6 +12,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM_EMAIL: z.email().default('noreply@reckon.app'),
   WEBHOOK_SECRET: z.string().min(16).optional(),
+  CRON_SECRET: z.string().min(16).optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)

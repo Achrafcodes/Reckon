@@ -76,7 +76,7 @@ export async function setAuthCookies(
   cookieStore.set(ACCESS_COOKIE, accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: 60 * 15, // 15 min
   })
@@ -84,7 +84,7 @@ export async function setAuthCookies(
   cookieStore.set(REFRESH_COOKIE, refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: 'strict',
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7 days
   })

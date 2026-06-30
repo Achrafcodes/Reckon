@@ -52,9 +52,11 @@ export async function listTransactions(
     if (input.to) filter.date.$lte = new Date(input.to)
   }
   if (input.search) {
+    // Escape regex metacharacters to prevent ReDoS / injection via $regex
+    const safeSearch = input.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     filter.$or = [
-      { description: { $regex: input.search, $options: 'i' } },
-      { merchant: { $regex: input.search, $options: 'i' } },
+      { description: { $regex: safeSearch, $options: 'i' } },
+      { merchant: { $regex: safeSearch, $options: 'i' } },
     ]
   }
 

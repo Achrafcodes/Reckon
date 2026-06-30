@@ -15,7 +15,7 @@ export function LandingCta() {
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-white leading-[1.05] tracking-tight">
+          <h2 className="font-display text-4xl sm:text-5xl font-normal text-white leading-[1.1]">
             Ready to see where your money goes?
           </h2>
           <p className="mt-5 text-base text-zinc-400 leading-relaxed">

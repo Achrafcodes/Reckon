@@ -88,7 +88,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <p className="text-xs font-medium tracking-widest uppercase text-zinc-600 mb-5">
               Financial clarity
             </p>
-            <h2 className="text-[2rem] font-bold leading-[1.1] tracking-[-0.03em] text-white">
+            <h2 className="font-display text-[2.2rem] font-normal leading-[1.15] text-white">
               Know where your<br />
               <span className="text-zinc-500">money actually goes.</span>
             </h2>

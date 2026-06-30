@@ -127,7 +127,7 @@ export function LandingFeatures() {
           <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
             Features
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 leading-tight tracking-tight">
+          <h2 className="font-display text-3xl sm:text-4xl font-normal text-zinc-900 leading-tight">
             Everything you need.<br />Nothing you don't.
           </h2>
         </div>
