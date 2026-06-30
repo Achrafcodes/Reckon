@@ -52,9 +52,8 @@ export default function OpengraphImage() {
 
           {/* Main headline */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', fontSize: 72, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>
               <span style={{ color: '#fff' }}>Your money,</span>
-              <br />
               <span style={{
                 background: 'linear-gradient(135deg,#60a5fa,#34d399)',
                 WebkitBackgroundClip: 'text',

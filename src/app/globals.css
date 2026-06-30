@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* ─── Landing page animations ────────────────────────────────────────────── */
+@keyframes landing-gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes landing-border-glow {
+  0%, 100% { box-shadow: 0 20px 60px -10px rgba(30,64,175,0.18), 0 4px 16px -4px rgba(0,0,0,0.06), 0 0 0 0 rgba(30,64,175,0.0); }
+  50%       { box-shadow: 0 20px 60px -10px rgba(30,64,175,0.28), 0 4px 16px -4px rgba(0,0,0,0.08), 0 0 28px 2px rgba(30,64,175,0.12); }
+}
+
 /* ─── Class-based dark mode (Tailwind v4) ────────────────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
 
