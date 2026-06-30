@@ -5,27 +5,27 @@ import { useState } from 'react'
 const FAQ = [
   {
     q: 'What file formats does Reckon support?',
-    a: 'Reckon imports CSV, Excel (XLSX/XLS), and text-based PDF bank statements. It also accepts budget summary spreadsheets with categories as columns.',
+    a: 'CSV, Excel (XLSX/XLS), and text-based PDF exports from any bank. Reckon also accepts budget summary spreadsheets with categories as columns.',
   },
   {
     q: 'Is my financial data private?',
-    a: 'Yes. Your data is stored in your private account and never shared or sold. All connections use HTTPS, passwords are bcrypt-hashed, and sessions use signed JWT cookies.',
+    a: 'Yes — your data is stored in your private account and never shared or sold. All connections use HTTPS, passwords are bcrypt-hashed, and sessions use signed JWT cookies.',
   },
   {
     q: 'How does auto-categorization work?',
-    a: 'Reckon matches transaction descriptions against keyword rules for each category (groceries, transport, dining, etc.) and assigns the best match automatically. You can edit categories at any time.',
+    a: 'Reckon matches transaction descriptions against keyword rules for each category (groceries, transport, dining, etc.) and assigns the best match. You can edit or reassign any category at any time.',
   },
   {
     q: 'Can I cancel my subscription?',
-    a: 'Yes, you can cancel any time. Your data remains accessible until the end of your billing period.',
+    a: 'Yes. Cancel any time from your account settings. Your data remains accessible until the end of your billing period.',
   },
   {
     q: 'What currencies are supported?',
-    a: 'Reckon supports MAD, USD, EUR, GBP, AED, SAR, CAD, CHF, and more. Each transaction stores its original currency.',
+    a: 'MAD, USD, EUR, GBP, AED, SAR, CAD, CHF, and more. Each transaction stores its original currency.',
   },
   {
     q: 'Does Reckon work on mobile?',
-    a: 'Yes. Reckon is a responsive web app optimised for mobile and can be installed as a PWA (add to home screen) on iOS and Android.',
+    a: 'Yes — Reckon is a responsive web app that works on any device and can be installed as a PWA from the browser on iOS and Android.',
   },
 ]
 
@@ -34,77 +34,75 @@ export function LandingFaq() {
   const reduce = useReducedMotion()
 
   return (
-    <section className="py-16 sm:py-20 bg-white border-t border-slate-200">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <motion.div
-          className="text-center mb-12"
-          initial={reduce ? undefined : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
-        >
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Frequently asked questions
-          </h2>
-          <p className="mt-3 text-sm text-slate-500">
-            Everything you need to know before you subscribe.
-          </p>
-        </motion.div>
+    <section className="py-20 sm:py-28 bg-white border-t border-zinc-100">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 lg:gap-20 items-start">
+          {/* Left */}
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
+              FAQ
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 leading-tight tracking-tight">
+              Questions.
+            </h2>
+          </div>
 
-        <dl className="divide-y divide-slate-200">
-          {FAQ.map(({ q, a }, i) => {
-            const isOpen = open === q
-            return (
-              <motion.div
-                key={q}
-                initial={reduce ? undefined : { opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ delay: i * 0.05, duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
-              >
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-between gap-4 py-5 text-left"
-                  onClick={() => setOpen(isOpen ? null : q)}
-                  aria-expanded={isOpen}
+          {/* Right: accordion */}
+          <dl className="divide-y divide-zinc-100">
+            {FAQ.map(({ q, a }, i) => {
+              const isOpen = open === q
+              return (
+                <motion.div
+                  key={q}
+                  initial={reduce ? undefined : { opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05, duration: 0.4 }}
                 >
-                  <dt className={`text-sm font-semibold transition-colors duration-150 ${isOpen ? 'text-[#1e40af]' : 'text-slate-900'}`}>
-                    {q}
-                  </dt>
-                  <motion.svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="shrink-0 text-slate-400"
-                    animate={reduce ? {} : { rotate: isOpen ? 180 : 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    aria-hidden="true"
+                  <button
+                    type="button"
+                    className="w-full flex items-start justify-between gap-6 py-5 text-left group"
+                    onClick={() => setOpen(isOpen ? null : q)}
+                    aria-expanded={isOpen}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                  </motion.svg>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.dd
-                      key="content"
-                      initial={reduce ? {} : { height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={reduce ? {} : { height: 0, opacity: 0 }}
-                      transition={{ duration: 0.28, ease: 'easeInOut' }}
-                      className="overflow-hidden"
+                    <dt className="text-sm font-medium text-zinc-800 group-hover:text-zinc-900 transition-colors">
+                      {q}
+                    </dt>
+                    <motion.svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      className="shrink-0 text-zinc-300 mt-0.5"
+                      animate={reduce ? {} : { rotate: isOpen ? 45 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      aria-hidden="true"
                     >
-                      <p className="pb-5 text-sm text-slate-500 leading-relaxed pr-8">{a}</p>
-                    </motion.dd>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )
-          })}
-        </dl>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </motion.svg>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.dd
+                        key="body"
+                        initial={reduce ? {} : { height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={reduce ? {} : { height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-5 text-sm text-zinc-500 leading-relaxed max-w-xl">{a}</p>
+                      </motion.dd>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )
+            })}
+          </dl>
+        </div>
       </div>
     </section>
   )

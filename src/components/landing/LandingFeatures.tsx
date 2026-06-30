@@ -1,110 +1,166 @@
 'use client'
-import { motion, useInView, useReducedMotion } from 'motion/react'
-import { useRef } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 
-const features = [
+const FEATURES = [
   {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-      </svg>
+    num: '01',
+    title: 'Import any bank statement.',
+    body: 'CSV, Excel, or PDF — drag and drop your export from any Moroccan bank. Reckon parses it in under five seconds, deduplicates transactions, and assigns each one a category automatically.',
+    detail: 'Supported: Attijariwafa, CIH, BMCE, BMCI, Banque Populaire, and any CSV/Excel export.',
+    visual: (
+      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2">
+        {[
+          { name: '01_dec_statement.pdf', size: '248 KB', status: 'Parsed', count: '143 transactions' },
+          { name: 'nov_export.xlsx',      size: '92 KB',  status: 'Parsed', count: '118 transactions' },
+        ].map((f) => (
+          <div key={f.name} className="flex items-center gap-3 p-3 rounded-lg bg-zinc-50 border border-zinc-100">
+            <div className="w-7 h-7 rounded-md bg-[#1e40af]/8 flex items-center justify-center shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth={1.5} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-zinc-800 truncate">{f.name}</p>
+              <p className="text-[10px] text-zinc-400">{f.count} · {f.size}</p>
+            </div>
+            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+              {f.status}
+            </span>
+          </div>
+        ))}
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-zinc-200 text-zinc-400">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+          <span className="text-[11px]">Drop a file to import</span>
+        </div>
+      </div>
     ),
-    title: 'Instant import',
-    body: 'Drag and drop your bank statement — CSV, XLSX, XLS, or PDF — and transactions are parsed, deduplicated, and auto-categorized in seconds.',
   },
   {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 20l4-8 4 4 4-6 4 4" />
-      </svg>
+    num: '02',
+    title: 'Budgets that actually warn you.',
+    body: 'Set a monthly limit per category. Reckon computes actuals from your real transactions and alerts you before you overspend — not after.',
+    detail: 'Budget pace, overspend projection, and spending insights are generated automatically every time you import.',
+    visual: (
+      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">December budgets</p>
+        {[
+          { cat: 'Groceries',  spent: 1240, limit: 1500, pct: 83, warn: false },
+          { cat: 'Dining',     spent: 780,  limit: 600,  pct: 100, warn: true },
+          { cat: 'Transport',  spent: 340,  limit: 800,  pct: 43, warn: false },
+          { cat: 'Shopping',   spent: 420,  limit: 500,  pct: 84, warn: false },
+        ].map((b) => (
+          <div key={b.cat} className="space-y-1.5">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-medium text-zinc-700">{b.cat}</span>
+              <span className={`text-[10px] font-semibold tabular-nums ${b.warn ? 'text-red-500' : 'text-zinc-500'}`}>
+                {b.spent} / {b.limit} MAD{b.warn ? ' · Over limit' : ''}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(b.pct, 100)}%`,
+                  background: b.warn ? '#ef4444' : b.pct > 75 ? '#f59e0b' : '#1e40af',
+                }}
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
     ),
-    title: 'Live analytics',
-    body: 'Spending by category, income vs. expenses, monthly trends. Drill into any time window — this month, quarter, year, or all time.',
   },
   {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      </svg>
+    num: '03',
+    title: 'Reports in one click.',
+    body: 'Export a clean PDF or Excel summary for any time range. Useful for accountants, tax prep, or just keeping a record of your year.',
+    detail: 'Exports include totals by category, a full transaction list, and your monthly savings rate.',
+    visual: (
+      <div className="rounded-xl border border-zinc-200 bg-white p-5">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Export report</p>
+        </div>
+        <div className="space-y-2">
+          {[
+            { label: 'Date range', value: 'Jan – Dec 2024' },
+            { label: 'Transactions', value: '1,284' },
+            { label: 'Total spent', value: '52,840 MAD' },
+            { label: 'Total income', value: '90,000 MAD' },
+            { label: 'Saved', value: '37,160 MAD (41%)' },
+          ].map((row) => (
+            <div key={row.label} className="flex justify-between py-1.5 border-b border-zinc-50 last:border-0">
+              <span className="text-[10px] text-zinc-400">{row.label}</span>
+              <span className="text-[10px] font-medium text-zinc-700">{row.value}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2 mt-4">
+          <div className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md bg-zinc-900 text-white text-[10px] font-medium">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            PDF
+          </div>
+          <div className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md bg-zinc-100 text-zinc-700 text-[10px] font-medium">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Excel
+          </div>
+        </div>
+      </div>
     ),
-    title: 'Smart budgets',
-    body: 'Set monthly limits per category. Reckon tracks actuals in real time and alerts you before you overspend — so you stay on plan.',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-      </svg>
-    ),
-    title: 'Spending insights',
-    body: 'Automatic month-over-month comparisons, budget pace warnings, and savings rate — no manual analysis needed.',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l5 5v13a2 2 0 0 1-2 2Z" />
-      </svg>
-    ),
-    title: 'Export reports',
-    body: 'One-click PDF and Excel reports. Share a clean monthly summary with your accountant or save it for your records.',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-      </svg>
-    ),
-    title: 'Private & secure',
-    body: 'Your data stays yours. bcrypt-hashed passwords, httpOnly cookies, signed JWT sessions. No third-party tracking on your transactions.',
   },
 ]
 
 export function LandingFeatures() {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
   const reduce = useReducedMotion()
 
   return (
-    <section className="py-16 sm:py-20 bg-[#f1f5f9]">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <motion.div
-          className="text-center mb-12"
-          initial={reduce ? undefined : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
-        >
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Everything you need, nothing you don&apos;t
-          </h2>
-          <p className="mt-3 text-sm text-slate-500 max-w-xl mx-auto">
-            Built for people who want clear answers about their money — without the complexity.
+    <section className="py-20 sm:py-28 bg-[#fafafa] border-t border-zinc-100">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8">
+        {/* Section header */}
+        <div className="mb-16 sm:mb-20 max-w-xl">
+          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
+            Features
           </p>
-        </motion.div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 leading-tight tracking-tight">
+            Everything you need.<br />Nothing you don't.
+          </h2>
+        </div>
 
-        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f, i) => (
+        {/* Feature rows */}
+        <div className="space-y-20 sm:space-y-28">
+          {FEATURES.map((f, i) => (
             <motion.div
-              key={f.title}
-              className="rounded-xl bg-white border border-slate-200 p-5 cursor-default"
-              initial={reduce ? undefined : { opacity: 0, y: 28 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.07, duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-              whileHover={reduce ? {} : {
-                y: -5,
-                borderColor: 'rgba(147,197,253,0.7)',
-                boxShadow: '0 12px 32px -6px rgba(30,64,175,0.14)',
-              }}
+              key={f.num}
+              className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}
+              initial={reduce ? undefined : { opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
             >
-              <motion.div
-                className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-[#1e40af] mb-4"
-                whileHover={reduce ? {} : { scale: 1.14, rotate: 8 }}
-                transition={{ type: 'spring', stiffness: 360, damping: 14 }}
-              >
-                {f.icon}
-              </motion.div>
-              <h3 className="text-sm font-semibold text-slate-900 mb-1.5">{f.title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{f.body}</p>
+              {/* Text */}
+              <div>
+                <span className="text-5xl font-bold text-zinc-100 tabular-nums select-none" aria-hidden="true">
+                  {f.num}
+                </span>
+                <h3 className="mt-3 text-2xl sm:text-3xl font-bold text-zinc-900 leading-snug tracking-tight">
+                  {f.title}
+                </h3>
+                <p className="mt-4 text-base text-zinc-500 leading-relaxed">
+                  {f.body}
+                </p>
+                <p className="mt-3 text-sm text-zinc-400 leading-relaxed">
+                  {f.detail}
+                </p>
+              </div>
+
+              {/* Visual */}
+              <div>{f.visual}</div>
             </motion.div>
           ))}
         </div>

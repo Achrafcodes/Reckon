@@ -2,135 +2,108 @@
 import { motion, useReducedMotion } from 'motion/react'
 import Link from 'next/link'
 
-const STATS = [
-  { value: '< 5s',      label: 'to parse a statement' },
-  { value: '100%',      label: 'private — no tracking' },
-  { value: 'PDF + XLS', label: 'export formats' },
-]
-
-const ease = [0.21, 0.47, 0.32, 0.98] as const
+const ease = [0.16, 1, 0.3, 1] as const
 
 export function LandingHero() {
   const reduce = useReducedMotion()
 
-  function fadeUp(delay = 0) {
-    if (reduce) return {}
-    return {
-      initial: { opacity: 0, y: 28 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.65, delay, ease },
-    }
-  }
-
   return (
-    <section className="relative overflow-hidden bg-[#0f172a] text-white">
-      {/* Subtle grid */}
+    <section className="relative bg-[#0a0a0a] text-white overflow-hidden">
+      {/* Dot grid — very subtle */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0"
         style={{
-          backgroundImage:
-            'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
         }}
       />
-
-      {/* Pulsing blue orb */}
-      <motion.div
+      {/* Bottom fade to white */}
+      <div
         aria-hidden="true"
-        className="absolute -top-40 left-1/2 -translate-x-1/2 w-[780px] h-[560px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse, rgba(30,64,175,0.38) 0%, transparent 68%)' }}
-        animate={reduce ? {} : { scale: [1, 1.07, 1], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, transparent, #0a0a0a 60%, #fff 100%)' }}
       />
 
-      {/* Drifting teal accent */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute top-24 -right-48 w-[420px] h-[420px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse, rgba(52,211,153,0.1) 0%, transparent 70%)' }}
-        animate={reduce ? {} : { x: [0, 18, 0], y: [0, -22, 0] }}
-        transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
-      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 py-20 sm:py-28 text-center">
-        {/* Badge */}
-        <motion.div {...fadeUp(0)}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-blue-300 mb-6">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" aria-hidden="true" />
-            Personal finance, finally simple
-          </span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1
-          {...fadeUp(0.1)}
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-8 pt-20 pb-32 sm:pt-28 sm:pb-40">
+        {/* Eyebrow */}
+        <motion.p
+          className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-500 mb-10"
+          initial={reduce ? undefined : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease }}
         >
-          Your money,{' '}
-          <span
-            className="bg-clip-text text-transparent"
-            style={{
-              backgroundImage: 'linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #60a5fa 100%)',
-              backgroundSize: '200% auto',
-              animation: reduce ? 'none' : 'landing-gradient-x 5s ease infinite',
-            }}
-          >
-            finally clear.
-          </span>
+          Personal finance · Morocco
+        </motion.p>
+
+        {/* Headline — big, plain, no tricks */}
+        <motion.h1
+          className="text-[clamp(2.8rem,7vw,5.5rem)] font-bold leading-[0.95] tracking-[-0.03em] max-w-4xl"
+          initial={reduce ? undefined : { opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.05, ease }}
+        >
+          <span className="text-white">Know where</span>
+          <br />
+          <span className="text-white">every dirham</span>
+          <br />
+          <span className="text-zinc-500">actually goes.</span>
         </motion.h1>
 
-        {/* Sub-headline */}
+        {/* Sub */}
         <motion.p
-          {...fadeUp(0.2)}
-          className="mt-5 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed"
+          className="mt-8 text-base sm:text-lg text-zinc-400 max-w-md leading-relaxed"
+          initial={reduce ? undefined : { opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.18, ease }}
         >
-          Upload a bank statement and instantly see where your money goes. Budgets, category
-          analytics, and recurring detection — no spreadsheet acrobatics required.
+          Upload your bank statement. Reckon categorises spending, tracks budgets,
+          and surfaces insights — automatically.
         </motion.p>
 
         {/* CTAs */}
         <motion.div
-          {...fadeUp(0.3)}
-          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
+          className="mt-10 flex items-center gap-4 flex-wrap"
+          initial={reduce ? undefined : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.28, ease }}
         >
           <Link
             href="/#pricing"
-            className="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-white bg-[#1e40af] hover:bg-[#1d4ed8] rounded-xl transition-all duration-200 shadow-lg shadow-blue-900/40 hover:shadow-blue-800/60 hover:-translate-y-0.5 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-zinc-900 text-sm font-semibold hover:bg-zinc-100 transition-colors"
           >
-            See pricing →
+            See pricing
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
           </Link>
           <Link
             href="/demo"
-            className="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-slate-300 border border-white/15 hover:border-white/35 hover:text-white rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+            className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
           >
-            Try live demo
+            Try live demo →
           </Link>
         </motion.div>
 
-        {/* Stats */}
-        <div className="mt-14 grid grid-cols-3 gap-6 border-t border-white/10 pt-10">
-          {STATS.map((s, i) => (
-            <motion.div
-              key={s.label}
-              className="flex flex-col items-center gap-1"
-              initial={reduce ? undefined : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 + i * 0.09, duration: 0.5, ease }}
-            >
-              <span className="text-xl sm:text-2xl font-bold text-white tabular-nums">{s.value}</span>
-              <span className="text-xs text-slate-400">{s.label}</span>
-            </motion.div>
+        {/* Stats strip */}
+        <motion.div
+          className="mt-16 flex flex-wrap gap-x-8 gap-y-4"
+          initial={reduce ? undefined : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.42, ease }}
+        >
+          {[
+            { value: '< 5 s',     label: 'to parse a statement' },
+            { value: '100 %',     label: 'private — no tracking' },
+            { value: 'PDF + XLS', label: 'export formats' },
+          ].map((s) => (
+            <div key={s.label} className="flex items-baseline gap-2">
+              <span className="text-sm font-semibold text-white tabular-nums">{s.value}</span>
+              <span className="text-xs text-zinc-600">{s.label}</span>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
-
-      {/* Soft blend into next section */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-0 inset-x-0 h-20 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.06))' }}
-      />
     </section>
   )
 }
