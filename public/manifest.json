@@ -1,0 +1,20 @@
+{
+  "name": "Reckon — Financial Analytics",
+  "short_name": "Reckon",
+  "description": "Track expenses, set budgets, and gain clear financial insights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity"],
+  "lang": "en"
+}

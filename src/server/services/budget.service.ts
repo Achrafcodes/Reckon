@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { connectDB } from '@/server/db/connect'
 import { Budget, Transaction } from '@/server/db/models'
 import { toDecimal128, fromDecimal128 } from '@/lib/money'
+import { createNotification } from '@/server/services/notification.service'
 import type { CreateBudgetInput, UpdateBudgetInput } from '@/schemas/budget'
 
 export interface BudgetWithActual {
@@ -56,12 +57,13 @@ export async function listBudgets(
 
   const actualMap = new Map(actuals.map((a) => [String(a._id), a.total]))
 
-  return budgets
+  const results = budgets
     .filter((b) => b.category != null)
     .map((b) => {
       const cat = b.category as unknown as { _id: mongoose.Types.ObjectId; name: string; color: string; icon: string }
       const limit = fromDecimal128(b.limit as mongoose.Types.Decimal128)
       const actual = actualMap.get(String(cat._id)) ?? 0
+      const pct = limit > 0 ? actual / limit : 0
       return {
         _id: String(b._id),
         category: { _id: String(cat._id), name: cat.name, color: cat.color, icon: cat.icon },
@@ -70,9 +72,30 @@ export async function listBudgets(
         actual,
         currency: b.currency,
         alertThreshold: b.alertThreshold,
-        pct: limit > 0 ? actual / limit : 0,
+        pct,
       }
     })
+
+  // Fire budget alert notifications (non-blocking, fire-and-forget)
+  for (const budget of results) {
+    if (budget.pct >= 1.0) {
+      createNotification(userId, {
+        kind: 'budget_alert',
+        title: `Budget exceeded: ${budget.category.name}`,
+        body: `You've spent ${(budget.pct * 100).toFixed(0)}% of your ${budget.month} budget for ${budget.category.name}.`,
+        meta: { budgetId: budget._id, pct: budget.pct },
+      }).catch(() => undefined)
+    } else if (budget.pct >= budget.alertThreshold / 100) {
+      createNotification(userId, {
+        kind: 'budget_alert',
+        title: `${budget.category.name} budget at ${(budget.pct * 100).toFixed(0)}%`,
+        body: `You've used ${(budget.pct * 100).toFixed(0)}% of your ${budget.currency} ${budget.limit.toLocaleString()} limit.`,
+        meta: { budgetId: budget._id, pct: budget.pct },
+      }).catch(() => undefined)
+    }
+  }
+
+  return results
 }
 
 export async function createBudget(

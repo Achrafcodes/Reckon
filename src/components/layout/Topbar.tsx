@@ -2,6 +2,7 @@
 import { useTransition, useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { logoutAction } from '@/server/actions/auth'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import type { SafeUser } from '@/types'
 
 const PAGE_LABELS: Record<string, string> = {
@@ -34,9 +35,10 @@ function UserAvatar({ name }: { name: string }) {
 interface TopbarProps {
   user: SafeUser
   onMenuClick?: () => void
+  children?: React.ReactNode
 }
 
-export function Topbar({ user, onMenuClick }: TopbarProps) {
+export function Topbar({ user, onMenuClick, children }: TopbarProps) {
   const pathname = usePathname()
   const [pending, startTransition] = useTransition()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -81,6 +83,12 @@ export function Topbar({ user, onMenuClick }: TopbarProps) {
       <h1 className="flex-1 text-sm font-semibold text-ink truncate">
         {pageLabel}
       </h1>
+
+      {/* Right-side controls */}
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        {children}
+      </div>
 
       {/* User menu */}
       <div className="relative" ref={menuRef}>

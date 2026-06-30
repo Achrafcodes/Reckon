@@ -1,11 +1,14 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { getCurrentUser } from '@/server/auth/session'
 import { getSummary, getSpendByCategory } from '@/server/services/analytics.service'
+import { detectRecurring } from '@/server/services/recurring.service'
 import { listTransactions } from '@/server/services/transaction.service'
 import { listTransactionsSchema } from '@/schemas/transaction'
 import { Greeting } from '@/components/dashboard/Greeting'
 import { KPICard } from '@/components/dashboard/KPICard'
 import { ImportPrompt } from '@/components/dashboard/ImportPrompt'
+import { DateRangeFilter } from '@/components/dashboard/DateRangeFilter'
 
 export const metadata = { title: 'Dashboard — Reckon' }
 
@@ -13,20 +16,56 @@ function fmt(n: number) {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-export default async function DashboardPage() {
+type Range = 'month' | 'quarter' | 'year' | 'all'
+
+function parseDateWindow(range: Range): { from: Date; to: Date } {
+  const now = new Date()
+  if (range === 'month') {
+    const from = new Date(now.getFullYear(), now.getMonth(), 1)
+    return { from, to: now }
+  }
+  if (range === 'quarter') {
+    const from = new Date(now)
+    from.setMonth(from.getMonth() - 3)
+    return { from, to: now }
+  }
+  if (range === 'year') {
+    const from = new Date(now.getFullYear(), 0, 1)
+    return { from, to: now }
+  }
+  // 'all'
+  return { from: new Date('2000-01-01'), to: new Date('2099-12-31') }
+}
+
+function frequencyBadgeClass(frequency: 'monthly' | 'weekly' | 'irregular'): string {
+  if (frequency === 'monthly') return 'badge badge-green'
+  if (frequency === 'weekly') return 'badge badge-blue'
+  return 'badge badge-slate'
+}
+
+interface PageProps {
+  searchParams: Promise<Record<string, string>>
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
   const user = await getCurrentUser()
   if (!user) return null
 
   const userId = String(user._id)
+  const params = await searchParams
+  const rawRange = params['range']
+  const range: Range =
+    rawRange === 'month' || rawRange === 'quarter' || rawRange === 'year'
+      ? rawRange
+      : 'all'
 
-  // All-time window
-  const from = new Date('2000-01-01')
-  const to = new Date('2099-12-31')
+  const { from, to } = parseDateWindow(range)
 
-  const [summary, categorySpend, recent] = await Promise.all([
+  const [summary, categorySpend, recent, recurringItems] = await Promise.all([
     getSummary(userId, from, to),
     getSpendByCategory(userId, from, to),
     listTransactions(userId, listTransactionsSchema.parse({ limit: '8', sort: 'date_desc' })),
+    detectRecurring(userId),
   ])
 
   const hasData = summary.transactionCount > 0
@@ -81,6 +120,11 @@ export default async function DashboardPage() {
     <div className="max-w-5xl mx-auto space-y-8">
       <Greeting name={user.name} />
 
+      {/* Date range filter */}
+      <Suspense>
+        <DateRangeFilter current={range} />
+      </Suspense>
+
       {/* KPI grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
@@ -133,11 +177,13 @@ export default async function DashboardPage() {
           <div className="lg:col-span-2 card overflow-hidden animate-fade-up" style={{ animationDelay: '410ms' }}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-rule">
               <h2 className="text-sm font-semibold text-ink">Spending by category</h2>
-              <span className="text-xs text-ink-muted">All time</span>
+              <span className="text-xs text-ink-muted">
+                {range === 'month' ? 'This month' : range === 'quarter' ? 'Last 3 months' : range === 'year' ? 'This year' : 'All time'}
+              </span>
             </div>
             {topCategories.length === 0 ? (
               <div className="px-5 py-10 text-center">
-                <p className="text-xs text-ink-muted">No expense data this month.</p>
+                <p className="text-xs text-ink-muted">No expense data this period.</p>
               </div>
             ) : (
               <div className="px-5 py-4 space-y-4">
@@ -166,6 +212,42 @@ export default async function DashboardPage() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Recurring subscriptions widget */}
+      {recurringItems.length > 0 && (
+        <div className="card overflow-hidden animate-fade-up" style={{ animationDelay: '480ms' }}>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-rule">
+            <h2 className="text-sm font-semibold text-ink">Recurring subscriptions</h2>
+            <span className="text-xs text-ink-muted">Last 6 months</span>
+          </div>
+          <div className="divide-y divide-rule">
+            {recurringItems.slice(0, 5).map((item) => (
+              <div key={item.merchant} className="flex items-center gap-3 px-5 py-3">
+                {/* Category color dot */}
+                <div
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: item.categoryColor ?? '#64748b' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-ink truncate capitalize">{item.merchant}</p>
+                  <p className="text-xs text-ink-muted">
+                    {item.occurrences} occurrences
+                    {item.categoryName && <> · {item.categoryName}</>}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={frequencyBadgeClass(item.frequency)}>
+                    {item.frequency}
+                  </span>
+                  <span className="text-sm font-semibold tabular-nums text-danger">
+                    {fmt(item.amount)} {item.currency}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

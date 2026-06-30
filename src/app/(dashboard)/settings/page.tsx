@@ -2,6 +2,7 @@ import { getCurrentUser } from '@/server/auth/session'
 import { ProfileForm } from '@/components/settings/ProfileForm'
 import { PasswordForm } from '@/components/settings/PasswordForm'
 import { DangerZone } from '@/components/settings/DangerZone'
+import { ThemeForm } from '@/components/settings/ThemeForm'
 
 export const metadata = { title: 'Settings — Reckon' }
 
@@ -34,6 +35,10 @@ export default async function SettingsPage() {
           email={user.email}
           baseCurrency={user.settings?.baseCurrency ?? 'MAD'}
         />
+      </Section>
+
+      <Section title="Appearance" description="Choose how Reckon looks. Your preference is saved locally and applied instantly.">
+        <ThemeForm />
       </Section>
 
       <Section title="Password" description="Use a strong password of at least 8 characters.">

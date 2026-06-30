@@ -1,6 +1,7 @@
 import 'server-only'
 import { connectDB } from '@/server/db/connect'
 import { Category } from '@/server/db/models'
+import { env } from '@/lib/env'
 import type mongoose from 'mongoose'
 
 export interface Categorizer {
@@ -36,4 +37,20 @@ export class KeywordCategorizer implements Categorizer {
   }
 }
 
+// Backwards-compatible singleton (KeywordCategorizer)
 export const categorizer: Categorizer = new KeywordCategorizer()
+
+/**
+ * Factory that returns the best available categorizer at runtime.
+ * - AiCategorizer when ANTHROPIC_API_KEY is set (falls through to keyword on AI failure)
+ * - KeywordCategorizer otherwise
+ *
+ * Import lazily to avoid pulling the AI module into bundles that don't need it.
+ */
+export async function getCategorizer(): Promise<Categorizer> {
+  if (env.ANTHROPIC_API_KEY) {
+    const { AiCategorizer } = await import('./ai-categorizer')
+    return new AiCategorizer()
+  }
+  return categorizer
+}

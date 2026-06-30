@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/server/auth/session'
+import { getUnreadNotifications } from '@/server/services/notification.service'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import type { SafeUser } from '@/types'
 
@@ -20,5 +21,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     lastLoginAt: user.lastLoginAt?.toISOString(),
   }
 
-  return <DashboardShell user={safeUser}>{children}</DashboardShell>
+  const notifications = await getUnreadNotifications(String(user._id))
+
+  return (
+    <DashboardShell user={safeUser} notifications={notifications}>
+      {children}
+    </DashboardShell>
+  )
 }
