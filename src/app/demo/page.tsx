@@ -5,9 +5,18 @@ import { InsightsPanel } from '@/components/dashboard/InsightsPanel'
 import { ReckLogo } from '@/components/ui/ReckLogo'
 import type { Insight } from '@/server/services/insights.service'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://reckon.app'
+
 export const metadata: Metadata = {
-  title: 'Live Demo — Reckon',
-  description: 'See Reckon in action with sample data. No sign-up required.',
+  title: 'Live Demo — See Reckon in Action',
+  description: 'Try Reckon free with sample data — no sign-up required. See the dashboard, spending insights, budget tracking, and recurring detection live.',
+  alternates: { canonical: `${APP_URL}/demo` },
+  openGraph: {
+    title: 'Live Demo — Reckon Expense Tracker',
+    description: 'Interactive demo with sample financial data. See budgets, analytics, and insights before subscribing.',
+    url: `${APP_URL}/demo`,
+    type: 'website',
+  },
 }
 
 // ── Sample data ──────────────────────────────────────────────────────────────
@@ -166,7 +175,12 @@ export default function DemoPage() {
 
         {/* Greeting */}
         <div>
-          <h1 className="text-2xl font-semibold text-ink tracking-tight">Good afternoon, Alex 👋</h1>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="text-brand shrink-0" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            Good afternoon, Alex
+          </h1>
           <p className="mt-1 text-sm text-ink-muted">Here&apos;s your financial overview for June 2024.</p>
         </div>
 

@@ -43,7 +43,7 @@ function buildDigestHtml(data: EmailDigestData): string {
         <tr><td style="background:#0f172a;padding:32px;text-align:center">
           <p style="margin:0;color:#93c5fd;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Monthly Digest</p>
           <h1 style="margin:8px 0 0;color:#ffffff;font-size:24px;font-weight:700">${data.month}</h1>
-          <p style="margin:4px 0 0;color:#94a3b8;font-size:14px">Hi ${data.userName} 👋</p>
+          <p style="margin:4px 0 0;color:#94a3b8;font-size:14px">Hi ${data.userName}</p>
         </td></tr>
 
         <!-- KPI strip -->

@@ -10,6 +10,13 @@ export interface IUser extends Document {
     theme: 'light' | 'dark' | 'system'
     locale: string
   }
+  subscription: {
+    status: 'pending' | 'active' | 'cancelled'
+    activatedAt?: Date
+    expiresAt?: Date
+    plan?: string
+    paymentRef?: string
+  }
   refreshTokenHash?: string
   lastLoginAt?: Date
   createdAt: Date
@@ -25,6 +32,13 @@ const userSchema = new Schema<IUser>(
       baseCurrency: { type: String, default: 'MAD' },
       theme: { type: String, enum: ['light', 'dark', 'system'], default: 'system' },
       locale: { type: String, default: 'en' },
+    },
+    subscription: {
+      status: { type: String, enum: ['pending', 'active', 'cancelled'], default: 'pending' },
+      activatedAt: { type: Date },
+      expiresAt: { type: Date },
+      plan: { type: String },
+      paymentRef: { type: String },
     },
     refreshTokenHash: { type: String, select: false },
     lastLoginAt: { type: Date },

@@ -38,14 +38,15 @@ export async function registerAction(
   const user = await User.create({ name, email, passwordHash })
 
   const userId = String(user._id)
+  const subscriptionStatus = 'pending' as const
   const [accessToken, refreshToken] = await Promise.all([
-    signAccessToken({ userId, email }),
-    signRefreshToken({ userId, email }),
+    signAccessToken({ userId, email, subscriptionStatus }),
+    signRefreshToken({ userId, email, subscriptionStatus }),
   ])
 
   await setAuthCookies(accessToken, refreshToken)
 
-  return { ok: true, data: { redirectTo: '/dashboard' } }
+  return { ok: true, data: { redirectTo: '/subscribe' } }
 }
 
 export async function loginAction(
@@ -77,15 +78,17 @@ export async function loginAction(
   }
 
   const userId = String(user._id)
+  const subscriptionStatus = user.subscription?.status ?? 'pending'
   const [accessToken, refreshToken] = await Promise.all([
-    signAccessToken({ userId, email }),
-    signRefreshToken({ userId, email }),
+    signAccessToken({ userId, email, subscriptionStatus }),
+    signRefreshToken({ userId, email, subscriptionStatus }),
   ])
 
   await setAuthCookies(accessToken, refreshToken)
   await User.findByIdAndUpdate(userId, { lastLoginAt: new Date() })
 
-  return { ok: true, data: { redirectTo: '/dashboard' } }
+  const redirectTo = subscriptionStatus === 'active' ? '/dashboard' : '/subscribe'
+  return { ok: true, data: { redirectTo } }
 }
 
 export async function logoutAction(): Promise<void> {

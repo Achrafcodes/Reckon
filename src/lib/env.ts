@@ -10,13 +10,14 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   ANTHROPIC_API_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: z.string().email().default('noreply@reckon.app'),
+  RESEND_FROM_EMAIL: z.email().default('noreply@reckon.app'),
+  WEBHOOK_SECRET: z.string().min(16).optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)
 
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:')
+  console.error('[env] Invalid environment variables:')
   console.error(parsed.error.issues)
   throw new Error('Invalid environment variables — check your .env.local')
 }

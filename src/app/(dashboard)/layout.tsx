@@ -2,7 +2,12 @@ import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/server/auth/session'
 import { getUnreadNotifications } from '@/server/services/notification.service'
 import { DashboardShell } from '@/components/layout/DashboardShell'
+import type { Metadata } from 'next'
 import type { SafeUser } from '@/types'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()

@@ -14,6 +14,7 @@ const REFRESH_COOKIE = 'refresh_token'
 export interface SessionPayload {
   userId: string
   email: string
+  subscriptionStatus?: 'pending' | 'active' | 'cancelled'
 }
 
 // ── Token creation ──────────────────────────────────────────────────────────
@@ -36,10 +37,14 @@ export async function signRefreshToken(payload: SessionPayload): Promise<string>
 
 // ── Token verification ──────────────────────────────────────────────────────
 
-async function verifyAccessToken(token: string): Promise<SessionPayload | null> {
+export async function verifyAccessToken(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, ACCESS_SECRET)
-    return { userId: payload.userId as string, email: payload.email as string }
+    return {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      subscriptionStatus: payload.subscriptionStatus as SessionPayload['subscriptionStatus'],
+    }
   } catch {
     return null
   }
@@ -48,7 +53,11 @@ async function verifyAccessToken(token: string): Promise<SessionPayload | null> 
 async function verifyRefreshToken(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET)
-    return { userId: payload.userId as string, email: payload.email as string }
+    return {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      subscriptionStatus: payload.subscriptionStatus as SessionPayload['subscriptionStatus'],
+    }
   } catch {
     return null
   }

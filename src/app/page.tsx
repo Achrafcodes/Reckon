@@ -2,10 +2,109 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ReckLogo } from '@/components/ui/ReckLogo'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://reckon.app'
+
 export const metadata: Metadata = {
-  title: 'Reckon — Expense Tracking & Financial Analytics',
+  title: 'Reckon — Expense Tracking & Budget Analytics App',
   description:
-    'Upload your bank statements and instantly see where your money goes. Budgets, analytics, and smart categorization — all in one place.',
+    'Upload your bank statement and instantly see where your money goes. Set budgets, track spending by category, detect recurring subscriptions, and export reports. 49 MAD/month.',
+  keywords: [
+    'expense tracker Morocco',
+    'budget app MAD',
+    'bank statement analyzer',
+    'personal finance app',
+    'spending tracker',
+    'budget planner',
+    'financial analytics dashboard',
+    'CSV import expense tracker',
+    'monthly budget tracker',
+    'تتبع المصاريف',
+  ],
+  alternates: { canonical: APP_URL },
+  openGraph: {
+    title: 'Reckon — Expense Tracking & Budget Analytics',
+    description: 'Upload your bank statement. See exactly where your money goes. Set budgets, get insights, export reports.',
+    url: APP_URL,
+    type: 'website',
+  },
+}
+
+const FAQ = [
+  {
+    q: 'What file formats does Reckon support?',
+    a: 'Reckon imports CSV, Excel (XLSX/XLS), and text-based PDF bank statements. It also accepts budget summary spreadsheets with categories as columns.',
+  },
+  {
+    q: 'Is my financial data private?',
+    a: 'Yes. Your data is stored in your private account and never shared or sold. All connections use HTTPS, passwords are bcrypt-hashed, and sessions use signed JWT cookies.',
+  },
+  {
+    q: 'How does auto-categorization work?',
+    a: 'Reckon matches transaction descriptions against keyword rules for each category (groceries, transport, dining, etc.) and assigns the best match automatically. You can edit categories at any time.',
+  },
+  {
+    q: 'Can I cancel my subscription?',
+    a: 'Yes, you can cancel any time. Your data remains accessible until the end of your billing period.',
+  },
+  {
+    q: 'What currencies are supported?',
+    a: 'Reckon supports MAD, USD, EUR, GBP, AED, SAR, CAD, CHF, and more. Each transaction stores its original currency.',
+  },
+  {
+    q: 'Does Reckon work on mobile?',
+    a: 'Yes. Reckon is a responsive web app optimised for mobile and can be installed as a PWA (add to home screen) on iOS and Android.',
+  },
+]
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Reckon',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web, iOS, Android',
+      url: APP_URL,
+      description: 'Personal expense tracker and budget analytics app. Import bank statements, categorize spending, set budgets, and export reports.',
+      offers: {
+        '@type': 'Offer',
+        price: '49',
+        priceCurrency: 'MAD',
+        availability: 'https://schema.org/InStock',
+        description: 'Reckon Pro — monthly subscription with 7-day free trial',
+      },
+      screenshot: `${APP_URL}/opengraph-image`,
+      featureList: [
+        'Bank statement import (CSV, Excel, PDF)',
+        'Auto-categorization',
+        'Monthly budget tracking',
+        'Spending analytics and charts',
+        'Recurring subscription detection',
+        'PDF and Excel export',
+        'Dark mode',
+        'Mobile PWA',
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: FAQ.map(({ q, a }) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: a },
+      })),
+    },
+    {
+      '@type': 'Organization',
+      name: 'Reckon',
+      url: APP_URL,
+      logo: `${APP_URL}/favicon.svg`,
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'support@reckon.app',
+        contactType: 'customer support',
+      },
+    },
+  ],
 }
 
 const features = [
@@ -68,6 +167,7 @@ const features = [
 export default function LandingPage() {
   return (
     <div className="min-h-dvh flex flex-col bg-[#f1f5f9]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 flex h-14 items-center justify-between">
@@ -294,6 +394,40 @@ export default function LandingPage() {
                 </svg>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+        <section className="py-16 sm:py-20 bg-white border-t border-slate-200">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                Frequently asked questions
+              </h2>
+              <p className="mt-3 text-sm text-slate-500">
+                Everything you need to know before you subscribe.
+              </p>
+            </div>
+            <dl className="divide-y divide-slate-200">
+              {FAQ.map(({ q, a }) => (
+                <details key={q} className="group py-5">
+                  <summary className="flex items-center justify-between gap-4 cursor-pointer list-none">
+                    <dt className="text-sm font-semibold text-slate-900 group-open:text-[#1e40af] transition-colors">
+                      {q}
+                    </dt>
+                    <svg
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth={2}
+                      className="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <dd className="mt-3 text-sm text-slate-500 leading-relaxed pr-8">{a}</dd>
+                </details>
+              ))}
+            </dl>
           </div>
         </section>
 
