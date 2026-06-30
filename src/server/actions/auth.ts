@@ -6,6 +6,7 @@ import { registerSchema, loginSchema, type RegisterInput, type LoginInput } from
 import { connectDB } from '@/server/db/connect'
 import { User } from '@/server/db/models'
 import { signAccessToken, signRefreshToken, setAuthCookies, clearAuthCookies } from '@/server/auth/session'
+import { rateLimit } from '@/lib/rate-limit'
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -20,6 +21,11 @@ export async function registerAction(
   }
 
   const { name, email, password } = parsed.data
+
+  const limit = rateLimit(`register:${email.toLowerCase()}`, 5, 15 * 60 * 1000)
+  if (!limit.ok) {
+    return { ok: false, error: 'Too many attempts. Please wait a few minutes and try again.' }
+  }
 
   await connectDB()
 
@@ -51,6 +57,12 @@ export async function loginAction(
   }
 
   const { email, password } = parsed.data
+
+  // 8 attempts per 15 minutes per email — slows down credential-stuffing/brute-force
+  const limit = rateLimit(`login:${email.toLowerCase()}`, 8, 15 * 60 * 1000)
+  if (!limit.ok) {
+    return { ok: false, error: 'Too many attempts. Please wait a few minutes and try again.' }
+  }
 
   await connectDB()
 

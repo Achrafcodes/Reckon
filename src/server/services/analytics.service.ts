@@ -114,6 +114,15 @@ export async function getSpendByCategory(
   ])
 }
 
+export async function getLatestTransactionMonth(userId: string): Promise<string | null> {
+  await connectDB()
+  const uid = new mongoose.Types.ObjectId(userId)
+  const latest = await Transaction.findOne({ user: uid }).sort({ date: -1 }).select('date').lean()
+  if (!latest) return null
+  const d = new Date(latest.date)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
 export async function getMonthlyTrends(
   userId: string,
   months = 6,

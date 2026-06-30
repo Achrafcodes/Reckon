@@ -33,8 +33,8 @@ export async function listBudgets(
     .exec()
 
   const categoryIds = budgets
-    .map((b) => (b.category as unknown as { _id: mongoose.Types.ObjectId })._id)
-    .filter(Boolean)
+    .map((b) => (b.category as unknown as { _id: mongoose.Types.ObjectId } | null)?._id)
+    .filter((id): id is mongoose.Types.ObjectId => id != null)
 
   const actuals: { _id: mongoose.Types.ObjectId; total: number }[] =
     await Transaction.aggregate([
@@ -56,21 +56,23 @@ export async function listBudgets(
 
   const actualMap = new Map(actuals.map((a) => [String(a._id), a.total]))
 
-  return budgets.map((b) => {
-    const cat = b.category as unknown as { _id: mongoose.Types.ObjectId; name: string; color: string; icon: string }
-    const limit = fromDecimal128(b.limit as mongoose.Types.Decimal128)
-    const actual = actualMap.get(String(cat._id)) ?? 0
-    return {
-      _id: String(b._id),
-      category: { _id: String(cat._id), name: cat.name, color: cat.color, icon: cat.icon },
-      month: b.month,
-      limit,
-      actual,
-      currency: b.currency,
-      alertThreshold: b.alertThreshold,
-      pct: limit > 0 ? actual / limit : 0,
-    }
-  })
+  return budgets
+    .filter((b) => b.category != null)
+    .map((b) => {
+      const cat = b.category as unknown as { _id: mongoose.Types.ObjectId; name: string; color: string; icon: string }
+      const limit = fromDecimal128(b.limit as mongoose.Types.Decimal128)
+      const actual = actualMap.get(String(cat._id)) ?? 0
+      return {
+        _id: String(b._id),
+        category: { _id: String(cat._id), name: cat.name, color: cat.color, icon: cat.icon },
+        month: b.month,
+        limit,
+        actual,
+        currency: b.currency,
+        alertThreshold: b.alertThreshold,
+        pct: limit > 0 ? actual / limit : 0,
+      }
+    })
 }
 
 export async function createBudget(

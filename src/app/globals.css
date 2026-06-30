@@ -1,63 +1,139 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
 @theme {
-  /* Palette — Ledger */
-  --color-ink: #131a17;
-  --color-ink-muted: #4a5752;
-  --color-forest: #1b5e3e;
-  --color-forest-hover: #236b49;
-  --color-forest-subtle: #e8f2ec;
-  --color-mist: #edf2ef;
-  --color-paper: #f8fbf9;
-  --color-rule: #d2e0d8;
-  --color-rule-strong: #b8cfc5;
-  --color-amber: #92600a;
-  --color-amber-bg: #fef7ec;
-  --color-danger: #b91c1c;
-  --color-danger-bg: #fef2f2;
-  --color-sidebar-text: #c8d9d3;
-  --color-sidebar-text-muted: #6b8880;
-  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --color-sidebar-active: rgba(255, 255, 255, 0.10);
+  /* Brand — forest green identity, refined */
+  --color-brand:         #166534;   /* green-800 */
+  --color-brand-h:       #15803d;   /* green-700 — hover */
+  --color-brand-light:   #dcfce7;   /* green-100 — tint bg */
+  --color-brand-ring:    #86efac;   /* green-300 — focus ring */
+  --color-brand-text:    #14532d;   /* green-900 — on-light text */
 
-  /* Animations */
-  --animate-fade-up: fadeUp 0.35s ease-out both;
-  --animate-fade-in: fadeIn 0.3s ease-out both;
+  /* Ink (text) */
+  --color-ink:           #0f172a;   /* slate-900 */
+  --color-ink-muted:     #64748b;   /* slate-500 */
+  --color-ink-faint:     #94a3b8;   /* slate-400 */
+
+  /* Surfaces */
+  --color-surface:       #ffffff;
+  --color-surface-r:     #f8fafc;   /* slate-50  — raised */
+  --color-bg:            #f1f5f9;   /* slate-100 — page canvas */
+
+  /* Borders */
+  --color-border:        #e2e8f0;   /* slate-200 */
+  --color-border-s:      #cbd5e1;   /* slate-300 — stronger */
+
+  /* Semantic */
+  --color-danger:        #dc2626;
+  --color-danger-bg:     #fef2f2;
+  --color-danger-ring:   #fca5a5;
+  --color-warning:       #d97706;
+  --color-warning-bg:    #fffbeb;
+  --color-success:       #16a34a;
+  --color-success-bg:    #f0fdf4;
+
+  /* Sidebar (dark slate) */
+  --color-sidebar:       #0f172a;   /* slate-900 */
+  --color-sidebar-txt:   #cbd5e1;   /* slate-300 */
+  --color-sidebar-muted: #64748b;   /* slate-500 */
+  --color-sidebar-hover: rgba(255,255,255,0.06);
+  --color-sidebar-active:rgba(255,255,255,0.10);
+
+  /* Legacy aliases — kept so existing components don't break */
+  --color-forest:        #166534;
+  --color-forest-hover:  #15803d;
+  --color-forest-subtle: #dcfce7;
+  --color-mist:          #f1f5f9;
+  --color-paper:         #ffffff;
+  --color-rule:          #e2e8f0;
+  --color-rule-strong:   #cbd5e1;
+  --color-amber:         #d97706;
+  --color-amber-bg:      #fffbeb;
+  --color-sidebar-text:  #cbd5e1;
+  --color-sidebar-text-muted: #64748b;
+
+  /* Route progress bar */
+  --color-progress:      #4ade80;   /* green-400 */
 
   /* Typography */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:    var(--font-inter);
+  --font-mono:    var(--font-geist-mono);
   --font-display: var(--font-dm-serif);
+
+  /* Animations */
+  --animate-fade-up:    fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both;
+  --animate-fade-in:    fadeIn 0.25s ease-out both;
+  --animate-slide-in:   slideIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  --animate-scale-in:   scaleIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-body {
-  background-color: var(--color-mist);
-  color: var(--color-ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* Tabular numbers everywhere for data */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Skip-to-content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--color-brand);
+  color: #fff;
+  border-radius: 0 0 6px 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ─── Tabular numbers for financial data ─────────────────────────────────── */
 [data-amount],
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono), monospace;
 }
 
+/* ─── Global focus ring ──────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-brand-ring);
+  outline-offset: 2px;
+}
+
+/* ─── Scrollbar (Chromium) ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-s);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-faint); }
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -65,28 +141,96 @@ body {
   to   { opacity: 1; }
 }
 
-@keyframes shimmer {
-  from { background-position: -200% center; }
-  to   { background-position: 200% center; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Route progress bar — triggered via .route-bar class */
+@keyframes routeProgress {
+  0%   { width: 0%;   opacity: 1; }
+  65%  { width: 82%;  opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+
+/* Logo path draw-on */
+@keyframes logoDraw {
+  from { stroke-dashoffset: 160; opacity: 0; }
+  30%  { opacity: 1; }
+  to   { stroke-dashoffset: 0; opacity: 1; }
+}
+
+/* KPI bar fill from left */
+@keyframes barFill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Pulse ring for status indicators */
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0   rgba(74,222,128,0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0   rgba(74,222,128,0); }
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--color-rule) 25%,
-    var(--color-mist) 50%,
-    var(--color-rule) 75%
+    var(--color-border) 25%,
+    var(--color-surface-r) 50%,
+    var(--color-border) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  animation: shimmer 1.8s ease-in-out infinite;
   border-radius: 6px;
 }
 
+/* ─── Route progress bar ─────────────────────────────────────────────────── */
+.route-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--color-progress);
+  box-shadow: 0 0 10px var(--color-progress), 0 0 4px var(--color-progress);
+  z-index: 9998;
+  animation: routeProgress 1.8s cubic-bezier(0.4,0,0.2,1) forwards;
+  border-radius: 0 9999px 9999px 0;
+  pointer-events: none;
+}
+
+/* ─── Card surface helper ────────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  border-color: var(--color-border-s);
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

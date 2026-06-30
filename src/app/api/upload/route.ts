@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/server/auth/session'
 import { importTransactions, type ParsedRow } from '@/server/services/import.service'
+import { rateLimit } from '@/lib/rate-limit'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_TYPES = new Set([
@@ -20,6 +21,15 @@ export async function POST(request: NextRequest) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 10 uploads per 5 minutes per user — uploads are CPU/IO heavy (parse + dedupe)
+  const limit = rateLimit(`upload:${user._id}`, 10, 5 * 60 * 1000)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { ok: false, error: 'Too many uploads. Please wait a few minutes and try again.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((limit.resetAt - Date.now()) / 1000)) } },
+    )
   }
 
   let formData: FormData

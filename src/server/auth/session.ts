@@ -114,12 +114,10 @@ export async function getCurrentUser(): Promise<IUser | null> {
   const user = await User.findById(payload.userId).select('+refreshTokenHash').lean().exec() as (IUser & { refreshTokenHash?: string }) | null
   if (!user) return null
 
-  // Issue new tokens (silent refresh)
-  const newAccess = await signAccessToken({ userId: String(user._id), email: user.email })
-  const newRefresh = await signRefreshToken({ userId: String(user._id), email: user.email })
-  await setAuthCookies(newAccess, newRefresh)
-
-  // Return user without sensitive fields
+  // Return user without sensitive fields.
+  // Silent token refresh is intentionally skipped here — cookies() writes are
+  // forbidden in Server Components (Next 16). The short-lived access token will
+  // be re-issued on the next Server Action / Route Handler call.
   const { refreshTokenHash: _rth, ...safeUser } = user
   return safeUser as unknown as IUser
 }
