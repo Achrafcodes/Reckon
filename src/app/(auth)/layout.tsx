@@ -13,7 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="w-full max-w-sm mx-auto">
           {/* Logo */}
           <div className="mb-10">
-            <ReckLogo width={108} color="var(--color-brand)" />
+            <ReckLogo width={108} color="#09090b" />
           </div>
           {children}
         </div>
@@ -44,7 +44,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Top: mark-only logo */}
         <div className="relative z-10">
-          <ReckLogo markOnly width={32} color="rgba(255,255,255,0.25)" />
+          <ReckLogo markOnly width={32} markBg="rgba(255,255,255,0.08)" color="rgba(255,255,255,0.25)" />
         </div>
 
         {/* Middle: headline */}

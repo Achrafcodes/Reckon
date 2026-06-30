@@ -3,21 +3,17 @@ interface ReckLogoProps {
   width?: number
   /** Wordmark text colour. Defaults to currentColor. */
   color?: string
+  /** Background fill of the mark square. Defaults to near-black. */
+  markBg?: string
   /** Show the square mark only — no wordmark. */
   markOnly?: boolean
   className?: string
 }
 
-/**
- * Reckon logo — branded square mark (ascending bar chart) + wordmark.
- *
- * Mark: brand-blue rounded square, three ascending white bars, accent dot at
- * the peak. Always renders in brand colours so it looks right on any background.
- * `color` controls only the wordmark text colour.
- */
 export function ReckLogo({
   width = 120,
   color = 'currentColor',
+  markBg = '#09090b',
   markOnly = false,
   className,
 }: ReckLogoProps) {
@@ -43,26 +39,25 @@ export function ReckLogo({
         aria-hidden="true"
         style={{ display: 'block', flexShrink: 0 }}
       >
-        {/* Rounded square container */}
-        <rect width="28" height="28" rx="7" fill="#1e40af" />
+        <rect width="28" height="28" rx="7" fill={markBg} />
 
-        {/* Ascending bars — bottom-aligned at y=23, left-to-right: short → tall */}
-        <rect x="6"  y="18" width="4" height="5"  rx="1.5" fill="white" fillOpacity="0.45" />
-        <rect x="12" y="13" width="4" height="10" rx="1.5" fill="white" fillOpacity="0.72" />
-        <rect x="18" y="8"  width="4" height="15" rx="1.5" fill="white" />
+        {/* Ascending bars */}
+        <rect x="6"  y="18" width="4" height="5"  rx="1.5" fill="white" fillOpacity="0.35" />
+        <rect x="12" y="13" width="4" height="10" rx="1.5" fill="white" fillOpacity="0.62" />
+        <rect x="18" y="8"  width="4" height="15" rx="1.5" fill="white" fillOpacity="0.9" />
 
-        {/* Subtle trend line connecting bar tops */}
+        {/* Trend line */}
         <path
           d="M8 18L14 13L20 8"
           stroke="white"
           strokeWidth="1.25"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeOpacity="0.35"
+          strokeOpacity="0.25"
         />
 
-        {/* Accent dot at the peak — signals "data point" */}
-        <circle cx="20" cy="8" r="2" fill="#93c5fd" />
+        {/* Peak dot */}
+        <circle cx="20" cy="8" r="2" fill="white" fillOpacity="0.5" />
       </svg>
 
       {/* ── Wordmark ── */}

@@ -40,7 +40,7 @@ export default function OpengraphImage() {
           {/* Logo mark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
-              width: 52, height: 52, borderRadius: 13, background: '#1e40af',
+              width: 52, height: 52, borderRadius: 13, background: '#18181b',
               display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 4, padding: '8px 10px',
             }}>
               <div style={{ width: 8, height: 14, borderRadius: 3, background: 'rgba(255,255,255,0.45)' }} />

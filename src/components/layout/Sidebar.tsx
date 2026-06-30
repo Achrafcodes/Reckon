@@ -98,7 +98,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Logo */}
       <div className="px-5 py-5 flex items-center justify-between">
         <Link href="/dashboard" onClick={onClose} aria-label="Reckon home">
-          <ReckLogo width={108} color="white" />
+          <ReckLogo width={108} color="rgba(255,255,255,0.85)" markBg="#27272a" />
         </Link>
         {/* Mobile close button */}
         {onClose && (
@@ -139,14 +139,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <span
                 className={[
                   'shrink-0 transition-colors duration-150',
-                  active ? 'text-brand-ring' : 'text-sidebar-muted group-hover:text-white/70',
+                  active ? 'text-white/80' : 'text-sidebar-muted group-hover:text-white/60',
                 ].join(' ')}
               >
                 {icon}
               </span>
               {label}
               {active && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-ring shrink-0" />
+                <span className="ml-auto w-1 h-4 rounded-full bg-white/25 shrink-0" />
               )}
             </Link>
           )

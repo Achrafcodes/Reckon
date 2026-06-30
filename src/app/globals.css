@@ -58,13 +58,13 @@
 
 /* ─── Tailwind design tokens ─────────────────────────────────────────────── */
 @theme {
-  /* ── Brand: Trust Blue ───────────────────────────────────────────────── */
-  --color-brand:        #1e40af;   /* blue-800  — primary brand */
-  --color-brand-h:      #1d4ed8;   /* blue-700  — hover */
-  --color-brand-600:    #2563eb;   /* blue-600  — lighter variant */
-  --color-brand-light:  #dbeafe;   /* blue-100  — tint backgrounds */
-  --color-brand-ring:   #93c5fd;   /* blue-300  — focus ring */
-  --color-brand-text:   #1e3a8a;   /* blue-900  — text on light bg */
+  /* ── Brand: Zinc/Ink ────────────────────────────────────────────────── */
+  --color-brand:        #09090b;   /* zinc-950  — primary brand */
+  --color-brand-h:      #27272a;   /* zinc-800  — hover */
+  --color-brand-600:    #3f3f46;   /* zinc-700  — lighter variant */
+  --color-brand-light:  #f4f4f5;   /* zinc-100  — tint backgrounds */
+  --color-brand-ring:   #a1a1aa;   /* zinc-400  — focus ring */
+  --color-brand-text:   #18181b;   /* zinc-900  — text on light bg */
 
   /* ── Accent: Profit Green ────────────────────────────────────────────── */
   --color-accent:       #059669;   /* emerald-600 — money / income */
@@ -105,12 +105,12 @@
   --color-warning-bg:   #fffbeb;   /* amber-50 */
   --color-warning-ring: #fcd34d;   /* amber-300 */
 
-  /* ── Sidebar (always dark — slate-900 base) ──────────────────────────── */
-  --color-sidebar:       #0f172a;
-  --color-sidebar-txt:   #cbd5e1;  /* slate-300 */
-  --color-sidebar-muted: #64748b;  /* slate-500 */
-  --color-sidebar-hover: rgba(255,255,255,0.06);
-  --color-sidebar-active:rgba(255,255,255,0.10);
+  /* ── Sidebar (always dark — near-black) ─────────────────────────────── */
+  --color-sidebar:       #0a0a0a;
+  --color-sidebar-txt:   #a1a1aa;  /* zinc-400 */
+  --color-sidebar-muted: #52525b;  /* zinc-600 */
+  --color-sidebar-hover: rgba(255,255,255,0.05);
+  --color-sidebar-active:rgba(255,255,255,0.08);
 
   /* ── Legacy aliases (keep existing component classes working) ────────── */
   --color-forest:        #059669;  /* was green-800, now emerald-600 (profit green) */
@@ -122,11 +122,11 @@
   --color-rule-strong:   var(--c-border-s);
   --color-amber:         #d97706;
   --color-amber-bg:      #fffbeb;
-  --color-sidebar-text:  #cbd5e1;
-  --color-sidebar-text-muted: #64748b;
+  --color-sidebar-text:  #a1a1aa;
+  --color-sidebar-text-muted: #52525b;
 
   /* ── Route progress ──────────────────────────────────────────────────── */
-  --color-progress:      #60a5fa;  /* blue-400 (trust blue glow) */
+  --color-progress:      #a1a1aa;  /* zinc-400 */
 
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-sans:    var(--font-inter);
