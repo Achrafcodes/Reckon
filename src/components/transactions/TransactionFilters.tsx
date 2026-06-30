@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useCallback, useTransition } from 'react'
+import { Select } from '@/components/ui/Select'
 import type { CategorySummary } from '@/server/services/category.service'
 
 interface Props {
@@ -51,21 +52,21 @@ export function TransactionFilters({ categories, total }: Props) {
             placeholder="Search transactions…"
             defaultValue={search}
             onChange={(e) => update('search', e.target.value)}
-            className="w-full rounded-lg border border-rule bg-paper pl-9 pr-3 py-2 text-sm text-ink placeholder:text-ink-muted outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base pl-9"
             aria-label="Search transactions"
           />
         </div>
-        <select
+        <Select
           value={sort}
           onChange={(e) => update('sort', e.target.value)}
-          className="w-full sm:w-auto rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors cursor-pointer"
+          className="w-full sm:w-auto"
           aria-label="Sort transactions"
         >
           <option value="date_desc">Newest first</option>
           <option value="date_asc">Oldest first</option>
           <option value="amount_desc">Highest amount</option>
           <option value="amount_asc">Lowest amount</option>
-        </select>
+        </Select>
       </div>
 
       {/* Filter chips row */}
@@ -79,7 +80,7 @@ export function TransactionFilters({ categories, total }: Props) {
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border transition-colors',
               type === t
                 ? t === 'income'
-                  ? 'bg-forest text-white border-forest'
+                  ? 'bg-brand text-white border-brand'
                   : t === 'expense'
                   ? 'bg-danger text-white border-danger'
                   : 'bg-ink text-white border-ink'
@@ -93,17 +94,17 @@ export function TransactionFilters({ categories, total }: Props) {
         <div className="w-px h-4 bg-rule mx-1" />
 
         {/* Category filter */}
-        <select
+        <Select
           value={category}
           onChange={(e) => update('category', e.target.value)}
-          className="rounded-full border border-rule bg-paper px-3 py-1 text-xs text-ink outline-none focus:border-forest transition-colors cursor-pointer"
+          className="!w-auto rounded-full !px-3 !py-1 text-xs"
           aria-label="Filter by category"
         >
           <option value="">All categories</option>
           {categories.map((c) => (
             <option key={c._id} value={c._id}>{c.name}</option>
           ))}
-        </select>
+        </Select>
 
         {/* Clear filters */}
         {hasFilters && (

@@ -256,6 +256,50 @@ body {
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* ─── Form element base (shared by input, select, textarea, date) ─────────── */
+.input-base {
+  width: 100%;
+  border-radius: 0.5rem;         /* rounded-lg */
+  border: 1px solid var(--c-input-border);
+  background-color: var(--c-input-bg);
+  color: var(--c-ink);
+  padding: 0.5rem 0.75rem;       /* px-3 py-2 */
+  font-size: 0.875rem;            /* text-sm */
+  line-height: 1.5;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  /* Let the browser inherit the light/dark colour-scheme from html */
+  color-scheme: inherit;
+}
+
+.input-base::placeholder {
+  color: var(--c-ink-faint);
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: var(--color-brand-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-ring) 30%, transparent);
+}
+
+.input-base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Force dark/light colour-scheme on native date/month pickers so the
+   calendar popup renders in the right theme (Chrome/Edge).
+   Also invert the calendar icon for dark mode so it stays readable. */
+html.dark input[type="date"],
+html.dark input[type="month"],
+html.dark input[type="time"] {
+  color-scheme: dark;
+}
+html:not(.dark) input[type="date"],
+html:not(.dark) input[type="month"],
+html:not(.dark) input[type="time"] {
+  color-scheme: light;
+}
+
 /* ─── Skeleton ───────────────────────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(

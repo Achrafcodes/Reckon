@@ -28,7 +28,7 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
   const to = Math.min(page * limit, total)
 
   return (
-    <div className={`px-4 py-3 border-t border-rule flex items-center justify-between gap-2 text-sm transition-opacity ${isPending ? 'opacity-60' : ''}`}>
+    <div className={`px-4 py-3 border-t border-border flex items-center justify-between gap-2 text-sm transition-opacity ${isPending ? 'opacity-60' : ''}`}>
       <span className="text-xs text-ink-muted shrink-0">
         {from}–{to} <span className="hidden sm:inline">of {total}</span>
       </span>
@@ -36,7 +36,7 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
         <button
           onClick={() => go(page - 1)}
           disabled={page <= 1}
-          className="rounded-lg border border-rule px-2.5 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-ink-muted hover:bg-surface-r hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           ← <span className="hidden sm:inline">Prev</span>
         </button>
@@ -49,8 +49,8 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
               className={[
                 'rounded-lg border px-2.5 py-1.5 text-xs transition-colors hidden sm:inline-flex',
                 p === page
-                  ? 'border-forest bg-forest text-white'
-                  : 'border-rule text-ink-muted hover:bg-mist hover:text-ink',
+                  ? 'border-brand bg-brand text-white'
+                  : 'border-border text-ink-muted hover:bg-surface-r hover:text-ink',
               ].join(' ')}
             >
               {p}
@@ -64,7 +64,7 @@ export function TransactionPagination({ page, totalPages, total, limit }: Props)
         <button
           onClick={() => go(page + 1)}
           disabled={page >= totalPages}
-          className="rounded-lg border border-rule px-2.5 py-1.5 text-xs text-ink-muted hover:bg-mist hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-ink-muted hover:bg-surface-r hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="hidden sm:inline">Next</span> →
         </button>

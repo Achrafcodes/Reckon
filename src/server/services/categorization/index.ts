@@ -9,22 +9,25 @@ export interface Categorizer {
 }
 
 export class KeywordCategorizer implements Categorizer {
-  private cache: Array<{ _id: mongoose.Types.ObjectId; keywords: string[] }> | null = null
+  // Keyed by userId — prevents user A's categories leaking into user B's import session
+  private cacheByUser = new Map<string, Array<{ _id: mongoose.Types.ObjectId; keywords: string[] }>>()
 
   async categorize(description: string, userId: string): Promise<mongoose.Types.ObjectId | null> {
-    if (!this.cache) {
+    if (!this.cacheByUser.has(userId)) {
       await connectDB()
-      this.cache = await Category.find({
+      const docs = await Category.find({
         $or: [{ user: null, isSystem: true }, { user: userId }],
         keywords: { $exists: true, $not: { $size: 0 } },
       })
         .select('keywords')
         .lean()
         .exec() as Array<{ _id: mongoose.Types.ObjectId; keywords: string[] }>
+      this.cacheByUser.set(userId, docs)
     }
 
+    const cats = this.cacheByUser.get(userId)!
     const lower = description.toLowerCase()
-    for (const cat of this.cache) {
+    for (const cat of cats) {
       for (const kw of cat.keywords) {
         if (lower.includes(kw)) return cat._id
       }
@@ -32,8 +35,12 @@ export class KeywordCategorizer implements Categorizer {
     return null
   }
 
-  invalidate() {
-    this.cache = null
+  invalidate(userId?: string) {
+    if (userId) {
+      this.cacheByUser.delete(userId)
+    } else {
+      this.cacheByUser.clear()
+    }
   }
 }
 

@@ -21,7 +21,7 @@ export async function createTransactionAction(
   if (!result.ok) return { ok: false, error: result.error }
 
   revalidatePath('/transactions')
-  revalidatePath('/')
+  revalidatePath('/dashboard')
   return { ok: true, data: { id: result.id } }
 }
 
@@ -41,7 +41,7 @@ export async function updateTransactionAction(
   if (!result.ok) return { ok: false, error: result.error }
 
   revalidatePath('/transactions')
-  revalidatePath('/')
+  revalidatePath('/dashboard')
   return { ok: true, data: undefined }
 }
 
@@ -53,6 +53,6 @@ export async function deleteTransactionAction(id: string): Promise<ActionResult>
   if (!result.ok) return { ok: false, error: result.error }
 
   revalidatePath('/transactions')
-  revalidatePath('/')
+  revalidatePath('/dashboard')
   return { ok: true, data: undefined }
 }

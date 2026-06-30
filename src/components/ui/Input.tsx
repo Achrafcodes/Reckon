@@ -19,15 +19,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={id}
           className={[
-            'w-full rounded-md border bg-paper px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted/50',
-            'focus:outline-none focus:ring-2 focus:ring-forest/30 focus:border-forest/50',
-            'disabled:bg-mist disabled:text-ink-muted',
-            'transition-colors',
-            error
-              ? 'border-danger/40 focus:ring-danger/20 focus:border-danger/40'
-              : 'border-rule',
+            'input-base',
+            error ? 'border-danger/50 focus:border-danger/50' : '',
             className,
-          ].join(' ')}
+          ]
+            .filter(Boolean)
+            .join(' ')}
           {...props}
         />
         {error && <p className="text-xs text-danger">{error}</p>}

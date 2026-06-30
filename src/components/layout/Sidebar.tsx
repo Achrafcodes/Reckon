@@ -6,7 +6,7 @@ import { ReckLogo } from '@/components/ui/ReckLogo'
 /* ── Nav items ────────────────────────────────────────────────────────────── */
 const nav = [
   {
-    href: '/',
+    href: '/dashboard',
     label: 'Dashboard',
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
@@ -41,6 +41,16 @@ const nav = [
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3 20l4-8 4 4 4-6 4 4" />
+      </svg>
+    ),
+  },
+  {
+    href: '/categories',
+    label: 'Categories',
+    icon: (
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
       </svg>
     ),
   },
@@ -87,7 +97,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 flex items-center justify-between">
-        <Link href="/" onClick={onClose} aria-label="Reckon home">
+        <Link href="/dashboard" onClick={onClose} aria-label="Reckon home">
           <ReckLogo width={108} color="white" />
         </Link>
         {/* Mobile close button */}
@@ -110,7 +120,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 flex flex-col gap-0.5" aria-label="Main navigation">
         {nav.map(({ href, label, icon }) => {
-          const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+          const active = pathname === href || (href !== '/dashboard' && href !== '/' && pathname.startsWith(href))
           return (
             <Link
               key={href}

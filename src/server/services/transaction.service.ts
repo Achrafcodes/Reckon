@@ -157,12 +157,12 @@ export async function updateTransaction(
   }
   if (input.notes !== undefined) update.notes = input.notes
 
-  const result = await Transaction.findOneAndUpdate(
+  const result = await Transaction.updateOne(
     { _id: transactionId, user: new mongoose.Types.ObjectId(userId) },
     { $set: update },
   )
 
-  if (!result) return { ok: false, error: 'Transaction not found.' }
+  if (result.matchedCount === 0) return { ok: false, error: 'Transaction not found.' }
   return { ok: true }
 }
 
@@ -172,11 +172,11 @@ export async function deleteTransaction(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await connectDB()
 
-  const result = await Transaction.findOneAndDelete({
+  const result = await Transaction.deleteOne({
     _id: transactionId,
     user: new mongoose.Types.ObjectId(userId),
   })
 
-  if (!result) return { ok: false, error: 'Transaction not found.' }
+  if (result.deletedCount === 0) return { ok: false, error: 'Transaction not found.' }
   return { ok: true }
 }

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateProfileAction } from '@/server/actions/settings'
+import { Select } from '@/components/ui/Select'
 
 const CURRENCIES = [
   { value: 'MAD', label: 'MAD — Moroccan Dirham' },
@@ -49,7 +50,7 @@ export function ProfileForm({ name, email, baseCurrency }: Props) {
             required
             defaultValue={name}
             maxLength={60}
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
         <div className="space-y-1.5">
@@ -60,34 +61,33 @@ export function ProfileForm({ name, email, baseCurrency }: Props) {
             type="email"
             required
             defaultValue={email}
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
       </div>
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-ink-muted" htmlFor="profile-currency">Base currency</label>
-        <select
+        <Select
           id="profile-currency"
           name="baseCurrency"
           defaultValue={baseCurrency}
-          className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
         >
           {CURRENCIES.map((c) => (
             <option key={c.value} value={c.value}>{c.label}</option>
           ))}
-        </select>
+        </Select>
         <p className="text-xs text-ink-muted">Used for display and exports. Doesn&apos;t convert existing transactions.</p>
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
-      {success && <p className="text-xs text-forest">Profile updated.</p>}
+      {success && <p className="text-xs text-accent">Profile updated.</p>}
 
       <div className="flex justify-end pt-1">
         <button
           type="submit"
           disabled={isPending}
-          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-brand text-white rounded-lg hover:bg-brand-h disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Saving…' : 'Save changes'}
         </button>

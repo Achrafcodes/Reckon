@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Suspense } from 'react'
 import { getCurrentUser } from '@/server/auth/session'
 import { listTransactions } from '@/server/services/transaction.service'
@@ -6,6 +7,7 @@ import { listTransactionsSchema } from '@/schemas/transaction'
 import { TransactionFilters } from '@/components/transactions/TransactionFilters'
 import { TransactionPagination } from '@/components/transactions/TransactionPagination'
 import { TransactionTable } from '@/components/transactions/TransactionTable'
+import { AddTransactionButton } from '@/components/transactions/AddTransactionButton'
 
 export const metadata = { title: 'Transactions — Reckon' }
 
@@ -30,9 +32,12 @@ export default async function TransactionsPage({
   return (
     <div className="max-w-5xl mx-auto space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-ink tracking-tight">Transactions</h1>
-        <p className="mt-1 text-sm text-ink-muted">Browse, search and filter your spending history.</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">Transactions</h1>
+          <p className="mt-1 text-sm text-ink-muted">Browse, search and filter your spending history.</p>
+        </div>
+        <AddTransactionButton categories={categories} />
       </div>
 
       {/* Filters — client island */}
@@ -52,17 +57,15 @@ export default async function TransactionsPage({
             <>
               <p className="text-sm font-medium text-ink">No transactions yet</p>
               <p className="mt-1 text-xs text-ink-muted">
-                <a href="/upload" className="text-forest hover:underline">Import a file</a> to get started.
+                <Link href="/upload" className="text-forest hover:underline">Import a file</Link>
+                {' '}or use &ldquo;Add transaction&rdquo; above to add one manually.
               </p>
             </>
           )}
         </div>
       ) : (
         <div className="card overflow-hidden">
-          {/* Table rows — client island for edit interaction */}
           <TransactionTable transactions={data} categories={categories} />
-
-          {/* Pagination */}
           <Suspense>
             <TransactionPagination page={page} totalPages={totalPages} total={total} limit={input.limit} />
           </Suspense>

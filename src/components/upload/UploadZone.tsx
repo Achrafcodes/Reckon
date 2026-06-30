@@ -7,10 +7,10 @@ type UploadState =
   | { status: 'idle' }
   | { status: 'dragging' }
   | { status: 'uploading'; fileName: string; progress: number }
-  | { status: 'success'; imported: number; skipped: number; batchId: string }
-  | { status: 'error'; message: string }
+  | { status: 'success'; imported: number; skipped: number; batchId: string; format?: string; budgetsCreated?: number; budgetsUpdated?: number; month?: string }
+  | { status: 'error'; message: string; hint?: string }
 
-const ALLOWED_EXTENSIONS = ['.xlsx', '.xls', '.csv']
+const ALLOWED_EXTENSIONS = ['.xlsx', '.xls', '.csv', '.pdf']
 const MAX_SIZE_MB = 5
 
 function validateFile(file: File): string | null {
@@ -43,10 +43,23 @@ export function UploadZone() {
 
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      const json = await res.json() as { ok: boolean; data?: { imported: number; skipped: number; batchId: string }; error?: string }
+      const json = await res.json() as {
+        ok: boolean
+        data?: {
+          imported: number
+          skipped: number
+          batchId: string
+          format?: string
+          budgetsCreated?: number
+          budgetsUpdated?: number
+          month?: string
+        }
+        error?: string
+        hint?: string
+      }
 
       if (!json.ok) {
-        setState({ status: 'error', message: json.error ?? 'Upload failed.' })
+        setState({ status: 'error', message: json.error ?? 'Upload failed.', hint: json.hint })
         return
       }
 
@@ -55,6 +68,10 @@ export function UploadZone() {
         imported: json.data!.imported,
         skipped: json.data!.skipped,
         batchId: json.data!.batchId,
+        format: json.data!.format,
+        budgetsCreated: json.data!.budgetsCreated,
+        budgetsUpdated: json.data!.budgetsUpdated,
+        month: json.data!.month,
       })
 
       router.refresh()
@@ -112,7 +129,7 @@ export function UploadZone() {
         <input
           ref={inputRef}
           type="file"
-          accept=".xlsx,.xls,.csv"
+          accept=".xlsx,.xls,.csv,.pdf"
           className="sr-only"
           onChange={onFileChange}
           aria-hidden
@@ -131,19 +148,23 @@ export function UploadZone() {
           imported={state.imported}
           skipped={state.skipped}
           onReset={() => setState({ status: 'idle' })}
+          format={state.format}
+          budgetsCreated={state.budgetsCreated}
+          budgetsUpdated={state.budgetsUpdated}
+          month={state.month}
         />
       )}
 
       {state.status === 'error' && (
         <ErrorBanner
           message={state.message}
+          hint={state.hint}
           onReset={() => setState({ status: 'idle' })}
         />
       )}
 
-      <p className="text-xs text-center" style={{ color: 'var(--color-sidebar-text-muted)' }}>
-        Supports .xlsx, .xls, .csv up to 5 MB. Re-uploading the same statement skips duplicates.
-      </p>
+      {/* Format guide */}
+      <FormatGuide />
     </div>
   )
 }
@@ -166,7 +187,7 @@ function IdleState({ isDragging }: { isDragging: boolean }) {
           {isDragging ? 'Drop to import' : 'Drop your file here, or click to browse'}
         </p>
         <p className="mt-1 text-xs" style={{ color: 'var(--color-sidebar-text-muted)' }}>
-          Bank statement or expense spreadsheet
+          Bank statement, expense spreadsheet, or spending summary — CSV, Excel, or PDF
         </p>
       </div>
     </>
@@ -191,7 +212,26 @@ function UploadingState({ fileName }: { fileName: string }) {
   )
 }
 
-function SuccessBanner({ imported, skipped, onReset }: { imported: number; skipped: number; onReset: () => void }) {
+function SuccessBanner({
+  imported,
+  skipped,
+  onReset,
+  format,
+  budgetsCreated,
+  budgetsUpdated,
+  month,
+}: {
+  imported: number
+  skipped: number
+  onReset: () => void
+  format?: string
+  budgetsCreated?: number
+  budgetsUpdated?: number
+  month?: string
+}) {
+  const isBudgetSummary = format === 'budget_summary'
+  const budgetCount = (budgetsCreated ?? 0) + (budgetsUpdated ?? 0)
+
   return (
     <div className="flex items-start gap-3 rounded-xl border border-rule bg-forest-subtle px-4 py-4 animate-fade-up">
       <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-forest">
@@ -201,16 +241,36 @@ function SuccessBanner({ imported, skipped, onReset }: { imported: number; skipp
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-ink">
-          Import complete
+          {isBudgetSummary ? 'Budget summary imported' : 'Import complete'}
         </p>
-        <p className="mt-0.5 text-xs" style={{ color: 'var(--color-sidebar-text-muted)' }}>
-          {imported} transaction{imported !== 1 ? 's' : ''} imported
-          {skipped > 0 ? `, ${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped` : ''}
-        </p>
+        {isBudgetSummary ? (
+          <div className="mt-0.5 text-xs space-y-0.5" style={{ color: 'var(--color-sidebar-text-muted)' }}>
+            {budgetCount > 0 && (
+              <p>{budgetCount} budget{budgetCount !== 1 ? 's' : ''} {budgetsCreated ? 'created' : ''}{budgetsCreated && budgetsUpdated ? ' / ' : ''}{budgetsUpdated ? `${budgetsUpdated} updated` : ''}{month ? ` for ${month}` : ''}</p>
+            )}
+            {imported > 0 && (
+              <p>{imported} weekly transaction{imported !== 1 ? 's' : ''} added</p>
+            )}
+            {skipped > 0 && (
+              <p>{skipped} duplicate{skipped !== 1 ? 's' : ''} skipped</p>
+            )}
+          </div>
+        ) : (
+          <p className="mt-0.5 text-xs" style={{ color: 'var(--color-sidebar-text-muted)' }}>
+            {imported} transaction{imported !== 1 ? 's' : ''} imported
+            {skipped > 0 ? `, ${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped` : ''}
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-          <a href="/transactions" className="text-xs font-medium text-forest hover:underline">
-            View transactions →
-          </a>
+          {isBudgetSummary ? (
+            <a href="/budgets" className="text-xs font-medium text-forest hover:underline">
+              View budgets →
+            </a>
+          ) : (
+            <a href="/transactions" className="text-xs font-medium text-forest hover:underline">
+              View transactions →
+            </a>
+          )}
           <button
             onClick={onReset}
             className="text-xs text-ink-muted hover:text-ink transition-colors"
@@ -224,26 +284,133 @@ function SuccessBanner({ imported, skipped, onReset }: { imported: number; skipp
   )
 }
 
-function ErrorBanner({ message, onReset }: { message: string; onReset: () => void }) {
+function ErrorBanner({ message, hint, onReset }: { message: string; hint?: string; onReset: () => void }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-danger/20 bg-red-50 px-4 py-4 animate-fade-up">
-      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <line x1="5" y1="2" x2="5" y2="5.5" />
-          <line x1="5" y1="7.5" x2="5" y2="8" />
-        </svg>
+    <div className="rounded-xl border border-danger/20 bg-danger-bg px-4 py-4 animate-fade-up space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <line x1="5" y1="2" x2="5" y2="5.5" />
+            <line x1="5" y1="7.5" x2="5" y2="8" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-ink">Import failed</p>
+          <p className="mt-0.5 text-xs text-danger/80">{message}</p>
+        </div>
+        <button
+          onClick={onReset}
+          className="shrink-0 text-xs font-medium text-ink-muted hover:text-ink transition-colors"
+          aria-label="Try again"
+        >
+          Try again
+        </button>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-ink">Import failed</p>
-        <p className="mt-0.5 text-xs text-danger/80">{message}</p>
-      </div>
-      <button
-        onClick={onReset}
-        className="shrink-0 text-xs font-medium text-ink-muted hover:text-ink transition-colors"
-        aria-label="Try again"
-      >
-        Try again
-      </button>
+      {hint === 'format_mismatch' && (
+        <div className="border-t border-danger/10 pt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+          <p className="text-xs text-ink-muted flex-1">
+            Need help? Download a sample file to see the expected column layout.
+          </p>
+          <a
+            href="/api/upload/template"
+            download="reckon-template.csv"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0-4-4m4 4 4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" />
+            </svg>
+            Download template
+          </a>
+        </div>
+      )}
     </div>
+  )
+}
+
+function FormatGuide() {
+  return (
+    <details className="group rounded-xl border border-border bg-surface-r">
+      <summary className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer list-none text-xs font-medium text-ink-muted hover:text-ink transition-colors select-none">
+        <span className="flex items-center gap-2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+            <circle cx="12" cy="12" r="10" />
+            <path strokeLinecap="round" d="M12 8v4M12 16h.01" />
+          </svg>
+          Supported file formats
+        </span>
+        <svg
+          width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+          className="transition-transform group-open:rotate-180" aria-hidden
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
+        </svg>
+      </summary>
+      <div className="px-4 pb-4 space-y-4">
+
+        {/* Format 1: Transaction list */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-ink">Transaction list (CSV / Excel / PDF)</p>
+          <p className="text-xs text-ink-muted">One row per purchase — exported from your bank or app.</p>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-xs min-w-[380px]">
+              <thead>
+                <tr className="bg-surface border-b border-border">
+                  {['Date', 'Description', 'Amount', 'Currency'].map((h) => (
+                    <th key={h} className="px-3 py-2 text-left font-semibold text-ink">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border text-ink-muted font-mono">
+                <tr><td className="px-3 py-1.5">2024-06-01</td><td className="px-3 py-1.5">Salary</td><td className="px-3 py-1.5 text-accent">3000.00</td><td className="px-3 py-1.5">MAD</td></tr>
+                <tr><td className="px-3 py-1.5">2024-06-03</td><td className="px-3 py-1.5">Supermarket</td><td className="px-3 py-1.5 text-danger">-145.00</td><td className="px-3 py-1.5">MAD</td></tr>
+                <tr><td className="px-3 py-1.5">2024-06-05</td><td className="px-3 py-1.5">Fuel</td><td className="px-3 py-1.5 text-danger">-60.00</td><td className="px-3 py-1.5">MAD</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="border-t border-border" />
+
+        {/* Format 2: Budget summary */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-ink">Budget summary (Excel / CSV)</p>
+          <p className="text-xs text-ink-muted">Categories as columns, weeks as rows — sets budgets and imports weekly spend automatically.</p>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-xs min-w-[420px]">
+              <thead>
+                <tr className="bg-surface border-b border-border">
+                  {['', 'Food', 'Transport', 'Shopping', 'Rent'].map((h, i) => (
+                    <th key={i} className="px-3 py-2 text-left font-semibold text-ink">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border text-ink-muted font-mono">
+                <tr className="bg-surface/50"><td className="px-3 py-1.5 font-medium text-ink">Budget Limit</td><td className="px-3 py-1.5">1500</td><td className="px-3 py-1.5">400</td><td className="px-3 py-1.5">600</td><td className="px-3 py-1.5">3000</td></tr>
+                <tr><td className="px-3 py-1.5">Week 1</td><td className="px-3 py-1.5">320</td><td className="px-3 py-1.5">85</td><td className="px-3 py-1.5">145</td><td className="px-3 py-1.5">—</td></tr>
+                <tr><td className="px-3 py-1.5">Week 2</td><td className="px-3 py-1.5">280</td><td className="px-3 py-1.5">90</td><td className="px-3 py-1.5">60</td><td className="px-3 py-1.5">3000</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+          <ul className="text-xs text-ink-muted space-y-1 flex-1">
+            <li>• Also supports separate <strong className="text-ink font-medium">Debit</strong> / <strong className="text-ink font-medium">Credit</strong> columns</li>
+            <li>• PDFs must be text-based (not scanned images)</li>
+            <li>• Date format: YYYY-MM-DD or DD/MM/YYYY</li>
+          </ul>
+          <a
+            href="/api/upload/template"
+            download="reckon-template.csv"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-r transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0-4-4m4 4 4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" />
+            </svg>
+            Download sample CSV
+          </a>
+        </div>
+      </div>
+    </details>
   )
 }

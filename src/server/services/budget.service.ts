@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import { connectDB } from '@/server/db/connect'
 import { Budget, Transaction } from '@/server/db/models'
 import { toDecimal128, fromDecimal128 } from '@/lib/money'
-import { createNotification } from '@/server/services/notification.service'
+import { Notification } from '@/server/db/models'
 import type { CreateBudgetInput, UpdateBudgetInput } from '@/schemas/budget'
 
 export interface BudgetWithActual {
@@ -76,23 +76,28 @@ export async function listBudgets(
       }
     })
 
-  // Fire budget alert notifications (non-blocking, fire-and-forget)
-  for (const budget of results) {
-    if (budget.pct >= 1.0) {
-      createNotification(userId, {
-        kind: 'budget_alert',
-        title: `Budget exceeded: ${budget.category.name}`,
-        body: `You've spent ${(budget.pct * 100).toFixed(0)}% of your ${budget.month} budget for ${budget.category.name}.`,
-        meta: { budgetId: budget._id, pct: budget.pct },
-      }).catch(() => undefined)
-    } else if (budget.pct >= budget.alertThreshold / 100) {
-      createNotification(userId, {
-        kind: 'budget_alert',
-        title: `${budget.category.name} budget at ${(budget.pct * 100).toFixed(0)}%`,
-        body: `You've used ${(budget.pct * 100).toFixed(0)}% of your ${budget.currency} ${budget.limit.toLocaleString()} limit.`,
-        meta: { budgetId: budget._id, pct: budget.pct },
-      }).catch(() => undefined)
-    }
+  // Bulk-insert budget alert notifications — one insertMany instead of N individual creates.
+  // Only fires for budgets that crossed a threshold this load; existing alerts for the same
+  // budgetId+month are ignored by the sparse unique check on { user, meta.budgetId, month }.
+  const alerts = results
+    .filter((b) => b.pct >= Math.min(b.alertThreshold / 100, 1.0))
+    .map((b) => ({
+      user: new mongoose.Types.ObjectId(userId),
+      kind: 'budget_alert' as const,
+      title:
+        b.pct >= 1.0
+          ? `Budget exceeded: ${b.category.name}`
+          : `${b.category.name} budget at ${(b.pct * 100).toFixed(0)}%`,
+      body:
+        b.pct >= 1.0
+          ? `You've spent ${(b.pct * 100).toFixed(0)}% of your ${b.month} budget for ${b.category.name}.`
+          : `You've used ${(b.pct * 100).toFixed(0)}% of your ${b.currency} ${b.limit.toLocaleString()} limit.`,
+      meta: { budgetId: b._id, pct: b.pct },
+      isRead: false,
+    }))
+
+  if (alerts.length > 0) {
+    Notification.insertMany(alerts, { ordered: false }).catch(() => undefined)
   }
 
   return results
@@ -134,12 +139,12 @@ export async function updateBudget(
   if (input.currency) update.currency = input.currency
   if (input.alertThreshold !== undefined) update.alertThreshold = input.alertThreshold
 
-  const result = await Budget.findOneAndUpdate(
+  const result = await Budget.updateOne(
     { _id: budgetId, user: new mongoose.Types.ObjectId(userId) },
     { $set: update },
   )
 
-  if (!result) return { ok: false, error: 'Budget not found.' }
+  if (result.matchedCount === 0) return { ok: false, error: 'Budget not found.' }
   return { ok: true }
 }
 
@@ -149,11 +154,11 @@ export async function deleteBudget(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await connectDB()
 
-  const result = await Budget.findOneAndDelete({
+  const result = await Budget.deleteOne({
     _id: budgetId,
     user: new mongoose.Types.ObjectId(userId),
   })
 
-  if (!result) return { ok: false, error: 'Budget not found.' }
+  if (result.deletedCount === 0) return { ok: false, error: 'Budget not found.' }
   return { ok: true }
 }

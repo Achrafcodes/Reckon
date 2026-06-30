@@ -9,6 +9,8 @@ import { Greeting } from '@/components/dashboard/Greeting'
 import { KPICard } from '@/components/dashboard/KPICard'
 import { ImportPrompt } from '@/components/dashboard/ImportPrompt'
 import { DateRangeFilter } from '@/components/dashboard/DateRangeFilter'
+import { InsightsPanel } from '@/components/dashboard/InsightsPanel'
+import { generateInsights } from '@/server/services/insights.service'
 
 export const metadata = { title: 'Dashboard — Reckon' }
 
@@ -61,11 +63,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const { from, to } = parseDateWindow(range)
 
-  const [summary, categorySpend, recent, recurringItems] = await Promise.all([
+  const [summary, categorySpend, recent, recurringItems, insights] = await Promise.all([
     getSummary(userId, from, to),
     getSpendByCategory(userId, from, to),
     listTransactions(userId, listTransactionsSchema.parse({ limit: '8', sort: 'date_desc' })),
     detectRecurring(userId),
+    generateInsights(userId),
   ])
 
   const hasData = summary.transactionCount > 0
@@ -139,6 +142,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           />
         ))}
       </div>
+
+      {/* Insights */}
+      {hasData && <InsightsPanel insights={insights} />}
 
       {!hasData ? (
         <ImportPrompt />

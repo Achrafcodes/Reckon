@@ -11,6 +11,6 @@ export async function revertImportBatchAction(batchId: string) {
   const result = await revertImportBatch(String(user._id), batchId)
   revalidatePath('/upload')
   revalidatePath('/transactions')
-  revalidatePath('/')
+  revalidatePath('/dashboard')
   return result
 }

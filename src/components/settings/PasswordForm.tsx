@@ -35,7 +35,7 @@ export function PasswordForm() {
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+          className="input-base"
         />
       </div>
 
@@ -49,7 +49,7 @@ export function PasswordForm() {
             required
             minLength={8}
             autoComplete="new-password"
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
         <div className="space-y-1.5">
@@ -61,19 +61,19 @@ export function PasswordForm() {
             required
             minLength={8}
             autoComplete="new-password"
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
-      {success && <p className="text-xs text-forest">Password changed successfully.</p>}
+      {success && <p className="text-xs text-accent">Password changed successfully.</p>}
 
       <div className="flex justify-end pt-1">
         <button
           type="submit"
           disabled={isPending}
-          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-brand text-white rounded-lg hover:bg-brand-h disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Updating…' : 'Update password'}
         </button>

@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { createBudgetAction } from '@/server/actions/budget'
 import { createCategoryAction } from '@/server/actions/category'
+import { Select } from '@/components/ui/Select'
 import type { CategorySummary } from '@/server/services/category.service'
 
 interface Props {
@@ -31,7 +32,7 @@ function AddCategoryInline({ onCreated }: { onCreated: (cat: CategorySummary) =>
       if (!result.ok) {
         setError(result.error)
       } else {
-        onCreated({ _id: result.id, name: result.name, color, icon: 'tag', type: 'expense' })
+        onCreated({ _id: result.id, name: result.name, color, icon: 'tag', type: 'expense', isSystem: false })
         setOpen(false)
         setColor('#64748b')
       }
@@ -43,7 +44,7 @@ function AddCategoryInline({ onCreated }: { onCreated: (cat: CategorySummary) =>
       <button
         type="button"
         onClick={() => { setOpen(true); setTimeout(() => nameRef.current?.focus(), 50) }}
-        className="text-xs text-forest hover:underline mt-1 inline-flex items-center gap-1"
+        className="text-xs text-brand hover:underline mt-1 inline-flex items-center gap-1"
       >
         <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -54,7 +55,7 @@ function AddCategoryInline({ onCreated }: { onCreated: (cat: CategorySummary) =>
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-2 rounded-lg border border-rule bg-mist/40 p-3 space-y-3 animate-fade-up">
+    <form onSubmit={handleSubmit} className="mt-2 rounded-lg border border-border bg-surface-r p-3 space-y-3 animate-fade-up">
       <p className="text-xs font-semibold text-ink">New category</p>
 
       <input type="hidden" name="type" value="expense" />
@@ -70,7 +71,7 @@ function AddCategoryInline({ onCreated }: { onCreated: (cat: CategorySummary) =>
           required
           maxLength={40}
           placeholder="e.g. Pet care"
-          className="w-full rounded-lg border border-rule bg-paper px-3 py-1.5 text-sm text-ink placeholder:text-ink-muted outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+          className="input-base"
         />
       </div>
 
@@ -96,14 +97,14 @@ function AddCategoryInline({ onCreated }: { onCreated: (cat: CategorySummary) =>
         <button
           type="button"
           onClick={() => { setOpen(false); setError(null) }}
-          className="text-xs text-ink-muted hover:text-ink px-2 py-1 rounded border border-rule hover:bg-mist transition-colors"
+          className="text-xs text-ink-muted hover:text-ink px-2 py-1 rounded border border-border hover:bg-surface-r transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="text-xs font-medium bg-forest text-white px-3 py-1 rounded hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="text-xs font-medium bg-brand text-white px-3 py-1 rounded hover:bg-brand-h disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Adding…' : 'Add category'}
         </button>
@@ -147,7 +148,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 bg-forest text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-forest-hover transition-colors"
+        className="inline-flex items-center gap-2 bg-brand text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-brand-h transition-colors"
       >
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -174,19 +175,18 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="col-span-2 space-y-1">
           <label className="text-xs font-medium text-ink-muted" htmlFor="budget-category">Category</label>
-          <select
+          <Select
             id="budget-category"
             name="category"
             required
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
           >
             <option value="">Select a category…</option>
             {expenseCategories.map((c) => (
               <option key={c._id} value={c._id}>{c.name}</option>
             ))}
-          </select>
+          </Select>
           <AddCategoryInline onCreated={handleCategoryCreated} />
         </div>
 
@@ -200,7 +200,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
             step="0.01"
             required
             placeholder="e.g. 1500"
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink placeholder:text-ink-muted outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
 
@@ -214,7 +214,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
             max="99"
             step="5"
             defaultValue="80"
-            className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+            className="input-base"
           />
         </div>
       </div>
@@ -225,14 +225,14 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
         <button
           type="button"
           onClick={() => { setOpen(false); setError(null) }}
-          className="w-full sm:w-auto px-4 py-2 text-sm text-ink-muted hover:text-ink border border-rule rounded-lg hover:bg-mist transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm text-ink-muted hover:text-ink border border-border rounded-lg hover:bg-surface-r transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-forest text-white rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium bg-brand text-white rounded-lg hover:bg-brand-h disabled:opacity-60 transition-colors"
         >
           {isPending ? 'Saving…' : 'Save budget'}
         </button>

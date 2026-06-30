@@ -24,6 +24,9 @@ const notificationSchema = new Schema<INotification>(
   { timestamps: true },
 )
 
+// Compound index covers the primary query pattern: unread notifications for a user, newest first
+notificationSchema.index({ user: 1, isRead: 1, createdAt: -1 })
+
 export const Notification: Model<INotification> =
   mongoose.models.Notification ??
   mongoose.model<INotification>('Notification', notificationSchema)

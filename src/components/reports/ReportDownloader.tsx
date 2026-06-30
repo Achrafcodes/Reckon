@@ -115,8 +115,8 @@ export function ReportDownloader({ topCategories }: Props) {
               onClick={() => setPreset(i)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                 preset === i
-                  ? 'bg-forest text-white border-forest'
-                  : 'bg-paper text-ink-muted border-rule hover:border-forest hover:text-ink'
+                  ? 'bg-brand text-white border-brand'
+                  : 'bg-surface text-ink-muted border-border hover:border-brand hover:text-ink'
               }`}
             >
               {p.label}
@@ -135,7 +135,7 @@ export function ReportDownloader({ topCategories }: Props) {
               type="date"
               value={customFrom}
               onChange={(e) => setCustomFrom(e.target.value)}
-              className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+              className="input-base"
             />
           </div>
           <div className="space-y-1">
@@ -145,7 +145,7 @@ export function ReportDownloader({ topCategories }: Props) {
               type="date"
               value={customTo}
               onChange={(e) => setCustomTo(e.target.value)}
-              className="w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-colors"
+              className="input-base"
             />
           </div>
         </div>
@@ -177,7 +177,7 @@ export function ReportDownloader({ topCategories }: Props) {
           type="button"
           onClick={() => download('/api/reports/pdf', `reckon-report-${dateStr}.pdf`, setLoadingPdf)}
           disabled={loadingPdf || loadingXlsx}
-          className="flex items-center justify-center gap-2 bg-ink text-paper text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-ink/90 disabled:opacity-60 transition-colors"
+          className="flex items-center justify-center gap-2 bg-ink text-surface text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-ink/90 disabled:opacity-60 transition-colors"
         >
           {loadingPdf ? <Spinner /> : <PdfIcon />}
           Download PDF
@@ -186,7 +186,7 @@ export function ReportDownloader({ topCategories }: Props) {
           type="button"
           onClick={() => download('/api/reports', `reckon-report-${dateStr}.xlsx`, setLoadingXlsx)}
           disabled={loadingPdf || loadingXlsx}
-          className="flex items-center justify-center gap-2 bg-forest text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-forest-hover disabled:opacity-60 transition-colors"
+          className="flex items-center justify-center gap-2 bg-accent text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-accent-h disabled:opacity-60 transition-colors"
         >
           {loadingXlsx ? <Spinner /> : <ExcelIcon />}
           Download Excel

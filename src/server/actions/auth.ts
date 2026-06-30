@@ -45,7 +45,7 @@ export async function registerAction(
 
   await setAuthCookies(accessToken, refreshToken)
 
-  return { ok: true, data: { redirectTo: '/' } }
+  return { ok: true, data: { redirectTo: '/dashboard' } }
 }
 
 export async function loginAction(
@@ -85,7 +85,7 @@ export async function loginAction(
   await setAuthCookies(accessToken, refreshToken)
   await User.findByIdAndUpdate(userId, { lastLoginAt: new Date() })
 
-  return { ok: true, data: { redirectTo: '/' } }
+  return { ok: true, data: { redirectTo: '/dashboard' } }
 }
 
 export async function logoutAction(): Promise<void> {

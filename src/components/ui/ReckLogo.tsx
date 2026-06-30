@@ -1,94 +1,86 @@
-/**
- * Reckon logo — geometric mark (balance ledger) + wordmark.
- * Mark: two horizontal ledger lines anchored by a vertical spine,
- * forming a stylised "R" / balance-sheet icon.
- */
 interface ReckLogoProps {
-  /** Total rendered width. Height scales proportionally (aspect ≈ 3.4:1). */
+  /** Total rendered width in px. Height auto-scales. */
   width?: number
-  /** Override mark + text colour (defaults to currentColor). */
+  /** Wordmark text colour. Defaults to currentColor. */
   color?: string
-  /** Show mark only — no wordmark. */
+  /** Show the square mark only — no wordmark. */
   markOnly?: boolean
   className?: string
 }
 
+/**
+ * Reckon logo — branded square mark (ascending bar chart) + wordmark.
+ *
+ * Mark: brand-blue rounded square, three ascending white bars, accent dot at
+ * the peak. Always renders in brand colours so it looks right on any background.
+ * `color` controls only the wordmark text colour.
+ */
 export function ReckLogo({
   width = 120,
   color = 'currentColor',
   markOnly = false,
   className,
 }: ReckLogoProps) {
-  /* The mark is 24×24; the full lockup is ~120×32 */
-  const markSize = Math.round((width / (markOnly ? 1 : 4.5)) * 1)
-  const totalW = markOnly ? markSize : width
-  const totalH = Math.round(markSize * (markOnly ? 1 : 1.1))
+  const markSize = markOnly
+    ? width
+    : Math.max(Math.round(width / 4.2), 20)
+
+  const fontSize = Math.round(markSize * 0.68)
 
   return (
-    <svg
-      width={totalW}
-      height={Math.max(totalH, 28)}
-      viewBox={markOnly ? '0 0 24 24' : '0 0 120 28'}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Reckon"
+    <div
+      className={['inline-flex items-center', markOnly ? '' : 'gap-2.5', className ?? ''].filter(Boolean).join(' ')}
       role="img"
-      className={className}
+      aria-label="Reckon"
     >
-      {/* ── Mark: ledger / balance icon ── */}
-      {/* Vertical spine */}
-      <line
-        x1="4" y1="4" x2="4" y2="20"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        style={{ strokeDasharray: 160, strokeDashoffset: 0 }}
-      />
-      {/* Top bar (full width) */}
-      <line
-        x1="4" y1="4" x2="18" y2="4"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      {/* Mid bar (shorter — suggest balance) */}
-      <line
-        x1="4" y1="12" x2="15" y2="12"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      {/* Diagonal leg — like a rising trend / R leg */}
-      <line
-        x1="15" y1="12" x2="20" y2="20"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      {/* Corner bracket — closes the "R" shoulder */}
-      <path
-        d="M18 4 Q22 4 22 8 Q22 12 15 12"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      {/* ── Mark ── */}
+      <svg
+        width={markSize}
+        height={markSize}
+        viewBox="0 0 28 28"
         fill="none"
-      />
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        style={{ display: 'block', flexShrink: 0 }}
+      >
+        {/* Rounded square container */}
+        <rect width="28" height="28" rx="7" fill="#1e40af" />
 
-      {/* ── Wordmark ── (hidden in markOnly mode) */}
+        {/* Ascending bars — bottom-aligned at y=23, left-to-right: short → tall */}
+        <rect x="6"  y="18" width="4" height="5"  rx="1.5" fill="white" fillOpacity="0.45" />
+        <rect x="12" y="13" width="4" height="10" rx="1.5" fill="white" fillOpacity="0.72" />
+        <rect x="18" y="8"  width="4" height="15" rx="1.5" fill="white" />
+
+        {/* Subtle trend line connecting bar tops */}
+        <path
+          d="M8 18L14 13L20 8"
+          stroke="white"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeOpacity="0.35"
+        />
+
+        {/* Accent dot at the peak — signals "data point" */}
+        <circle cx="20" cy="8" r="2" fill="#93c5fd" />
+      </svg>
+
+      {/* ── Wordmark ── */}
       {!markOnly && (
-        <text
-          x="30"
-          y="20"
-          fontFamily="var(--font-dm-serif), Georgia, serif"
-          fontStyle="italic"
-          fontSize="18"
-          fill={color}
-          letterSpacing="-0.3"
+        <span
+          style={{
+            color,
+            fontSize,
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            fontFamily: 'var(--font-geist-sans, system-ui, -apple-system, sans-serif)',
+            userSelect: 'none',
+          }}
         >
           Reckon
-        </text>
+        </span>
       )}
-    </svg>
+    </div>
   )
 }

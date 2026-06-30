@@ -15,6 +15,7 @@ export async function getUnreadNotifications(userId: string): Promise<Notificati
   await connectDB()
 
   const docs = await Notification.find({ user: userId, isRead: false })
+    .select('kind title body isRead createdAt')
     .sort({ createdAt: -1 })
     .limit(20)
     .lean()
