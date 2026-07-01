@@ -13,6 +13,7 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
   const { baseCurrency: currency } = useSession()
   const [isPending, startTransition] = useTransition()
   const [editing, setEditing] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [limit, setLimit] = useState(String(budget.limit))
   const [threshold, setThreshold] = useState(String(Math.round(budget.alertThreshold * 100)))
   const [recurring, setRecurring] = useState(budget.recurring)
@@ -25,7 +26,6 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
   const barColor = isOver ? '#b91c1c' : isWarning ? '#92600a' : budget.category.color
 
   function handleDelete() {
-    if (!confirm(`Delete the ${budget.category.name} budget?`)) return
     startTransition(async () => { await deleteBudgetAction(budget._id) })
   }
 
@@ -58,7 +58,7 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
-            onClick={() => { setEditing((e) => !e); setError(null) }}
+            onClick={() => { setEditing((e) => !e); setConfirmingDelete(false); setError(null) }}
             disabled={isPending}
             className="w-7 h-7 flex items-center justify-center rounded-md text-ink-muted/60 hover:text-ink hover:bg-mist transition-colors"
             aria-label={`Edit ${budget.category.name} budget`}
@@ -68,7 +68,7 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
             </svg>
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => { setConfirmingDelete(true); setEditing(false) }}
             disabled={isPending}
             className="w-7 h-7 flex items-center justify-center rounded-md text-ink-muted/60 hover:text-danger hover:bg-danger/8 transition-colors"
             aria-label={`Delete ${budget.category.name} budget`}
@@ -102,6 +102,30 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
           <span className="text-ink-muted tabular-nums">{pct.toFixed(0)}%</span>
         </div>
       </div>
+
+      {/* Inline delete confirmation */}
+      {confirmingDelete && (
+        <div className="pt-2 border-t border-danger/20 animate-fade-up">
+          <p className="text-xs text-ink mb-2">Delete <span className="font-semibold">{budget.category.name}</span> budget? This can&apos;t be undone.</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              className="flex-1 px-3 py-1.5 text-xs text-ink-muted hover:text-ink border border-rule rounded-lg hover:bg-mist transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isPending}
+              className="flex-1 px-3 py-1.5 text-xs font-medium bg-danger text-white rounded-lg hover:bg-danger/90 disabled:opacity-60 transition-colors"
+            >
+              {isPending ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Inline edit form */}
       {editing && (
