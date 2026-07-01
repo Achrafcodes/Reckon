@@ -50,7 +50,7 @@ export async function GET(req: Request) {
         balance: summary.balance,
         topCategories: categories.slice(0, 5).map((c) => ({ name: c.name, total: c.total })),
         transactionCount: summary.transactionCount,
-        currency: user.settings?.baseCurrency ?? 'MAD',
+        currency: user.settings?.baseCurrency ?? 'USD',
       })
 
       if (result.ok) sent++

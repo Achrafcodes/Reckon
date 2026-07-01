@@ -73,7 +73,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const hasData = summary.transactionCount > 0
   const topCategories = categorySpend.slice(0, 5)
-  const currency = user.settings?.baseCurrency ?? 'MAD'
+  const currency = user.settings?.baseCurrency ?? 'USD'
 
   const kpis = [
     {

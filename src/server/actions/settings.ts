@@ -10,7 +10,7 @@ import { User } from '@/server/db/models'
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required').max(60, 'Name too long').transform((s) => s.trim()),
   email: z.string().email('Invalid email').transform((s) => s.toLowerCase().trim()),
-  baseCurrency: z.enum(['MAD', 'USD', 'EUR', 'GBP', 'AED', 'SAR', 'CAD', 'CHF']),
+  baseCurrency: z.string().length(3).toUpperCase().regex(/^[A-Z]{3}$/, 'Invalid currency code'),
 })
 
 const passwordSchema = z
@@ -46,7 +46,8 @@ export async function updateProfileAction(formData: FormData) {
     'settings.baseCurrency': parsed.data.baseCurrency,
   })
 
-  revalidatePath('/settings')
+  // Revalidate whole app — baseCurrency is displayed on every page
+  revalidatePath('/', 'layout')
   return { ok: true as const }
 }
 

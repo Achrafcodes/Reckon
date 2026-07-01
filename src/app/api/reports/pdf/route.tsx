@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const fromParam = searchParams.get('from')
   const toParam = searchParams.get('to')
-  const currency = searchParams.get('currency') ?? 'MAD'
+  const currency = searchParams.get('currency') ?? 'USD'
 
   const from = fromParam ? new Date(fromParam) : new Date('2000-01-01')
   const to = toParam ? new Date(toParam) : new Date('2099-12-31')

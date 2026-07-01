@@ -33,7 +33,7 @@ export default async function AnalyticsPage() {
   ])
 
   const hasData = summary.transactionCount > 0
-  const currency = user.settings?.baseCurrency ?? 'MAD'
+  const currency = user.settings?.baseCurrency ?? 'USD'
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

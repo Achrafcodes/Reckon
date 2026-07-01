@@ -33,7 +33,7 @@ export default async function SettingsPage() {
         <ProfileForm
           name={user.name}
           email={user.email}
-          baseCurrency={user.settings?.baseCurrency ?? 'MAD'}
+          baseCurrency={user.settings?.baseCurrency ?? 'USD'}
         />
       </Section>
 

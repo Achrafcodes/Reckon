@@ -11,7 +11,7 @@ export default async function ReportsPage() {
   const from = new Date('2000-01-01')
   const to = new Date('2099-12-31')
 
-  const currency = user.settings?.baseCurrency ?? 'MAD'
+  const currency = user.settings?.baseCurrency ?? 'USD'
   const [summary, categories] = await Promise.all([
     getSummary(String(user._id), from, to),
     getSpendByCategory(String(user._id), from, to),
