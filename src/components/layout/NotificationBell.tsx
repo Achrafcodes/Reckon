@@ -146,10 +146,8 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
   }, [startTransition])
 
   function handleMarkAllRead() {
-    startTransition(async () => {
-      await markAllReadAction()
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-    })
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+    startTransition(async () => { await markAllReadAction() })
   }
 
   return (
