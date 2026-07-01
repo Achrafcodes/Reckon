@@ -252,7 +252,14 @@ export async function POST(request: NextRequest) {
       }
 
       const amount = isNaN(rawAmount) ? '0.00' : rawAmount.toFixed(2)
-      const type: 'income' | 'expense' | 'transfer' = rawAmount >= 0 ? 'income' : 'expense'
+      // Credit card: positive = card payment (transfer), negative = purchase (expense)
+      // Debit account: positive = money received (income), negative = money spent (expense)
+      const type: 'income' | 'expense' | 'transfer' =
+        rawAmount < 0
+          ? 'expense'
+          : accountType === 'credit'
+            ? 'transfer'
+            : 'income'
 
       return { date, description, merchant: description, amount, currency, type, accountType } satisfies import('@/server/services/import.service').ParsedRow
     })
