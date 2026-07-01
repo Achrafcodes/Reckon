@@ -123,8 +123,8 @@ export function UploadZone() {
               className={[
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                 accountType === type
-                  ? 'bg-white text-ink shadow-sm border border-rule'
-                  : 'text-ink-muted hover:text-ink',
+                  ? 'bg-forest text-white shadow-sm'
+                  : 'text-ink-muted hover:text-ink hover:bg-mist',
               ].join(' ')}
             >
               {type === 'debit' ? (

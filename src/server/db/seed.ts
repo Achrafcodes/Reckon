@@ -35,7 +35,7 @@ const SYSTEM_CATEGORIES = [
     keywords: [
       // App prefixes banks truncate to
       'doordash', 'dd/doordash',
-      'ubereats', 'uber eats', 'uber canada/ubereats',
+      'ubereats', 'uber eats', 'uber canada/ubereats', 'uber holdings canada',
       'skipthedishes', 'skip the dishes', 'skip*',
       'grubhub', 'foodora', 'ritual', 'deliveroo',
       'glovo', 'rappi', 'wolt', 'bolt food',
@@ -101,7 +101,7 @@ const SYSTEM_CATEGORIES = [
     icon: 'car',
     keywords: [
       // Ride-hailing (global)
-      'uber', 'ubertrip', 'uber holdings', 'lyft', 'bolt ', 'free now',
+      'uber', 'ubertrip', 'lyft', 'bolt ', 'free now',
       'grab', 'gojek', 'didi', 'ola ', 'careem', 'indriver',
       'taxi', 'cab ', 'vtc ',
       // Public transit (generic + major networks)
