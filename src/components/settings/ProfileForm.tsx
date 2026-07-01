@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateProfileAction } from '@/server/actions/settings'
-import { Select } from '@/components/ui/Select'
+import { Combobox } from '@/components/ui/Combobox'
 
 const CURRENCIES = [
   { value: 'USD', label: 'USD — US Dollar' },
@@ -60,6 +60,7 @@ export function ProfileForm({ name, email, baseCurrency }: Props) {
   const [isPending, startTransition] = useTransition()
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currency, setCurrency] = useState(baseCurrency)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -103,15 +104,14 @@ export function ProfileForm({ name, email, baseCurrency }: Props) {
 
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-ink-muted" htmlFor="profile-currency">Base currency</label>
-        <Select
+        <Combobox
           id="profile-currency"
           name="baseCurrency"
-          defaultValue={baseCurrency}
-        >
-          {CURRENCIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </Select>
+          value={currency}
+          onChange={setCurrency}
+          options={CURRENCIES}
+          searchPlaceholder="Search currencies…"
+        />
         <p className="text-xs text-ink-muted">Used for display and exports. Doesn&apos;t convert existing transactions.</p>
       </div>
 

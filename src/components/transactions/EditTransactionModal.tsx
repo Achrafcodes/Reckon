@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { updateTransactionAction } from '@/server/actions/transactions'
 import { Select } from '@/components/ui/Select'
+import { Combobox } from '@/components/ui/Combobox'
 import type { TransactionRow } from '@/server/services/transaction.service'
 import type { CategorySummary } from '@/server/services/category.service'
 
@@ -298,19 +299,18 @@ export function EditTransactionModal({
               </div>
               <div>
                 <label htmlFor="edit-category" className={labelClass}>Category</label>
-                <Select
+                <Combobox
                   id="edit-category"
                   name="category"
                   value={form.category}
-                  onChange={handleChange}
-                >
-                  <option value="">Uncategorized</option>
-                  {categories.map((cat) => (
-                    <option key={cat._id} value={cat._id}>
-                      {cat.icon} {cat.name}
-                    </option>
-                  ))}
-                </Select>
+                  onChange={(v) => handleChange({ target: { name: 'category', value: v } } as React.ChangeEvent<HTMLSelectElement>)}
+                  options={[
+                    { value: '', label: 'Uncategorized' },
+                    ...categories.map((cat) => ({ value: cat._id, label: cat.name })),
+                  ]}
+                  placeholder="Uncategorized"
+                  searchPlaceholder="Search categories…"
+                />
               </div>
             </div>
 

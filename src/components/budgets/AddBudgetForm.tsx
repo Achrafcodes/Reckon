@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { createBudgetAction } from '@/server/actions/budget'
 import { createCategoryAction } from '@/server/actions/category'
-import { Select } from '@/components/ui/Select'
+import { Combobox } from '@/components/ui/Combobox'
 import type { CategorySummary } from '@/server/services/category.service'
 
 interface Props {
@@ -208,18 +208,20 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="col-span-2 space-y-1">
           <label className="text-xs font-medium text-ink-muted" htmlFor="budget-category">Category</label>
-          <Select
+          <Combobox
             id="budget-category"
             name="category"
             required
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Select a category…</option>
-            {expenseCategories.map((c) => (
-              <option key={c._id} value={c._id}>{c.name}</option>
-            ))}
-          </Select>
+            onChange={setSelectedCategory}
+            options={expenseCategories.map((c) => ({
+              value: c._id,
+              label: c.name,
+              meta: <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />,
+            }))}
+            placeholder="Select a category…"
+            searchPlaceholder="Search categories…"
+          />
           <AddCategoryInline onCreated={handleCategoryCreated} />
         </div>
 
