@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition, useRef, useEffect } from 'react'
+import { useState, useTransition, useRef, useEffect, useCallback } from 'react'
 import { markReadAction, markAllReadAction } from '@/server/actions/notifications'
 import type { NotificationRow } from '@/server/services/notification.service'
 
@@ -53,6 +53,59 @@ function EmptyState() {
   )
 }
 
+// Auto-marks an unread notification as read when it scrolls into view
+function NotificationItem({
+  n,
+  listRef,
+  onRead,
+  isPending,
+}: {
+  n: NotificationRow
+  listRef: React.RefObject<HTMLDivElement | null>
+  onRead: (id: string) => void
+  isPending: boolean
+}) {
+  const itemRef = useRef<HTMLLIElement>(null)
+
+  useEffect(() => {
+    if (n.isRead || !itemRef.current || !listRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          onRead(n._id)
+          observer.disconnect()
+        }
+      },
+      { root: listRef.current, threshold: 0.6 },
+    )
+    observer.observe(itemRef.current)
+    return () => observer.disconnect()
+  }, [n._id, n.isRead, listRef, onRead])
+
+  return (
+    <li ref={itemRef}>
+      <div
+        className={`w-full flex items-start gap-2.5 px-3 py-3 text-left transition-colors hover:bg-surface-r ${
+          n.isRead ? 'opacity-60' : ''
+        }`}
+      >
+        <KindIcon kind={n.kind} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-ink leading-snug truncate">{n.title}</p>
+          {n.body && (
+            <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">{n.body}</p>
+          )}
+          <p className="text-xs text-ink-muted mt-1">{timeAgo(n.createdAt)}</p>
+        </div>
+        {!n.isRead && (
+          <span className="shrink-0 mt-1.5 w-2 h-2 rounded-full bg-brand" aria-label="Unread" />
+        )}
+      </div>
+      <div className="h-px bg-border mx-3" aria-hidden="true" />
+    </li>
+  )
+}
+
 interface NotificationBellProps {
   initialNotifications: NotificationRow[]
 }
@@ -62,11 +115,11 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const containerRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = notifications.filter((n) => !n.isRead).length
   const visible = notifications.slice(0, 10)
 
-  // Close on outside click
   useEffect(() => {
     function handle(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -77,14 +130,14 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
     return () => document.removeEventListener('mousedown', handle)
   }, [open])
 
-  function handleMarkRead(id: string) {
-    startTransition(async () => {
-      await markReadAction(id)
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
-      )
+  const handleMarkRead = useCallback((id: string) => {
+    setNotifications((prev) => {
+      const notif = prev.find((n) => n._id === id)
+      if (!notif || notif.isRead) return prev
+      startTransition(async () => { await markReadAction(id) })
+      return prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
     })
-  }
+  }, [startTransition])
 
   function handleMarkAllRead() {
     startTransition(async () => {
@@ -103,28 +156,11 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
         aria-haspopup="dialog"
         className="relative p-1.5 rounded-md text-ink-muted hover:text-ink hover:bg-surface-r transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.75}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-          />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
         </svg>
-
-        {/* Badge */}
         {unreadCount > 0 && (
-          <span
-            className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-brand text-white text-[10px] font-semibold flex items-center justify-center leading-none"
-            aria-hidden="true"
-          >
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-brand text-white text-[10px] font-semibold flex items-center justify-center leading-none" aria-hidden="true">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -144,7 +180,7 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
               <button
                 onClick={handleMarkAllRead}
                 disabled={isPending}
-                className="text-xs text-brand hover:text-brand/80 transition-colors disabled:opacity-50 font-medium"
+                className="text-xs font-medium px-2 py-1 rounded-md bg-forest/10 text-forest hover:bg-forest/20 dark:bg-forest/20 dark:text-forest dark:hover:bg-forest/30 transition-colors disabled:opacity-50"
               >
                 Mark all read
               </button>
@@ -152,43 +188,19 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
           </div>
 
           {/* List */}
-          <div className="max-h-[360px] overflow-y-auto">
+          <div ref={listRef} className="max-h-[360px] overflow-y-auto">
             {visible.length === 0 ? (
               <EmptyState />
             ) : (
               <ul role="list">
                 {visible.map((n) => (
-                  <li key={n._id}>
-                    <button
-                      onClick={() => {
-                        if (!n.isRead) handleMarkRead(n._id)
-                      }}
-                      disabled={isPending}
-                      className={`w-full flex items-start gap-2.5 px-3 py-3 text-left transition-colors hover:bg-surface-r disabled:opacity-50 ${
-                        n.isRead ? 'opacity-60' : ''
-                      }`}
-                    >
-                      <KindIcon kind={n.kind} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-ink leading-snug truncate">
-                          {n.title}
-                        </p>
-                        {n.body && (
-                          <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
-                            {n.body}
-                          </p>
-                        )}
-                        <p className="text-xs text-ink-muted mt-1">{timeAgo(n.createdAt)}</p>
-                      </div>
-                      {!n.isRead && (
-                        <span
-                          className="shrink-0 mt-1.5 w-2 h-2 rounded-full bg-brand"
-                          aria-label="Unread"
-                        />
-                      )}
-                    </button>
-                    <div className="h-px bg-border mx-3 last:hidden" aria-hidden="true" />
-                  </li>
+                  <NotificationItem
+                    key={n._id}
+                    n={n}
+                    listRef={listRef}
+                    onRead={handleMarkRead}
+                    isPending={isPending}
+                  />
                 ))}
               </ul>
             )}
