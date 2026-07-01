@@ -113,7 +113,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Biggest expense',
-      href: '/transactions?type=expense&sort=amount_desc',
+      href: '/transactions?type=expense&sort=amount_asc',
       value: hasData && summary.biggestExpense > 0 ? `${fmt(summary.biggestExpense)} ${currency}` : '—',
       sub: 'Single transaction',
       icon: (
