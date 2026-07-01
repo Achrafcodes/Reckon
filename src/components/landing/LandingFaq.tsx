@@ -39,7 +39,7 @@ export function LandingFaq() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 lg:gap-20 items-start">
           {/* Left */}
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-zinc-600 mb-4">
               FAQ
             </p>
             <h2 className="font-display text-3xl sm:text-4xl font-normal text-zinc-900 leading-tight">

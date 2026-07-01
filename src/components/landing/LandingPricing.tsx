@@ -29,7 +29,7 @@ export function LandingPricing() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-zinc-600 mb-4">
               Pricing
             </p>
             <h2 className="font-display text-3xl sm:text-4xl font-normal text-zinc-900 leading-tight">

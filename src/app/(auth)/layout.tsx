@@ -52,7 +52,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <footer className="h-12 flex items-center justify-center">
-          <p className="text-[11px] text-zinc-400">
+          <p className="text-xs text-zinc-500">
             © {new Date().getFullYear()} Reckon · Your data stays private
           </p>
         </footer>

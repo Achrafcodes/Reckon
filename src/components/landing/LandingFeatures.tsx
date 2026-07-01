@@ -124,7 +124,7 @@ export function LandingFeatures() {
       <div className="mx-auto max-w-6xl px-6 sm:px-8">
         {/* Section header */}
         <div className="mb-16 sm:mb-20 max-w-xl">
-          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-4">
+          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-zinc-600 mb-4">
             Features
           </p>
           <h2 className="font-display text-3xl sm:text-4xl font-normal text-zinc-900 leading-tight">

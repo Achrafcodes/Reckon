@@ -22,7 +22,7 @@ export function LandingMockup() {
     <section className="bg-white py-16 sm:py-24">
       <div className="mx-auto max-w-5xl px-6 sm:px-8">
         {/* Label */}
-        <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-8">
+        <p className="text-xs font-semibold tracking-[0.18em] uppercase text-zinc-600 mb-8">
           Your dashboard
         </p>
 
@@ -40,7 +40,7 @@ export function LandingMockup() {
             <span className="w-2.5 h-2.5 rounded-full bg-zinc-300" aria-hidden="true" />
             <span className="w-2.5 h-2.5 rounded-full bg-zinc-300" aria-hidden="true" />
             <span className="w-2.5 h-2.5 rounded-full bg-zinc-300" aria-hidden="true" />
-            <span className="ml-4 text-[11px] text-zinc-400 font-mono">reckon.app/dashboard</span>
+            <span className="ml-4 text-xs text-zinc-500 font-mono">reckon.app/dashboard</span>
           </div>
 
           {/* App shell */}

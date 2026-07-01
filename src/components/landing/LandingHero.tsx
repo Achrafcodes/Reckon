@@ -28,7 +28,7 @@ export function LandingHero() {
       <div className="relative mx-auto max-w-6xl px-6 sm:px-8 pt-20 pb-32 sm:pt-28 sm:pb-40">
         {/* Eyebrow */}
         <motion.p
-          className="text-[11px] font-semibold tracking-[0.18em] uppercase text-zinc-500 mb-10"
+          className="text-xs font-semibold tracking-[0.18em] uppercase text-zinc-400 mb-10"
           initial={reduce ? undefined : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, ease }}

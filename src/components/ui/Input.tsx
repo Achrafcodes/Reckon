@@ -37,7 +37,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShow((s) => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-muted transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-11 h-11 text-ink-faint hover:text-ink-muted transition-colors"
               aria-label={show ? 'Hide password' : 'Show password'}
             >
               {show ? (
