@@ -65,7 +65,7 @@ export default async function TransactionsPage({
         </div>
       ) : (
         <div className="card overflow-hidden">
-          <TransactionTable transactions={data} categories={categories} />
+          <TransactionTable transactions={data} categories={categories} currency={user.settings?.baseCurrency ?? 'USD'} />
           <Suspense>
             <TransactionPagination page={page} totalPages={totalPages} total={total} limit={input.limit} />
           </Suspense>

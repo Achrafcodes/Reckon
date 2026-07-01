@@ -9,9 +9,10 @@ import type { CategorySummary } from '@/server/services/category.service'
 interface TransactionTableProps {
   transactions: TransactionRow[]
   categories: CategorySummary[]
+  currency?: string
 }
 
-export function TransactionTable({ transactions, categories }: TransactionTableProps) {
+export function TransactionTable({ transactions, categories, currency = 'USD' }: TransactionTableProps) {
   const [editing, setEditing] = useState<TransactionRow | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -207,7 +208,7 @@ export function TransactionTable({ transactions, categories }: TransactionTableP
                       maximumFractionDigits: 2,
                     })}
                   </span>
-                  <span className="ml-1 text-xs text-ink-muted">{tx.currency}</span>
+                  <span className="ml-1 text-xs text-ink-muted">{currency}</span>
                 </td>
                 <td className="px-2 py-3">
                   <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity" data-delete-controls>

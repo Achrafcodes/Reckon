@@ -247,7 +247,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 </div>
                 <div className="flex flex-col items-end gap-0.5 shrink-0">
                   <span className="text-sm font-semibold tabular-nums text-danger">
-                    {fmt(item.amount)} {item.currency}
+                    {fmt(item.amount)} {currency}
                   </span>
                   <span className={frequencyBadgeClass(item.frequency)}>
                     {item.frequency}
