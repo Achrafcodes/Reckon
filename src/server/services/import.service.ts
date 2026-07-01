@@ -13,6 +13,7 @@ export interface ParsedRow {
   amount: string     // signed decimal string
   currency: string
   type: 'income' | 'expense' | 'transfer'
+  accountType?: 'debit' | 'credit'
 }
 
 export interface ImportResult {

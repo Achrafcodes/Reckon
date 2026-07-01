@@ -78,7 +78,7 @@ function parsePdfText(text: string): ParsedRow[] {
       description,
       merchant: description,
       amount: amount.toFixed(2),
-      currency: 'MAD',
+      currency: 'CAD',
       type: amount >= 0 ? 'income' : 'expense',
     })
   }
@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Unsupported file type. Please upload .xlsx, .xls, .csv, or .pdf.' }, { status: 400 })
   }
 
+  const accountType = (formData.get('accountType') ?? 'debit') === 'credit' ? 'credit' : 'debit'
   const buffer = Buffer.from(await file.arrayBuffer())
 
   // ── PDF path ────────────────────────────────────────────────────────────────
@@ -240,7 +241,7 @@ export async function POST(request: NextRequest) {
         const credit = Number(String(safe['credit'] ?? '0').replace(/[^0-9.]/g, ''))
         rawAmount = credit - debit
       }
-      const currency = String(safe['currency'] ?? safe['ccy'] ?? 'MAD').toUpperCase().slice(0, 3)
+      const currency = String(safe['currency'] ?? safe['ccy'] ?? safe['devise'] ?? '').toUpperCase().slice(0, 3) || 'CAD'
 
       let date: string
       if (rawDate instanceof Date) {
@@ -253,7 +254,7 @@ export async function POST(request: NextRequest) {
       const amount = isNaN(rawAmount) ? '0.00' : rawAmount.toFixed(2)
       const type: 'income' | 'expense' | 'transfer' = rawAmount >= 0 ? 'income' : 'expense'
 
-      return { date, description, merchant: description, amount, currency, type }
+      return { date, description, merchant: description, amount, currency, type, accountType } satisfies import('@/server/services/import.service').ParsedRow
     })
 
     if (rows.length === 0) {

@@ -3,6 +3,8 @@
 import { useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
+type AccountType = 'debit' | 'credit'
+
 type UploadState =
   | { status: 'idle' }
   | { status: 'dragging' }
@@ -26,10 +28,11 @@ function validateFile(file: File): string | null {
 
 export function UploadZone() {
   const [state, setState] = useState<UploadState>({ status: 'idle' })
+  const [accountType, setAccountType] = useState<AccountType>('debit')
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  const upload = useCallback(async (file: File) => {
+  const upload = useCallback(async (file: File, acctType: AccountType) => {
     const err = validateFile(file)
     if (err) {
       setState({ status: 'error', message: err })
@@ -40,6 +43,7 @@ export function UploadZone() {
 
     const formData = new FormData()
     formData.set('file', file)
+    formData.set('accountType', acctType)
 
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
@@ -84,8 +88,8 @@ export function UploadZone() {
     e.preventDefault()
     setState({ status: 'idle' })
     const file = e.dataTransfer.files[0]
-    if (file) upload(file)
-  }, [upload])
+    if (file) upload(file, accountType)
+  }, [upload, accountType])
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -98,7 +102,7 @@ export function UploadZone() {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) upload(file)
+    if (file) upload(file, accountType)
     e.target.value = ''
   }
 
@@ -107,6 +111,42 @@ export function UploadZone() {
 
   return (
     <div className="space-y-4">
+      {/* Account type selector */}
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-medium text-ink-muted shrink-0">Account type</span>
+        <div className="flex rounded-lg border border-rule bg-paper p-0.5 gap-0.5">
+          {(['debit', 'credit'] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setAccountType(type)}
+              className={[
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                accountType === type
+                  ? 'bg-white text-ink shadow-sm border border-rule'
+                  : 'text-ink-muted hover:text-ink',
+              ].join(' ')}
+            >
+              {type === 'debit' ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+              ) : (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20M6 15h2M12 15h6" strokeLinecap="round" />
+                </svg>
+              )}
+              {type === 'debit' ? 'Debit / Bank' : 'Credit Card'}
+            </button>
+          ))}
+        </div>
+        <span className="text-xs text-ink-faint hidden sm:block">
+          {accountType === 'credit' ? 'Purchases are debits, payments are credits' : 'Money in is credit, money out is debit'}
+        </span>
+      </div>
+
       {/* Drop zone */}
       <div
         role="button"
