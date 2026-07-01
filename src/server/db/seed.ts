@@ -155,6 +155,8 @@ const SYSTEM_CATEGORIES = [
       'coinamatic', 'coinamat', 'laundry', 'lessive',
       // Monthly fee catch-all
       'monthly account fee', 'account fee', 'frais mensuel',
+      // RBC loan/plan payments
+      'rbc payplan', 'payplan pro',
     ],
   },
   {
@@ -353,7 +355,7 @@ const SYSTEM_CATEGORIES = [
       'td visa', 'rbc visa', 'bmo visa', 'scotiabank visa',
       'visa payment', 'credit card payment', 'mastercard payment',
       'payment - thank you', 'thank you payment',
-      'remboursement', 'loan payment', 'rbc payplan',
+      'remboursement', 'loan payment',
       // Savings
       'savings', 'épargne', 'epargne', 'tfsa', 'rrsp', 'fhsa',
     ],
@@ -372,7 +374,7 @@ const SYSTEM_CATEGORIES = [
       // Loans
       'loan', 'personal loan', 'auto loan', 'car loan',
       'credit line', 'ligne de crédit', 'ligne de credit',
-      'rbc payplan pro loan', 'payplan pro',
+      'rbc payplan pro loan',
       'mortgage', 'hypothèque', 'hypotheque',
     ],
   },

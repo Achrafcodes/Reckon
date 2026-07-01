@@ -13,7 +13,7 @@ export interface Categorizer {
 const BANK_SUFFIX_MAP: Record<string, string> = {
   'bpy': 'Bills & Utilities',   // Bill Payment
   'bpay': 'Bills & Utilities',  // Bill Payment (AU/NZ)
-  ' pay': 'Salary & Income',    // Payroll deposit (trailing space prevents false matches)
+  'direct dep': 'Salary & Income', // Payroll direct deposit
   'e-tfr': 'Transfers',         // Electronic Transfer
   'e-transfer': 'Transfers',
   'msp': 'Government & Benefits', // Quebec govt payment code
