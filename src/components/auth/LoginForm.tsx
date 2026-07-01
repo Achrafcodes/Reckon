@@ -7,6 +7,7 @@ import { loginSchema, type LoginInput } from '@/schemas/auth'
 import { loginAction } from '@/server/actions/auth'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { ReckLogo } from '@/components/ui/ReckLogo'
 
 export function LoginForm() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export function LoginForm() {
   return (
     <div>
       <div className="mb-8">
+        <ReckLogo width={96} color="#09090b" className="mb-6" />
         <h1 className="text-2xl font-semibold text-ink tracking-tight">Welcome back</h1>
         <p className="mt-1.5 text-sm text-ink-muted">Sign in to your account to continue.</p>
       </div>

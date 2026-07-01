@@ -7,6 +7,7 @@ import { registerSchema, type RegisterInput } from '@/schemas/auth'
 import { registerAction } from '@/server/actions/auth'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { ReckLogo } from '@/components/ui/ReckLogo'
 
 export function RegisterForm() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export function RegisterForm() {
   return (
     <div>
       <div className="mb-8">
+        <ReckLogo width={96} color="#09090b" className="mb-6" />
         <h1 className="text-2xl font-semibold text-ink tracking-tight">Create your account</h1>
         <p className="mt-1.5 text-sm text-ink-muted">Start tracking your expenses today.</p>
       </div>
