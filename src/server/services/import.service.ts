@@ -65,11 +65,15 @@ export async function importTransactions(
               merchant,
               amount: toDecimal128(row.amount),
               currency: row.currency,
-              type: row.type,
-              category: categoryId ?? undefined,
               source: 'import' as const,
               importBatch: batch._id,
               dedupeHash,
+            },
+            // Always update type and category so re-uploading with the correct
+            // account type (credit vs debit) fixes previously wrong values
+            $set: {
+              type: row.type,
+              ...(categoryId ? { category: categoryId } : {}),
             },
           },
           upsert: true,
