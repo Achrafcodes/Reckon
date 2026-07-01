@@ -119,6 +119,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
   const [isPending, startTransition] = useTransition()
   const [categories, setCategories] = useState(initialCategories)
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [recurring, setRecurring] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   const expenseCategories = categories.filter((c) => c.type === 'expense')
@@ -134,6 +135,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
       } else {
         formRef.current?.reset()
         setSelectedCategory('')
+        setRecurring(false)
         setOpen(false)
       }
     })
@@ -169,8 +171,39 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
         <button type="button" onClick={() => { setOpen(false); setError(null) }} className="text-ink-muted hover:text-ink transition-colors text-lg leading-none">×</button>
       </div>
 
-      <input type="hidden" name="month" value={month} />
-      <input type="hidden" name="currency" value="MAD" />
+      {/* Recurring toggle */}
+      <button
+        type="button"
+        onClick={() => setRecurring((r) => !r)}
+        className={[
+          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left',
+          recurring
+            ? 'border-forest bg-forest/8 text-forest'
+            : 'border-rule bg-paper text-ink-muted hover:border-ink-muted hover:text-ink',
+        ].join(' ')}
+      >
+        <div className={[
+          'w-8 h-4.5 rounded-full relative transition-colors shrink-0',
+          recurring ? 'bg-forest' : 'bg-rule',
+        ].join(' ')}
+          style={{ height: '18px', width: '32px' }}
+        >
+          <span className={[
+            'absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all',
+            recurring ? 'left-[14px]' : 'left-0.5',
+          ].join(' ')} style={{ width: '14px', height: '14px' }} />
+        </div>
+        <div>
+          <p className="text-xs font-medium leading-tight">Repeat every month</p>
+          <p className="text-[11px] leading-tight mt-0.5 opacity-70">
+            {recurring ? 'This budget applies to all months' : 'Only for the selected month'}
+          </p>
+        </div>
+      </button>
+
+      {!recurring && <input type="hidden" name="month" value={month} />}
+      <input type="hidden" name="recurring" value={String(recurring)} />
+      <input type="hidden" name="currency" value="CAD" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="col-span-2 space-y-1">
@@ -191,7 +224,7 @@ export function AddBudgetForm({ categories: initialCategories, month }: Props) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-ink-muted" htmlFor="budget-limit">Monthly limit (MAD)</label>
+          <label className="text-xs font-medium text-ink-muted" htmlFor="budget-limit">Monthly limit</label>
           <input
             id="budget-limit"
             name="limit"

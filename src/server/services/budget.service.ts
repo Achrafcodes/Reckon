@@ -10,6 +10,7 @@ export interface BudgetWithActual {
   _id: string
   category: { _id: string; name: string; color: string; icon: string }
   month: string
+  recurring: boolean
   limit: number
   actual: number
   currency: string
@@ -28,10 +29,17 @@ export async function listBudgets(
   const from = new Date(year, m - 1, 1)
   const to = new Date(year, m, 0, 23, 59, 59, 999)
 
-  const budgets = await Budget.find({ user: uid, month })
-    .populate('category', 'name color icon')
-    .lean()
-    .exec()
+  // Fetch month-specific budgets + recurring budgets; deduplicate by category
+  // (month-specific wins over recurring for the same category)
+  const [monthBudgets, recurringBudgets] = await Promise.all([
+    Budget.find({ user: uid, month }).populate('category', 'name color icon').lean().exec(),
+    Budget.find({ user: uid, recurring: true }).populate('category', 'name color icon').lean().exec(),
+  ])
+  const monthCategoryIds = new Set(monthBudgets.map((b) => String((b.category as unknown as { _id: mongoose.Types.ObjectId })._id)))
+  const budgets = [
+    ...monthBudgets,
+    ...recurringBudgets.filter((b) => !monthCategoryIds.has(String((b.category as unknown as { _id: mongoose.Types.ObjectId })._id))),
+  ]
 
   const categoryIds = budgets
     .map((b) => (b.category as unknown as { _id: mongoose.Types.ObjectId } | null)?._id)
@@ -68,6 +76,7 @@ export async function listBudgets(
         _id: String(b._id),
         category: { _id: String(cat._id), name: cat.name, color: cat.color, icon: cat.icon },
         month: b.month,
+        recurring: b.recurring ?? false,
         limit,
         actual,
         currency: b.currency,
@@ -110,10 +119,12 @@ export async function createBudget(
   await connectDB()
 
   try {
+    const month = input.recurring ? 'recurring' : (input.month ?? '')
     const doc = await Budget.create({
       user: new mongoose.Types.ObjectId(userId),
       category: new mongoose.Types.ObjectId(input.category),
-      month: input.month,
+      month,
+      recurring: input.recurring ?? false,
       limit: toDecimal128(input.limit),
       currency: input.currency,
       alertThreshold: input.alertThreshold,

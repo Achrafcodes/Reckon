@@ -5,6 +5,7 @@ export interface IBudget extends Document {
   user: Types.ObjectId
   category: Types.ObjectId
   month: string
+  recurring: boolean
   limit: Types.Decimal128
   currency: string
   alertThreshold: number
@@ -17,8 +18,9 @@ const budgetSchema = new Schema<IBudget>(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     month: { type: String, required: true },
+    recurring: { type: Boolean, default: false },
     limit: { type: Schema.Types.Decimal128, required: true },
-    currency: { type: String, default: 'MAD' },
+    currency: { type: String, default: 'CAD' },
     alertThreshold: { type: Number, default: 0.8 },
   },
   { timestamps: true },

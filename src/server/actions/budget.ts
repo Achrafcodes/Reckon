@@ -9,11 +9,13 @@ export async function createBudgetAction(formData: FormData) {
   const user = await getCurrentUser()
   if (!user) return { ok: false as const, error: 'Unauthorized' }
 
+  const recurring = formData.get('recurring') === 'true'
   const raw = {
     category: formData.get('category'),
-    month: formData.get('month'),
+    month: recurring ? undefined : formData.get('month'),
+    recurring: recurring ? 'true' : 'false',
     limit: formData.get('limit'),
-    currency: formData.get('currency') ?? 'MAD',
+    currency: formData.get('currency') ?? 'CAD',
     alertThreshold: Number(formData.get('alertThreshold') ?? 80) / 100,
   }
 

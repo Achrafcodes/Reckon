@@ -30,9 +30,17 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
     <div className={`animate-fade-up bg-paper border rounded-xl p-5 space-y-4 transition-opacity ${isPending ? 'opacity-50' : ''} ${isOver ? 'border-danger/30' : 'border-rule'}`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <span className="w-3 h-3 rounded-full shrink-0" style={{ background: budget.category.color }} />
-          <span className="text-sm font-semibold text-ink">{budget.category.name}</span>
+          <span className="text-sm font-semibold text-ink truncate">{budget.category.name}</span>
+          {budget.recurring && (
+            <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-forest/10 text-forest text-[10px] font-medium">
+              <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Recurring
+            </span>
+          )}
         </div>
         <button
           onClick={handleDelete}
@@ -63,10 +71,10 @@ export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
         <div className="flex justify-between text-xs">
           <span className={isOver ? 'text-danger font-medium' : isWarning ? 'font-medium' : 'text-ink-muted'} style={isWarning && !isOver ? { color: '#92600a' } : undefined}>
             {isOver
-              ? `${fmt(Math.abs(remaining))} MAD over budget`
+              ? `${fmt(Math.abs(remaining))} {currency} over budget`
               : isWarning
-              ? `${fmt(remaining)} MAD left — almost there`
-              : `${fmt(remaining)} MAD remaining`}
+              ? `${fmt(remaining)} {currency} left — almost there`
+              : `${fmt(remaining)} {currency} remaining`}
           </span>
           <span className="text-ink-muted tabular-nums">{pct.toFixed(0)}%</span>
         </div>

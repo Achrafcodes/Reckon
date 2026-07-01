@@ -1,7 +1,6 @@
 import { getSession } from '@/server/auth/session'
 import { listBudgets } from '@/server/services/budget.service'
 import { listCategories } from '@/server/services/category.service'
-import { getLatestTransactionMonth } from '@/server/services/analytics.service'
 import { BudgetCard } from '@/components/budgets/BudgetCard'
 import { AddBudgetForm } from '@/components/budgets/AddBudgetForm'
 import { MonthPicker } from '@/components/budgets/MonthPicker'
@@ -32,13 +31,6 @@ export default async function BudgetsPage({
   const warning = budgets.filter((b) => b.pct >= b.alertThreshold && b.pct <= 1)
   const ok = budgets.filter((b) => b.pct < b.alertThreshold)
 
-  // Build month options: last 6 months
-  const monthOptions = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    const label = d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-    return { value, label }
-  })
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -49,7 +41,7 @@ export default async function BudgetsPage({
           <p className="mt-1 text-sm text-ink-muted">Set monthly limits per category and track your spending.</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <MonthPicker value={currentMonth} options={monthOptions} />
+          <MonthPicker value={currentMonth} />
           <AddBudgetForm categories={categories} month={currentMonth} />
         </div>
       </div>
