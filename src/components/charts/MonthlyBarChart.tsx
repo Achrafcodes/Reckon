@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from 'recharts'
+import { useSession } from '@/components/providers/SessionProvider'
 
 interface DataPoint {
   month: string
@@ -13,7 +14,6 @@ interface DataPoint {
 
 interface Props {
   data: DataPoint[]
-  currency?: string
 }
 
 function formatMonth(m: string) {
@@ -32,7 +32,8 @@ interface TooltipPayload {
   color: string
 }
 
-export function MonthlyBarChart({ data, currency = 'MAD' }: Props) {
+export function MonthlyBarChart({ data }: Props) {
+  const { baseCurrency: currency } = useSession()
   const formatted = data.map((d) => ({ ...d, month: formatMonth(d.month) }))
 
   function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {

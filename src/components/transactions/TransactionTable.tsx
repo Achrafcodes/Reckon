@@ -3,16 +3,17 @@
 import { useEffect, useState, useTransition } from 'react'
 import { EditTransactionModal } from '@/components/transactions/EditTransactionModal'
 import { deleteTransactionAction } from '@/server/actions/transactions'
+import { useSession } from '@/components/providers/SessionProvider'
 import type { TransactionRow } from '@/server/services/transaction.service'
 import type { CategorySummary } from '@/server/services/category.service'
 
 interface TransactionTableProps {
   transactions: TransactionRow[]
   categories: CategorySummary[]
-  currency?: string
 }
 
-export function TransactionTable({ transactions, categories, currency = 'USD' }: TransactionTableProps) {
+export function TransactionTable({ transactions, categories }: TransactionTableProps) {
+  const { baseCurrency: currency } = useSession()
   const [editing, setEditing] = useState<TransactionRow | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)

@@ -2,13 +2,15 @@
 
 import { useTransition } from 'react'
 import { deleteBudgetAction } from '@/server/actions/budget'
+import { useSession } from '@/components/providers/SessionProvider'
 import type { BudgetWithActual } from '@/server/services/budget.service'
 
 function fmt(n: number) {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-export function BudgetCard({ budget, currency = 'MAD' }: { budget: BudgetWithActual; currency?: string }) {
+export function BudgetCard({ budget }: { budget: BudgetWithActual }) {
+  const { baseCurrency: currency } = useSession()
   const [isPending, startTransition] = useTransition()
   const pct = Math.min(budget.pct * 100, 100)
   const isOver = budget.pct > 1

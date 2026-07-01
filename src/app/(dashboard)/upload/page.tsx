@@ -1,4 +1,4 @@
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { listImportBatches } from '@/server/services/importbatch.service'
 import { UploadZone } from '@/components/upload/UploadZone'
 import { ImportHistory } from '@/components/upload/ImportHistory'
@@ -6,10 +6,10 @@ import { ImportHistory } from '@/components/upload/ImportHistory'
 export const metadata = { title: 'Import — Reckon' }
 
 export default async function UploadPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
-  const batches = await listImportBatches(String(user._id))
+  const batches = await listImportBatches(session.userId)
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">

@@ -1,4 +1,4 @@
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { listBudgets } from '@/server/services/budget.service'
 import { listCategories } from '@/server/services/category.service'
 import { getLatestTransactionMonth } from '@/server/services/analytics.service'
@@ -13,8 +13,8 @@ export default async function BudgetsPage({
 }: {
   searchParams: Promise<Record<string, string>>
 }) {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
   const sp = await searchParams
 
@@ -22,10 +22,10 @@ export default async function BudgetsPage({
   const now = new Date()
   const currentMonth = sp.month ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-  const currency = user.settings?.baseCurrency ?? 'USD'
+  
   const [budgets, categories] = await Promise.all([
-    listBudgets(String(user._id), currentMonth),
-    listCategories(String(user._id)),
+    listBudgets(session.userId, currentMonth),
+    listCategories(session.userId),
   ])
 
   const over = budgets.filter((b) => b.pct > 1)
@@ -79,7 +79,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold text-danger uppercase tracking-widest">Over budget</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {over.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
+                {over.map((b) => <BudgetCard key={b._id} budget={b} />)}
               </div>
             </section>
           )}
@@ -89,7 +89,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#92600a' }}>Near limit</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {warning.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
+                {warning.map((b) => <BudgetCard key={b._id} budget={b} />)}
               </div>
             </section>
           )}
@@ -99,7 +99,7 @@ export default async function BudgetsPage({
             <section className="space-y-3">
               <h2 className="text-xs font-semibold text-forest uppercase tracking-widest">On track</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ok.map((b) => <BudgetCard key={b._id} budget={b} currency={currency} />)}
+                {ok.map((b) => <BudgetCard key={b._id} budget={b} />)}
               </div>
             </section>
           )}

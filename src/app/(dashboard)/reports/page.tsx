@@ -1,20 +1,20 @@
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { getSummary, getSpendByCategory } from '@/server/services/analytics.service'
 import { ReportDownloader } from '@/components/reports/ReportDownloader'
 
 export const metadata = { title: 'Reports — Reckon' }
 
 export default async function ReportsPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
   const from = new Date('2000-01-01')
   const to = new Date('2099-12-31')
 
-  const currency = user.settings?.baseCurrency ?? 'USD'
+  const currency = session.baseCurrency ?? 'USD'
   const [summary, categories] = await Promise.all([
-    getSummary(String(user._id), from, to),
-    getSpendByCategory(String(user._id), from, to),
+    getSummary(session.userId, from, to),
+    getSpendByCategory(session.userId, from, to),
   ])
 
   return (
@@ -47,7 +47,7 @@ export default async function ReportsPage() {
       </div>
 
       {/* Download card */}
-      <ReportDownloader topCategories={categories.slice(0, 5)} currency={currency} />
+      <ReportDownloader topCategories={categories.slice(0, 5)} />
 
       {/* What's included */}
       <div className="card divide-y divide-rule overflow-hidden">

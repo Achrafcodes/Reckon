@@ -1,14 +1,14 @@
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { listCategories } from '@/server/services/category.service'
 import { CategoryManager } from '@/components/categories/CategoryManager'
 
 export const metadata = { title: 'Categories — Reckon' }
 
 export default async function CategoriesPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
-  const categories = await listCategories(String(user._id))
+  const categories = await listCategories(session.userId)
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">

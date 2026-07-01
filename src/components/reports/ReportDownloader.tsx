@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import type { CategorySpend } from '@/server/services/analytics.service'
+import { useSession } from '@/components/providers/SessionProvider'
 
 interface Props {
   topCategories: CategorySpend[]
-  currency?: string
 }
 
 const PRESETS = [
@@ -42,7 +42,8 @@ function Spinner() {
   )
 }
 
-export function ReportDownloader({ topCategories, currency = 'MAD' }: Props) {
+export function ReportDownloader({ topCategories }: Props) {
+  const { baseCurrency: currency } = useSession()
   const [preset, setPreset] = useState(0)
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')

@@ -79,9 +79,11 @@ export async function loginAction(
 
   const userId = String(user._id)
   const subscriptionStatus = user.subscription?.status ?? 'pending'
+  const baseCurrency = user.settings?.baseCurrency
+  const name = user.name
   const [accessToken, refreshToken] = await Promise.all([
-    signAccessToken({ userId, email, subscriptionStatus }),
-    signRefreshToken({ userId, email, subscriptionStatus }),
+    signAccessToken({ userId, email, subscriptionStatus, baseCurrency, name }),
+    signRefreshToken({ userId, email, subscriptionStatus, baseCurrency, name }),
   ])
 
   await setAuthCookies(accessToken, refreshToken)

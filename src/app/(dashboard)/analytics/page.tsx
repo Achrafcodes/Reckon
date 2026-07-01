@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic'
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { getSummary, getSpendByCategory, getMonthlyTrends } from '@/server/services/analytics.service'
 
 /* Recharts is heavy (~90kb gzipped) — split it out of the initial route bundle */
@@ -19,10 +19,10 @@ function fmt(n: number) {
 }
 
 export default async function AnalyticsPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
-  const userId = String(user._id)
+  const userId = session.userId
   const from = new Date('2000-01-01')
   const to = new Date('2099-12-31')
 
@@ -33,7 +33,7 @@ export default async function AnalyticsPage() {
   ])
 
   const hasData = summary.transactionCount > 0
-  const currency = user.settings?.baseCurrency ?? 'USD'
+  const currency = session.baseCurrency ?? 'USD'
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -76,7 +76,7 @@ export default async function AnalyticsPage() {
                 <h2 className="text-sm font-semibold text-ink">Income vs Expenses</h2>
                 <p className="text-xs text-ink-muted mt-0.5">Monthly breakdown</p>
               </div>
-              <MonthlyBarChart data={trends} currency={currency} />
+              <MonthlyBarChart data={trends} />
             </div>
           )}
 
@@ -88,7 +88,7 @@ export default async function AnalyticsPage() {
                 <h2 className="text-sm font-semibold text-ink">Spending breakdown</h2>
                 <p className="text-xs text-ink-muted mt-0.5">By category</p>
               </div>
-              <SpendingDonut data={categorySpend} currency={currency} />
+              <SpendingDonut data={categorySpend} />
               {/* Legend */}
               <div className="mt-3 space-y-1.5">
                 {categorySpend.slice(0, 5).map((c) => (

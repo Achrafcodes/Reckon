@@ -16,6 +16,8 @@ export interface SessionPayload {
   userId: string
   email: string
   subscriptionStatus?: 'pending' | 'active' | 'cancelled'
+  baseCurrency?: string
+  name?: string
 }
 
 // ── Token creation ──────────────────────────────────────────────────────────
@@ -45,6 +47,8 @@ export async function verifyAccessToken(token: string): Promise<SessionPayload |
       userId: payload.userId as string,
       email: payload.email as string,
       subscriptionStatus: payload.subscriptionStatus as SessionPayload['subscriptionStatus'],
+      baseCurrency: payload.baseCurrency as string | undefined,
+      name: payload.name as string | undefined,
     }
   } catch {
     return null
@@ -100,6 +104,35 @@ export async function clearAuthCookies(): Promise<void> {
 // ── getCurrentUser ──────────────────────────────────────────────────────────
 // Always call this in Server Components / Actions / Route Handlers that read
 // protected data. Never rely solely on proxy.ts for auth.
+
+/**
+ * Fast, DB-free session read — verifies the JWT and returns the payload.
+ * Use this in pages that only need userId/email (avoids a DB round-trip).
+ * Falls back to refresh token so it works even after access token expires.
+ */
+export const getSession = cache(async (): Promise<SessionPayload | null> => {
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get('access_token')?.value
+  if (accessToken) {
+    const payload = await verifyAccessToken(accessToken)
+    if (payload) return payload
+  }
+  // Try refresh token (same logic as middleware)
+  const refreshToken = cookieStore.get('refresh_token')?.value
+  if (!refreshToken) return null
+  try {
+    const { payload } = await jwtVerify(refreshToken, REFRESH_SECRET)
+    return {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      subscriptionStatus: payload.subscriptionStatus as SessionPayload['subscriptionStatus'],
+      baseCurrency: payload.baseCurrency as string | undefined,
+      name: payload.name as string | undefined,
+    }
+  } catch {
+    return null
+  }
+})
 
 // cache() deduplicates calls within a single request — multiple Server Components
 // calling getCurrentUser() on the same page share one DB query, not N queries.

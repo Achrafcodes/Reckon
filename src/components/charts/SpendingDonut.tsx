@@ -1,6 +1,7 @@
 'use client'
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { useSession } from '@/components/providers/SessionProvider'
 
 interface CategorySpend {
   categoryId: string
@@ -15,7 +16,8 @@ interface TooltipPayload {
   payload: CategorySpend
 }
 
-export function SpendingDonut({ data, currency = 'MAD' }: { data: CategorySpend[]; currency?: string }) {
+export function SpendingDonut({ data }: { data: CategorySpend[] }) {
+  const { baseCurrency: currency } = useSession()
   if (!data.length) return (
     <div className="flex items-center justify-center h-[220px] text-xs text-ink-muted">No expense data</div>
   )

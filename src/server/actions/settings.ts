@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
-import { getCurrentUser } from '@/server/auth/session'
+import { getCurrentUser, signAccessToken, signRefreshToken, setAuthCookies } from '@/server/auth/session'
 import { connectDB } from '@/server/db/connect'
 import { User } from '@/server/db/models'
 
@@ -46,7 +46,16 @@ export async function updateProfileAction(formData: FormData) {
     'settings.baseCurrency': parsed.data.baseCurrency,
   })
 
-  // Revalidate whole app — baseCurrency is displayed on every page
+  // Re-issue tokens with updated name/baseCurrency so getSession() picks
+  // them up immediately without a DB call on subsequent navigations
+  const userId = String(user._id)
+  const subscriptionStatus = user.subscription?.status ?? 'pending'
+  const [accessToken, refreshToken] = await Promise.all([
+    signAccessToken({ userId, email: parsed.data.email, subscriptionStatus, baseCurrency: parsed.data.baseCurrency, name: parsed.data.name }),
+    signRefreshToken({ userId, email: parsed.data.email, subscriptionStatus, baseCurrency: parsed.data.baseCurrency, name: parsed.data.name }),
+  ])
+  await setAuthCookies(accessToken, refreshToken)
+
   revalidatePath('/', 'layout')
   return { ok: true as const }
 }

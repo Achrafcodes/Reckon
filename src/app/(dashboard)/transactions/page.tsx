@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { getCurrentUser } from '@/server/auth/session'
+import { getSession } from '@/server/auth/session'
 import { listTransactions } from '@/server/services/transaction.service'
 import { listCategories } from '@/server/services/category.service'
 import { listTransactionsSchema } from '@/schemas/transaction'
@@ -16,15 +16,15 @@ export default async function TransactionsPage({
 }: {
   searchParams: Promise<Record<string, string>>
 }) {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const session = await getSession()
+  if (!session) return null
 
   const sp = await searchParams
   const input = listTransactionsSchema.parse(sp)
 
   const [{ data, total, page, totalPages }, categories] = await Promise.all([
-    listTransactions(String(user._id), input),
-    listCategories(String(user._id)),
+    listTransactions(session.userId, input),
+    listCategories(session.userId),
   ])
 
   const hasFilters = !!(input.search || input.type || input.category)
@@ -65,7 +65,7 @@ export default async function TransactionsPage({
         </div>
       ) : (
         <div className="card overflow-hidden">
-          <TransactionTable transactions={data} categories={categories} currency={user.settings?.baseCurrency ?? 'USD'} />
+          <TransactionTable transactions={data} categories={categories} />
           <Suspense>
             <TransactionPagination page={page} totalPages={totalPages} total={total} limit={input.limit} />
           </Suspense>
