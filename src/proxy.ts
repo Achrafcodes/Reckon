@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/demo'])
-const PUBLIC_PREFIXES = ['/login', '/register', '/demo']
+const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/demo', '/privacy', '/terms'])
+const PUBLIC_PREFIXES = ['/login', '/register', '/demo', '/privacy', '/terms']
 const SUBSCRIBE_EXACT = new Set(['/subscribe'])
 const SUBSCRIBE_PREFIXES = ['/subscribe']
 
