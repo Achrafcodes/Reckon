@@ -55,11 +55,17 @@ export function Combobox({
   }, [focusedIdx, open])
 
   useEffect(() => {
-    function onOutside(e: MouseEvent) {
+    function onOutside(e: Event) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
     }
-    if (open) document.addEventListener('mousedown', onOutside)
-    return () => document.removeEventListener('mousedown', onOutside)
+    if (open) {
+      document.addEventListener('mousedown', onOutside)
+      document.addEventListener('touchstart', onOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', onOutside)
+      document.removeEventListener('touchstart', onOutside)
+    }
   }, [open])
 
   function select(opt: ComboboxOption) {

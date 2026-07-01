@@ -121,13 +121,19 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
   const visible = notifications.slice(0, 10)
 
   useEffect(() => {
-    function handle(e: MouseEvent) {
+    function handle(e: Event) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
-    if (open) document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
+    if (open) {
+      document.addEventListener('mousedown', handle)
+      document.addEventListener('touchstart', handle)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handle)
+      document.removeEventListener('touchstart', handle)
+    }
   }, [open])
 
   const handleMarkRead = useCallback((id: string) => {

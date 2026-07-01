@@ -13,11 +13,17 @@ export function MonthPicker({ value }: { value: string }) {
   const displayLabel = new Date(selYear, selMonthIdx - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
+    function onClickOutside(e: Event) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
-    if (open) document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
+    if (open) {
+      document.addEventListener('mousedown', onClickOutside)
+      document.addEventListener('touchstart', onClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside)
+      document.removeEventListener('touchstart', onClickOutside)
+    }
   }, [open])
 
   function select(monthIdx: number) {
