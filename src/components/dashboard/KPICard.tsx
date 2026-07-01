@@ -1,9 +1,12 @@
+import Link from 'next/link'
+
 interface KPICardProps {
   label: string
   value: string
   sub: string
   subColor?: string
   icon: React.ReactNode
+  href?: string
   /** Optional trend: positive = green up-arrow, negative = red down-arrow */
   trend?: 'up' | 'down' | 'neutral'
   style?: React.CSSProperties
@@ -30,12 +33,9 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'neutral' }) {
   )
 }
 
-export function KPICard({ label, value, sub, subColor, icon, trend, style }: KPICardProps) {
-  return (
-    <div
-      className="animate-fade-up card p-4 sm:p-5 flex flex-col gap-3 cursor-default"
-      style={style}
-    >
+export function KPICard({ label, value, sub, subColor, icon, href, trend, style }: KPICardProps) {
+  const inner = (
+    <>
       {/* Header row: label + icon */}
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest">
@@ -59,6 +59,22 @@ export function KPICard({ label, value, sub, subColor, icon, trend, style }: KPI
         </div>
         <span className={`text-xs ${subColor ?? 'text-ink-muted'}`}>{sub}</span>
       </div>
+    </>
+  )
+
+  const baseClass = 'animate-fade-up card p-4 sm:p-5 flex flex-col gap-3'
+
+  if (href) {
+    return (
+      <Link href={href} style={style} className={`${baseClass} hover:border-forest/40 hover:shadow-sm transition-all group`}>
+        {inner}
+      </Link>
+    )
+  }
+
+  return (
+    <div className={`${baseClass} cursor-default`} style={style}>
+      {inner}
     </div>
   )
 }

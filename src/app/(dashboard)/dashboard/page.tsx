@@ -78,6 +78,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const kpis = [
     {
       label: 'Total spent',
+      href: '/transactions',
       value: hasData ? `${fmt(summary.totalExpenses)} ${currency}` : '—',
       sub: hasData ? `${summary.transactionCount} transactions` : 'No data yet',
       icon: (
@@ -88,6 +89,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Total income',
+      href: '/savings',
       value: hasData ? `${fmt(summary.totalIncome)} ${currency}` : '—',
       sub: hasData ? (summary.balance >= 0 ? `+${fmt(summary.balance)} saved` : `${fmt(Math.abs(summary.balance))} over budget`) : 'No data yet',
       subColor: hasData ? (summary.balance >= 0 ? 'text-forest' : 'text-danger') : undefined,
@@ -99,6 +101,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Top category',
+      href: '/analytics',
       value: topCategories[0]?.name ?? '—',
       sub: topCategories[0] ? `${fmt(topCategories[0].total)} ${currency} spent` : 'No expenses yet',
       icon: (
@@ -110,6 +113,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Biggest expense',
+      href: '/transactions',
       value: hasData && summary.biggestExpense > 0 ? `${fmt(summary.biggestExpense)} ${currency}` : '—',
       sub: 'Single transaction',
       icon: (
@@ -139,6 +143,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             sub={kpi.sub}
             subColor={kpi.subColor}
             icon={kpi.icon}
+            href={kpi.href}
             style={{ animationDelay: `${60 + i * 70}ms` }}
           />
         ))}
