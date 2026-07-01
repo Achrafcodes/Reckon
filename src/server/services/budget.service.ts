@@ -21,6 +21,7 @@ export interface BudgetWithActual {
 export async function listBudgets(
   userId: string,
   month: string,
+  userCurrency = 'CAD',
 ): Promise<BudgetWithActual[]> {
   await connectDB()
   const uid = new mongoose.Types.ObjectId(userId)
@@ -100,7 +101,7 @@ export async function listBudgets(
       body:
         b.pct >= 1.0
           ? `You've spent ${(b.pct * 100).toFixed(0)}% of your ${b.month} budget for ${b.category.name}.`
-          : `You've used ${(b.pct * 100).toFixed(0)}% of your ${b.currency} ${b.limit.toLocaleString()} limit.`,
+          : `You've used ${(b.pct * 100).toFixed(0)}% of your ${userCurrency} ${b.limit.toLocaleString()} limit.`,
       meta: { budgetId: b._id, pct: b.pct },
       isRead: false,
     }))

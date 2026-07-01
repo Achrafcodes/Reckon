@@ -22,8 +22,9 @@ export default async function BudgetsPage({
   const currentMonth = sp.month ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   
+  const userCurrency = session.baseCurrency ?? 'CAD'
   const [budgets, categories] = await Promise.all([
-    listBudgets(session.userId, currentMonth),
+    listBudgets(session.userId, currentMonth, userCurrency),
     listCategories(session.userId),
   ])
 
