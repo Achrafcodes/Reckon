@@ -33,7 +33,7 @@ export async function getSummary(
   const uid = new mongoose.Types.ObjectId(userId)
 
   const [result] = await Transaction.aggregate([
-    { $match: { user: uid, date: { $gte: from, $lte: to } } },
+    { $match: { user: uid, date: { $gte: from, $lte: to }, type: { $in: ['income', 'expense'] } } },
     {
       $group: {
         _id: null,
