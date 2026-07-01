@@ -2,6 +2,8 @@
 import { connectDB } from './connect'
 import { Category } from './models'
 
+// Bank transaction codes that appear as suffixes (e.g. "BELL MOBILITY BPY")
+// These are included as keywords so the categorizer can match on them
 const SYSTEM_CATEGORIES = [
   {
     name: 'Groceries',
@@ -9,25 +11,36 @@ const SYSTEM_CATEGORIES = [
     color: '#16a34a',
     icon: 'shopping-cart',
     keywords: [
-      // Canada / Quebec
-      'iga', 'metro', 'loblaws', 'provigo', 'maxi', 'sobeys', 'superstore', 'costco',
-      'whole foods', 'wholefood', 'fresh co', 'freshco', 'foodbasics', 'food basics',
-      'walmart', 'walmart delivery', 'super c', 'suprc',
-      'depanneur', 'dépanneur', 'dep ', 'epicerie', 'épicerie',
-      // Generic
-      'supermarket', 'grocery', 'marché', 'marche', 'alimentation',
-      // Morocco / France
-      'carrefour', 'marjane', 'label vie', 'bim', 'lidl', 'aldi', 'casino', 'monoprix',
+      // Universal terms
+      'supermarket', 'grocery', 'groceries', 'superstore', 'hypermarket',
+      'market', 'marché', 'marche', 'alimentation', 'épicerie', 'epicerie',
+      'depanneur', 'dépanneur', 'convenience store',
+      // Global chains (alphabetical)
+      'aldi', 'asda', 'bim', 'carrefour', 'casino', 'co-op', 'costco',
+      'coop', 'edeka', 'esselunga', 'freshco', 'fresh co', 'food basics',
+      'foodbasics', 'giant', 'globus', 'h-e-b', 'heb', 'hy-vee',
+      'iga ', 'kroger', 'label vie', 'ldi', 'ldl', 'lidl', 'loblaws',
+      'marjane', 'maxi ', 'meijer', 'migros', 'monoprix', 'netto',
+      'picard', 'provigo', 'publix', 'rewe', 'safeway', 'sainsbury',
+      'schnucks', 'spar', 'super c', 'suprc', 'target', 'tesco',
+      'trader joe', 'walmart', 'wegmans', 'whole food', 'wholefood',
+      'winn dixie', 'woolworth', 'zehrs',
     ],
   },
   {
     name: 'Food Delivery',
     type: 'expense',
     color: '#f97316',
-    icon: 'pizza',
+    icon: 'truck',
     keywords: [
-      'doordash', 'dd/doordash', 'ubereats', 'uber eats', 'skip the dishes', 'skipthedishes',
+      // App prefixes banks truncate to
+      'doordash', 'dd/doordash',
+      'ubereats', 'uber eats', 'uber canada/ubereats',
+      'skipthedishes', 'skip the dishes', 'skip*',
       'grubhub', 'foodora', 'ritual', 'deliveroo',
+      'glovo', 'rappi', 'wolt', 'bolt food',
+      'just eat', 'justeat', 'lieferando',
+      'menulog', 'postmates', 'seamless',
     ],
   },
   {
@@ -36,10 +49,20 @@ const SYSTEM_CATEGORIES = [
     color: '#f59e0b',
     icon: 'utensils',
     keywords: [
-      'mcdonalds', 'mcdonald', 'kfc', 'burger king', 'subway', 'tim hortons', 'timhorton',
-      'starbucks', 'second cup', 'van houtte', 'dominos', 'pizza hut', 'little caesars',
-      'poulet royal', 'b12burger', 'restaurant', 'brasserie', 'bistro', 'café', 'cafe',
-      'sushi', 'ramen', 'poutine', 'fast food', 'fastfood',
+      // Universal descriptors
+      'restaurant', 'cafe', 'café', 'brasserie', 'bistro', 'diner',
+      'ristorante', 'pizzeria', 'trattoria', 'tavern', 'pub ',
+      // Global fast food & coffee chains
+      'mcdonalds', 'mcdonald', 'burger king', 'burgerking',
+      'kfc', 'popeyes', 'chick-fil', 'wendys', "wendy's",
+      'subway', 'quiznos', 'jersey mike',
+      'dominos', 'pizza hut', 'little caesar', 'papa john',
+      'starbucks', 'tim horton', 'dunkin', 'costa coffee', 'pret a manger',
+      'second cup', 'van houtte', 'lavazza', 'nespresso',
+      'chipotle', 'taco bell', 'tacobell', 'five guys', 'fiveguys',
+      'nando', 'wagamama', 'pho', 'sushi',
+      // Other common
+      'poulet royal', 'b12burger', 'ramen', 'boba', 'bubble tea',
     ],
   },
   {
@@ -48,12 +71,27 @@ const SYSTEM_CATEGORIES = [
     color: '#8b5cf6',
     icon: 'bag',
     keywords: [
-      'amazon', 'amazon.ca', 'amazon.com', 'klarna', 'decathlon', 'sport chek', 'sportchek',
-      'zara', 'h&m', 'simons', 'reitmans', 'garage', 'dynamite', 'ardene', 'winners',
-      'dollarama', 'best buy', 'bestbuy', 'ikea', 'structube', 'ali express', 'aliexpress',
-      'shein', 'clothing', 'shoes', 'vêtements', 'vetements',
-      // Morocco
-      'jumia', 'mall',
+      // Universal
+      'clothing', 'clothes', 'apparel', 'fashion', 'shoes', 'footwear',
+      'boutique', 'vêtements', 'vetements', 'mode',
+      // Global e-commerce
+      'amazon', 'aliexpress', 'ali express', 'ebay', 'etsy', 'wish ',
+      'shein', 'temu', 'asos', 'zalando',
+      // Global retail
+      'ikea', 'h&m', 'zara', 'uniqlo', 'primark', 'gap ', 'old navy',
+      'forever 21', 'forever21', 'urban outfitters', 'anthropologie',
+      'marks & spencer', 'm&s', 'next ', 'tk maxx', 'tjmaxx',
+      'decathlon', 'sport chek', 'sportchek', 'foot locker', 'footlocker',
+      'nike', 'adidas', 'puma', 'new balance',
+      'best buy', 'bestbuy', 'media markt', 'fnac ', 'darty',
+      // Buy now pay later (always shopping)
+      'klarna', 'afterpay', 'sezzle', 'zip pay', 'laybuy',
+      // Dept stores
+      'walmart supercenter', 'target', 'costco', 'sears', 'jcpenney',
+      'macys', "macy's", 'nordstrom', 'bloomingdale',
+      // Local patterns
+      'dollarama', 'dollar tree', 'dollar general', 'winners', 'simons',
+      'reitmans', 'dynamite', 'garage ', 'ardene',
     ],
   },
   {
@@ -62,33 +100,61 @@ const SYSTEM_CATEGORIES = [
     color: '#0ea5e9',
     icon: 'car',
     keywords: [
-      // Ride & transit
-      'ubertrip', 'uber canada/ubertrip', 'uber holdings', 'taxi', 'lyft',
-      'stm', 'bixi', 'exo', 'presto', 'via rail', 'viarail', 'amtrak',
-      'bus ', 'train', 'metro', 'tramway', 'rtc ',
-      // Fuel & parking
-      'esso', 'petro canada', 'petrocanada', 'shell', 'ultramar', 'couche-tard', 'couche tard',
-      'fuel', 'petrol', 'essence', 'parking', 'stationnement', 'toll', 'peage', 'péage',
-      // Morocco
-      'careem',
+      // Ride-hailing (global)
+      'uber', 'ubertrip', 'uber holdings', 'lyft', 'bolt ', 'free now',
+      'grab', 'gojek', 'didi', 'ola ', 'careem', 'indriver',
+      'taxi', 'cab ', 'vtc ',
+      // Public transit (generic + major networks)
+      'transit', 'transpo', 'public transport',
+      'stm ', 'bixi', 'exo ', 'presto', 'via rail', 'viarail',
+      'tfl ', 'oyster', 'national rail', 'eurostar', 'thalys',
+      'sncf', 'ratp', 'metro ', 'rer ', 'tramway', 'tram ',
+      'bus ', 'autobus', 'greyhound', 'flixbus', 'megabus',
+      'amtrak', 'rtc ', 'stl ', 'sts ', 'strsm',
+      // Micromobility
+      'bixi', 'lime ', 'bird ', 'voi ', 'tier ', 'jump ',
+      // Parking & toll
+      'parking', 'stationnement', 'parkeon', 'parkmobile',
+      'toll', 'peage', 'péage', 'autoroute', 'highway',
+      // Fuel
+      'esso', 'petro canada', 'petrocanada', 'shell', 'ultramar',
+      'bp ', 'total ', 'totalenergies', 'q8', 'couche-tard',
+      'fuel', 'petrol', 'gasoline', 'essence', 'gas station',
     ],
   },
   {
     name: 'Bills & Utilities',
     type: 'expense',
     color: '#ef4444',
-    icon: 'lightning',
+    icon: 'zap',
     keywords: [
-      // Quebec / Canada
-      'hydro-quebec', 'hydro quebec', 'hydroquebec', 'hydro one', 'hydro ',
-      'videotron', 'vidéotron', 'bell ', 'bell mobility', 'rogers', 'telus', 'fido',
-      'fizz', 'koodo', 'public mobile', 'virgin mobile', 'freedom mobile',
-      'gaz metro', 'énergir', 'energir', 'enbridge',
-      'coinamatic', 'laundry',
-      // Generic
-      'electricity', 'water', 'internet', 'loyer', 'rent', 'hydro',
-      // Morocco
-      'maroc telecom', 'inwi', 'orange', 'amendis', 'redal', 'lydec',
+      // Universal — also catches "BPY" suffix = bill payment via pattern in categorizer
+      'electricity', 'electric', 'power bill', 'energy bill',
+      'water bill', 'gas bill', 'utility', 'utilities',
+      'internet', 'broadband', 'fibre', 'cable ',
+      'phone bill', 'mobile bill', 'cell bill', 'wireless',
+      'rent', 'loyer', 'lease', 'mortgage',
+      'insurance', 'assurance', 'home insurance', 'auto insurance',
+      // North America telecoms
+      'bell ', 'bell mobility', 'rogers', 'telus', 'fido',
+      'videotron', 'vidéotron', 'fizz ', 'koodo', 'public mobile',
+      'virgin mobile', 'freedom mobile', 'chatr', 'lucky mobile',
+      // North America energy
+      'hydro-quebec', 'hydro quebec', 'hydroquebec', 'hydro-',
+      'hydro one', 'bc hydro', 'hydro ottawa',
+      'enbridge', 'gaz metro', 'énergir', 'energir',
+      'union gas', 'atco gas', 'epcor', 'fortis',
+      // Europe telecoms
+      'orange', 'sfr ', 'bouygues', 'free mobile', 'sosh ',
+      'vodafone', 'o2 ', 't-mobile', 'ee ', 'three ',
+      'maroc telecom', 'inwi ', 'redal', 'amendis', 'lydec',
+      'proximus', 'base ', 'telenet', 'swisscom',
+      // Europe energy
+      'edf ', 'engie', 'vattenfall', 'eon ', 'e.on',
+      // Laundry (coinop machines in apartments)
+      'coinamatic', 'coinamat', 'laundry', 'lessive',
+      // Monthly fee catch-all
+      'monthly account fee', 'account fee', 'frais mensuel',
     ],
   },
   {
@@ -97,23 +163,45 @@ const SYSTEM_CATEGORIES = [
     color: '#ec4899',
     icon: 'refresh-cw',
     keywords: [
-      'netflix', 'spotify', 'disney', 'apple tv', 'apple.com/bill', 'apple.com',
-      'youtube premium', 'twitch', 'hbo', 'crave', 'tubi',
-      'claude.ai', 'openai', 'chatgpt', 'microsoft 365', 'microsoft365',
-      'adobe', 'dropbox', 'google one', 'icloud', 'nordvpn', 'expressvpn',
-      'notion', 'figma', 'github', 'jetbrains',
-      'walmart delivery pass', 'walmart delivery',
+      // Streaming video
+      'netflix', 'disney+', 'disney plus', 'hulu', 'hbo', 'hbomax', 'max ',
+      'prime video', 'apple tv', 'peacock', 'paramount', 'crave', 'tubi',
+      'youtube premium', 'dazn', 'canal+', 'canalplus',
+      // Streaming music
+      'spotify', 'apple music', 'tidal', 'deezer', 'amazon music',
+      // Cloud & productivity
+      'icloud', 'google one', 'dropbox', 'onedrive',
+      'microsoft 365', 'microsoft365', 'office 365',
+      'adobe', 'figma', 'notion', 'slack', 'zoom',
+      'github', 'jetbrains', 'atlassian', 'asana', 'trello',
+      // AI tools
+      'claude.ai', 'openai', 'chatgpt', 'midjourney', 'runway',
+      // Security / VPN
+      'nordvpn', 'expressvpn', 'surfshark', '1password', 'lastpass',
+      // Apple generic
+      'apple.com/bill', 'apple.com',
+      // Delivery passes
+      'walmart delivery pass', 'instacart express', 'amazon prime',
     ],
   },
   {
     name: 'Entertainment & Gaming',
     type: 'expense',
     color: '#a855f7',
-    icon: 'film',
+    icon: 'gamepad',
     keywords: [
-      'steam', 'xbox', 'playstation', 'psn', 'nintendo', 'riot', 'riot*',
-      'epic games', 'blizzard', 'ea ', 'ubisoft', 'gaming', 'jeu', 'jeux',
-      'cinema', 'cinéma', 'cineplex', 'theatre', 'théâtre',
+      // Gaming platforms
+      'steam', 'xbox', 'xbox game', 'playstation', 'psn',
+      'nintendo', 'nintendo switch', 'eshop',
+      'epic games', 'epicgames', 'blizzard', 'battle.net',
+      'ea ', 'ea games', 'ubisoft', 'riot ', 'riot*',
+      'roblox', 'minecraft', 'genshin', 'league of legends',
+      // Cinemas
+      'cinema', 'cinéma', 'cineplex', 'vue ', 'odeon ', 'cineworld',
+      'pathé', 'pathe', 'amc ', 'regal ',
+      // Events & culture
+      'theatre', 'théâtre', 'concert', 'ticketmaster', 'eventbrite',
+      'musée', 'musee', 'museum', 'gallery',
     ],
   },
   {
@@ -122,10 +210,22 @@ const SYSTEM_CATEGORIES = [
     color: '#14b8a6',
     icon: 'heart',
     keywords: [
-      'pharmaprix', 'jean coutu', 'uniprix', 'proxim', 'shoppers drug mart', 'shoppers',
-      'pharmacy', 'pharmacie', 'pharmacien', 'clinique', 'clinic',
-      'doctor', 'medecin', 'médecin', 'hospital', 'hôpital', 'dentist', 'dentiste',
-      'optique', 'optical', 'visuelle',
+      // Universal
+      'pharmacy', 'pharmacie', 'pharmacien', 'drugstore',
+      'doctor', 'médecin', 'medecin', 'physician',
+      'hospital', 'hôpital', 'hopital', 'clinic', 'clinique',
+      'dentist', 'dentiste', 'dental', 'orthodont',
+      'optician', 'optique', 'optical', 'vision',
+      'physiotherapy', 'physio', 'chiropract', 'osteopath',
+      'mental health', 'therapy', 'psycholog',
+      'lab ', 'laboratory', 'labo ', 'diagnostics',
+      'ambulance', 'urgence', 'emergency',
+      // North America chains
+      'pharmaprix', 'jean coutu', 'uniprix', 'proxim',
+      'shoppers drug mart', 'rexall', 'london drugs',
+      'cvs ', 'walgreens', 'rite aid', 'duane reade',
+      // Europe chains
+      'boots ', 'lloyds pharmacy',
     ],
   },
   {
@@ -134,10 +234,22 @@ const SYSTEM_CATEGORIES = [
     color: '#06b6d4',
     icon: 'activity',
     keywords: [
-      'm fitness', 'goodlife', 'anytime fitness', 'planet fitness', 'ymca', 'nautilus plus',
-      'éconofitness', 'econofitness', 'altitude gym', 'crossfit', 'gym', 'fitness',
-      'yoga', 'pilates', 'sport', 'académie de conduite', 'academie de conduite',
-      'decathlon', // shared with shopping but fitness context wins if listed here first
+      // Universal
+      'gym', 'fitness', 'sport club', 'sports club', 'athletic',
+      'yoga', 'pilates', 'crossfit', 'spinning', 'zumba',
+      'swimming pool', 'piscine', 'natation',
+      'personal trainer', 'coach sportif',
+      // Global chains
+      'goodlife', 'planet fitness', 'anytime fitness',
+      'ymca', 'ywca', 'la fitness', 'equinox', 'orange theory',
+      'f45', 'barry', 'soulcycle',
+      'nautilus plus', 'éconofitness', 'econofitness',
+      'altitude gym', 'fit4less', 'curves',
+      // Activities
+      'martial arts', 'karate', 'boxing', 'judo', 'taekwondo',
+      'rock climbing', 'bouldering', 'escalade',
+      'driving school', 'académie de conduite', 'academie de conduite',
+      'm fitness',
     ],
   },
   {
@@ -146,10 +258,21 @@ const SYSTEM_CATEGORIES = [
     color: '#0284c7',
     icon: 'book',
     keywords: [
-      'school', 'ecole', 'école', 'university', 'université', 'college', 'cegep', 'cégep',
-      'tuition', 'frais scolaires', 'udemy', 'coursera', 'skillshare', 'duolingo',
-      'books', 'livres', 'indigo', 'renaud-bray',
-      'cs henri-bour', 'c.s. henri', // commission scolaire from the sample
+      // Universal institution types
+      'school', 'ecole', 'école', 'university', 'université',
+      'college', 'cegep', 'cégep', 'polytechnic', 'institute',
+      'academy', 'académie', 'formation', 'lycée', 'lycee',
+      // Abbreviations common in bank statements
+      'c.s.', 'cs ', // commission scolaire / school commission
+      'tuition', 'frais scolaires', 'scolarité', 'scolarite',
+      // Online learning
+      'udemy', 'coursera', 'skillshare', 'duolingo', 'babbel',
+      'linkedin learning', 'masterclass', 'pluralsight', 'datacamp',
+      'khan academy', 'edx ', 'futurelearn',
+      // Books & stationery
+      'bookstore', 'librairie', 'livres', 'indigo', 'renaud-bray',
+      'chapters', 'waterstones', 'fnac',
+      'stationery', 'papeterie',
     ],
   },
   {
@@ -158,9 +281,23 @@ const SYSTEM_CATEGORIES = [
     color: '#d97706',
     icon: 'plane',
     keywords: [
+      // Booking platforms
+      'booking.com', 'airbnb', 'expedia', 'trivago', 'kayak',
+      'hotels.com', 'agoda', 'hostelworld', 'vrbo',
+      // Airlines (major)
       'airline', 'air canada', 'aircanada', 'westjet', 'sunwing', 'transat',
-      'hotel', 'booking', 'airbnb', 'expedia', 'trivago', 'kayak',
-      'airport', 'aéroport', 'aeroporto', 'ryanair', 'royal air maroc', 'ram',
+      'air france', 'lufthansa', 'british airways', 'iberia', 'alitalia',
+      'ryanair', 'easyjet', 'vueling', 'transavia', 'wizz air', 'wizzair',
+      'emirate', 'qatar air', 'turkish air', 'royal air maroc', 'ram ',
+      'delta', 'united', 'american air', 'southwest', 'jetblue',
+      // Hotels
+      'hotel', 'hôtel', 'marriott', 'hilton', 'hyatt', 'sheraton',
+      'holiday inn', 'ibis ', 'novotel', 'accor', 'radisson',
+      // Car rental
+      'car rental', 'location voiture', 'hertz', 'avis ', 'budget rent',
+      'enterprise', 'sixt ',
+      // Airports
+      'airport', 'aéroport', 'aeropuerto', 'flughafen',
     ],
   },
   {
@@ -169,9 +306,15 @@ const SYSTEM_CATEGORIES = [
     color: '#22c55e',
     icon: 'banknote',
     keywords: [
-      'salary', 'salaire', 'payroll', 'wage', 'paie',
-      'mi-gso', 'pcubed', 'pcube', 'pay ', 'direct deposit', 'dépôt direct', 'depot direct',
-      'gouv. quebec', 'gouv quebec', 'gouvernement', 'government', 'revenu',
+      // Universal
+      'salary', 'salaire', 'payroll', 'paie', 'wage', 'stipend',
+      'direct deposit', 'dépôt direct', 'depot direct', 'virement salaire',
+      'employment income', 'revenu emploi',
+      // Bank codes for payroll deposits
+      'pay ', ' pay',
+      // Freelance / consulting
+      'invoice payment', 'consulting', 'freelance', 'honoraires',
+      'mi-gso', 'pcubed', 'pcube',
     ],
   },
   {
@@ -180,9 +323,20 @@ const SYSTEM_CATEGORIES = [
     color: '#84cc16',
     icon: 'landmark',
     keywords: [
-      'gouv. quebec', 'gouv quebec', 'stc', 'msp', 'retraite quebec', 'rqap',
-      'assurance emploi', 'ei benefit', 'cra', 'agence revenu', 'tax refund',
-      'allocation', 'prestations',
+      // Canada / Quebec
+      'gouv. quebec', 'gouv quebec', 'gouvernement',
+      'stc ', ' stc', 'msp ', ' msp',
+      'retraite quebec', 'rqap', 'assurance emploi', 'ae benefit',
+      'cra ', 'agence revenu', 'canada revenue',
+      'canada child benefit', 'allocation famille',
+      // France
+      'caf ', 'pole emploi', 'pôle emploi', 'cpam', 'ameli',
+      'revenu solidarite', 'rsa ', 'apl ',
+      // Universal
+      'tax refund', 'tax credit', 'remboursement impot',
+      'social security', 'sécurité sociale', 'pension',
+      'allocation', 'prestations', 'benefit',
+      'government', 'government of', 'ministry',
     ],
   },
   {
@@ -191,21 +345,35 @@ const SYSTEM_CATEGORIES = [
     color: '#6366f1',
     icon: 'arrow-left-right',
     keywords: [
-      'send e-tfr', 'e-transfer', 'etransfer', 'interac',
-      'td visa', 'visa payment', 'credit card payment', 'payment - thank you',
-      'rbc payplan', 'loan payment', 'remboursement',
-      'savings', 'épargne', 'epargne',
+      // Bank transfer keywords & codes
+      'e-transfer', 'etransfer', 'e-tfr', 'send e-tfr', 'receive e-tfr',
+      'interac', 'wire transfer', 'virement', 'transfert',
+      'revolut', 'wise ', 'western union', 'moneygram', 'remittance',
+      // Credit card payments (appear in bank statements)
+      'td visa', 'rbc visa', 'bmo visa', 'scotiabank visa',
+      'visa payment', 'credit card payment', 'mastercard payment',
+      'payment - thank you', 'thank you payment',
+      'remboursement', 'loan payment', 'rbc payplan',
+      // Savings
+      'savings', 'épargne', 'epargne', 'tfsa', 'rrsp', 'fhsa',
     ],
   },
   {
-    name: 'Loans & Credit',
+    name: 'Loans & Fees',
     type: 'expense',
     color: '#dc2626',
     icon: 'credit-card',
     keywords: [
-      'loan', 'interest charge', 'intérêt', 'interet', 'monthly account fee',
-      'service fee', 'frais de service', 'frais bancaires',
-      'rbc payplan pro loan', 'credit line', 'ligne de crédit',
+      // Interest & fees
+      'interest charge', 'interest - purchase', 'intérêt', 'interet',
+      'service fee', 'bank fee', 'frais de service', 'frais bancaires',
+      'overdraft', 'découvert', 'decouvert',
+      'nsf fee', 'returned item', 'late fee', 'frais retard',
+      // Loans
+      'loan', 'personal loan', 'auto loan', 'car loan',
+      'credit line', 'ligne de crédit', 'ligne de credit',
+      'rbc payplan pro loan', 'payplan pro',
+      'mortgage', 'hypothèque', 'hypotheque',
     ],
   },
   {

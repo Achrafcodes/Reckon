@@ -8,9 +8,21 @@ export interface Categorizer {
   categorize(description: string, userId: string): Promise<mongoose.Types.ObjectId | null>
 }
 
+// Bank statement suffix codes → category name hint
+// Banks append these codes to merchant names (e.g. "BELL MOBILITY BPY", "MI-GSO PCUBED C PAY")
+const BANK_SUFFIX_MAP: Record<string, string> = {
+  'bpy': 'Bills & Utilities',   // Bill Payment
+  'bpay': 'Bills & Utilities',  // Bill Payment (AU/NZ)
+  ' pay': 'Salary & Income',    // Payroll deposit (trailing space prevents false matches)
+  'e-tfr': 'Transfers',         // Electronic Transfer
+  'e-transfer': 'Transfers',
+  'msp': 'Government & Benefits', // Quebec govt payment code
+  'stc': 'Government & Benefits', // Quebec govt payment code
+}
+
 export class KeywordCategorizer implements Categorizer {
   // Keyed by userId — prevents user A's categories leaking into user B's import session
-  private cacheByUser = new Map<string, Array<{ _id: mongoose.Types.ObjectId; keywords: string[] }>>()
+  private cacheByUser = new Map<string, Array<{ _id: mongoose.Types.ObjectId; name: string; keywords: string[] }>>()
 
   async categorize(description: string, userId: string): Promise<mongoose.Types.ObjectId | null> {
     if (!this.cacheByUser.has(userId)) {
@@ -19,19 +31,30 @@ export class KeywordCategorizer implements Categorizer {
         $or: [{ user: null, isSystem: true }, { user: userId }],
         keywords: { $exists: true, $not: { $size: 0 } },
       })
-        .select('keywords')
+        .select('name keywords')
         .lean()
-        .exec() as Array<{ _id: mongoose.Types.ObjectId; keywords: string[] }>
+        .exec() as Array<{ _id: mongoose.Types.ObjectId; name: string; keywords: string[] }>
       this.cacheByUser.set(userId, docs)
     }
 
     const cats = this.cacheByUser.get(userId)!
-    const lower = description.toLowerCase()
+    const lower = description.toLowerCase().trim()
+
+    // 1. Keyword match (substring scan — handles truncated bank descriptions)
     for (const cat of cats) {
       for (const kw of cat.keywords) {
         if (lower.includes(kw)) return cat._id
       }
     }
+
+    // 2. Bank suffix codes — catch patterns like "MERCHANT NAME BPY" or "SEND E-TFR ***xxx"
+    for (const [code, categoryName] of Object.entries(BANK_SUFFIX_MAP)) {
+      if (lower.endsWith(code) || lower.includes(` ${code}`) || lower.includes(`/${code}`)) {
+        const match = cats.find((c) => c.name === categoryName)
+        if (match) return match._id
+      }
+    }
+
     return null
   }
 
