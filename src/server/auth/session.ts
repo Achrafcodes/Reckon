@@ -1,6 +1,7 @@
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import { env } from '@/lib/env'
 import { connectDB } from '@/server/db/connect'
 import { User, type IUser } from '@/server/db/models'
@@ -100,7 +101,9 @@ export async function clearAuthCookies(): Promise<void> {
 // Always call this in Server Components / Actions / Route Handlers that read
 // protected data. Never rely solely on proxy.ts for auth.
 
-export async function getCurrentUser(): Promise<IUser | null> {
+// cache() deduplicates calls within a single request — multiple Server Components
+// calling getCurrentUser() on the same page share one DB query, not N queries.
+export const getCurrentUser = cache(async (): Promise<IUser | null> => {
   const cookieStore = await cookies()
   const accessToken = cookieStore.get(ACCESS_COOKIE)?.value
 
@@ -129,4 +132,4 @@ export async function getCurrentUser(): Promise<IUser | null> {
   // be re-issued on the next Server Action / Route Handler call.
   const { refreshTokenHash: _rth, ...safeUser } = user
   return safeUser as unknown as IUser
-}
+})

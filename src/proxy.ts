@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { jwtVerify } from 'jose'
+import { jwtVerify, SignJWT } from 'jose'
 
 const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/demo', '/privacy', '/terms'])
 const PUBLIC_PREFIXES = ['/login', '/register', '/demo', '/privacy', '/terms']
@@ -8,24 +8,49 @@ const SUBSCRIBE_PREFIXES = ['/subscribe']
 
 const AUTH_COOKIES = ['access_token', 'refresh_token']
 
-function getSecret() {
+function getAccessSecret() {
   const secret = process.env.JWT_SECRET
   if (!secret) throw new Error('JWT_SECRET environment variable is not set')
   return new TextEncoder().encode(secret)
 }
 
+function getRefreshSecret() {
+  const secret = process.env.JWT_REFRESH_SECRET
+  if (!secret) throw new Error('JWT_REFRESH_SECRET environment variable is not set')
+  return new TextEncoder().encode(secret)
+}
+
 interface TokenPayload {
+  userId?: string
+  email?: string
   subscriptionStatus?: 'pending' | 'active' | 'cancelled'
 }
 
-/** Returns payload if token is cryptographically valid, null otherwise. */
-async function verifyToken(token: string): Promise<TokenPayload | null> {
+async function verifyAccess(token: string): Promise<TokenPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret())
+    const { payload } = await jwtVerify(token, getAccessSecret())
     return payload as TokenPayload
   } catch {
     return null
   }
+}
+
+async function verifyRefresh(token: string): Promise<TokenPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getRefreshSecret())
+    return payload as TokenPayload
+  } catch {
+    return null
+  }
+}
+
+/** Mint a fresh 15-min access token from a valid refresh payload. */
+async function mintAccessToken(payload: TokenPayload): Promise<string> {
+  return new SignJWT({ ...payload })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('15m')
+    .sign(getAccessSecret())
 }
 
 /** Redirect to login and clear any stale auth cookies to break redirect loops. */
@@ -52,23 +77,36 @@ export async function proxy(request: NextRequest) {
     SUBSCRIBE_EXACT.has(pathname) ||
     SUBSCRIBE_PREFIXES.some((p) => pathname.startsWith(p + '/'))
 
-  const accessToken = request.cookies.get('access_token')?.value
+  const accessToken  = request.cookies.get('access_token')?.value
+  const refreshToken = request.cookies.get('refresh_token')?.value
 
-  // Verify the access token — don't just check presence
-  const payload = accessToken ? await verifyToken(accessToken) : null
+  // 1. Try access token first (fast path — no DB, pure crypto)
+  let payload = accessToken ? await verifyAccess(accessToken) : null
+  let freshAccessToken: string | null = null
+
+  // 2. Access token missing or expired — silently refresh via refresh token
+  if (!payload && refreshToken) {
+    const refreshPayload = await verifyRefresh(refreshToken)
+    if (refreshPayload) {
+      payload = refreshPayload
+      // Mint a new access token so the next request is fast again
+      freshAccessToken = await mintAccessToken(refreshPayload)
+    }
+  }
+
   const isAuthenticated = payload !== null
 
-  // Not logged in → clear stale cookies and send to login
+  // Not authenticated → clear cookies and send to login
   if (!isAuthenticated && !isPublicPath) {
     return redirectToLogin(request, pathname)
   }
 
-  // Logged-in users hitting auth pages → send to dashboard
+  // Authenticated users hitting auth pages → send to dashboard
   if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Check subscription for protected routes
+  // Check subscription gate for protected routes
   if (isAuthenticated && !isPublicPath && !isSubscribePath) {
     const status = payload?.subscriptionStatus ?? 'pending'
     if (status !== 'active') {
@@ -76,7 +114,21 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next()
+  const res = NextResponse.next()
+
+  // Attach fresh access token if we just refreshed — keeps the user logged in
+  if (freshAccessToken) {
+    const isProduction = process.env.NODE_ENV === 'production'
+    res.cookies.set('access_token', freshAccessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 15, // 15 min
+    })
+  }
+
+  return res
 }
 
 export const config = {
