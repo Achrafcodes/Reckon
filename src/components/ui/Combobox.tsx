@@ -128,7 +128,7 @@ export function Combobox({
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={onSearchKeyDown}
                   placeholder={searchPlaceholder}
-                  className="input-base pl-8 py-1.5 text-sm"
+                  className="input-base pl-9 py-1.5 text-sm"
                   autoComplete="off"
                 />
               </div>
