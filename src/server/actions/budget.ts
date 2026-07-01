@@ -35,7 +35,9 @@ export async function updateBudgetAction(budgetId: string, formData: FormData) {
 
   const raw = {
     limit: formData.get('limit'),
-    currency: formData.get('currency') ?? 'MAD',
+    currency: formData.get('currency') ?? 'CAD',
+    alertThreshold: formData.get('alertThreshold') ? Number(formData.get('alertThreshold')) / 100 : undefined,
+    recurring: formData.get('recurring') ?? undefined,
   }
 
   const parsed = updateBudgetSchema.safeParse(raw)

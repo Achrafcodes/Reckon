@@ -149,6 +149,10 @@ export async function updateBudget(
   if (input.limit) update.limit = toDecimal128(input.limit)
   if (input.currency) update.currency = input.currency
   if (input.alertThreshold !== undefined) update.alertThreshold = input.alertThreshold
+  if (input.recurring !== undefined) {
+    update.recurring = input.recurring
+    update.month = input.recurring ? 'recurring' : update.month
+  }
 
   const result = await Budget.updateOne(
     { _id: budgetId, user: new mongoose.Types.ObjectId(userId) },

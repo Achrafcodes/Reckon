@@ -9,7 +9,12 @@ export const createBudgetSchema = z.object({
   alertThreshold: z.number().min(0).max(1).default(0.8),
 })
 
-export const updateBudgetSchema = createBudgetSchema.partial().omit({ category: true, month: true, recurring: true })
+export const updateBudgetSchema = z.object({
+  limit: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Limit must be a positive decimal').optional(),
+  currency: z.string().length(3).default('CAD').optional(),
+  alertThreshold: z.number().min(0).max(1).optional(),
+  recurring: z.preprocess((v) => v ?? 'false', z.enum(['true', 'false']).transform((v) => v === 'true')).optional(),
+})
 
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
