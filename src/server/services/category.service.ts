@@ -2,6 +2,7 @@ import 'server-only'
 import mongoose from 'mongoose'
 import { connectDB } from '@/server/db/connect'
 import { Category } from '@/server/db/models'
+import { categorizer } from './categorization'
 
 export interface CategorySummary {
   _id: string
@@ -56,6 +57,7 @@ export async function updateCategory(
       { $set },
     )
     if (result.matchedCount === 0) return { ok: false, error: 'Category not found or cannot be modified.' }
+    categorizer.invalidate(userId)
     return { ok: true }
   } catch (err: unknown) {
     if ((err as { code?: number }).code === 11000) {
@@ -79,5 +81,6 @@ export async function deleteCategory(
   if (result.deletedCount === 0) {
     return { ok: false, error: 'Category not found or cannot be deleted.' }
   }
+  categorizer.invalidate(userId)
   return { ok: true }
 }

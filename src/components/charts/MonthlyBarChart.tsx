@@ -32,24 +32,34 @@ interface TooltipPayload {
   color: string
 }
 
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  currency,
+}: {
+  active?: boolean
+  payload?: TooltipPayload[]
+  label?: string
+  currency: string
+}) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-ink text-white text-xs rounded-lg px-3 py-2.5 shadow-lg space-y-1 min-w-[140px]">
+      <p className="font-medium mb-1.5 text-sidebar-text">{label}</p>
+      {payload.map((p) => (
+        <div key={p.name} className="flex justify-between gap-4">
+          <span style={{ color: p.color }}>{p.name}</span>
+          <span className="tabular-nums font-medium">{p.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function MonthlyBarChart({ data }: Props) {
   const { baseCurrency: currency } = useSession()
   const formatted = data.map((d) => ({ ...d, month: formatMonth(d.month) }))
-
-  function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {
-    if (!active || !payload?.length) return null
-    return (
-      <div className="bg-ink text-white text-xs rounded-lg px-3 py-2.5 shadow-lg space-y-1 min-w-[140px]">
-        <p className="font-medium mb-1.5 text-sidebar-text">{label}</p>
-        {payload.map((p) => (
-          <div key={p.name} className="flex justify-between gap-4">
-            <span style={{ color: p.color }}>{p.name}</span>
-            <span className="tabular-nums font-medium">{p.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</span>
-          </div>
-        ))}
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-[200px]">
@@ -69,7 +79,7 @@ export function MonthlyBarChart({ data }: Props) {
           tickLine={false}
           width={42}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(27,94,62,0.04)' }} />
+        <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: 'rgba(27,94,62,0.04)' }} />
         <Legend
           wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
           formatter={(v) => <span style={{ color: '#6b8880' }}>{v}</span>}

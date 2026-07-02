@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/server/auth/session'
+import { getCurrentUser, getSession } from '@/server/auth/session'
 import { getUnreadNotifications } from '@/server/services/notification.service'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { SessionProvider } from '@/components/providers/SessionProvider'
@@ -11,7 +11,17 @@ export const metadata: Metadata = {
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await getCurrentUser()
+  // getSession is JWT-only (no DB) — gives us the userId so the user fetch and
+  // notification query can run in parallel instead of back-to-back
+  const session = await getSession()
+  if (!session) {
+    redirect('/login')
+  }
+
+  const [user, notifications] = await Promise.all([
+    getCurrentUser(),
+    getUnreadNotifications(session.userId),
+  ])
 
   if (!user) {
     redirect('/login')
@@ -26,8 +36,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     updatedAt: user.updatedAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString(),
   }
-
-  const notifications = await getUnreadNotifications(String(user._id))
 
   return (
     <SessionProvider user={{

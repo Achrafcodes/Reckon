@@ -45,11 +45,14 @@ export function ThemeProvider({
   const [theme, setThemeState] = useState<Theme>(defaultTheme)
   const [resolvedTheme, setResolved] = useState<'light' | 'dark'>('light')
 
-  // After hydration: read stored preference and apply it
+  // After hydration: read stored preference and apply it. localStorage isn't
+  // readable during SSR, so this one-time post-hydration sync must live in an
+  // effect — the initial render intentionally uses defaultTheme on both sides.
   useEffect(() => {
     const stored = readStored(defaultTheme)
     const r = resolveTheme(stored)
     applyClass(r)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time post-hydration sync from localStorage
     setThemeState(stored)
     setResolved(r)
   }, [defaultTheme])

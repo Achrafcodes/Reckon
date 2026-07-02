@@ -62,18 +62,18 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       : 'all'
 
   const { from, to } = parseDateWindow(range)
+  const currency = user.settings?.baseCurrency ?? 'USD'
 
   const [summary, categorySpend, recent, recurringItems, insights] = await Promise.all([
     getSummary(userId, from, to),
     getSpendByCategory(userId, from, to),
     listTransactions(userId, listTransactionsSchema.parse({ limit: '8', sort: 'date_desc' })),
     detectRecurring(userId),
-    generateInsights(userId),
+    generateInsights(userId, currency),
   ])
 
   const hasData = summary.transactionCount > 0
   const topCategories = categorySpend.slice(0, 5)
-  const currency = user.settings?.baseCurrency ?? 'USD'
 
   const kpis = [
     {

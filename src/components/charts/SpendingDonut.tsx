@@ -16,22 +16,30 @@ interface TooltipPayload {
   payload: CategorySpend
 }
 
+function CustomTooltip({
+  active,
+  payload,
+  currency,
+}: {
+  active?: boolean
+  payload?: TooltipPayload[]
+  currency: string
+}) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]
+  return (
+    <div className="bg-ink text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+      <p className="font-medium" style={{ color: d.payload.color }}>{d.name}</p>
+      <p className="tabular-nums mt-0.5">{d.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</p>
+    </div>
+  )
+}
+
 export function SpendingDonut({ data }: { data: CategorySpend[] }) {
   const { baseCurrency: currency } = useSession()
   if (!data.length) return (
     <div className="flex items-center justify-center h-[220px] text-xs text-ink-muted">No expense data</div>
   )
-
-  function CustomTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayload[] }) {
-    if (!active || !payload?.length) return null
-    const d = payload[0]
-    return (
-      <div className="bg-ink text-white text-xs rounded-lg px-3 py-2 shadow-lg">
-        <p className="font-medium" style={{ color: d.payload.color }}>{d.name}</p>
-        <p className="tabular-nums mt-0.5">{d.value.toLocaleString('en-US', { minimumFractionDigits: 2 })} {currency}</p>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-[200px]">
@@ -52,7 +60,7 @@ export function SpendingDonut({ data }: { data: CategorySpend[] }) {
             <Cell key={entry.categoryId} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={<CustomTooltip currency={currency} />} />
       </PieChart>
     </ResponsiveContainer>
     </div>

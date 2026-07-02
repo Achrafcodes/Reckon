@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { connectDB } from '@/server/db/connect'
 import { Budget, Transaction } from '@/server/db/models'
 import { toDecimal128, fromDecimal128 } from '@/lib/money'
+import { shouldTriggerAlert } from '@/lib/budget-alerts'
 import { Notification } from '@/server/db/models'
 import type { CreateBudgetInput, UpdateBudgetInput } from '@/schemas/budget'
 
@@ -32,19 +33,22 @@ export async function listBudgets(
 
   // Fetch month-specific budgets + recurring budgets; deduplicate by category
   // (month-specific wins over recurring for the same category)
-  const [monthBudgets, recurringBudgets] = await Promise.all([
+  const [monthBudgetsRaw, recurringBudgetsRaw] = await Promise.all([
     Budget.find({ user: uid, month }).populate('category', 'name color icon').lean().exec(),
     Budget.find({ user: uid, recurring: true }).populate('category', 'name color icon').lean().exec(),
   ])
+  // Drop budgets whose category was deleted (populate returns null)
+  const monthBudgets = monthBudgetsRaw.filter((b) => b.category != null)
+  const recurringBudgets = recurringBudgetsRaw.filter((b) => b.category != null)
   const monthCategoryIds = new Set(monthBudgets.map((b) => String((b.category as unknown as { _id: mongoose.Types.ObjectId })._id)))
   const budgets = [
     ...monthBudgets,
     ...recurringBudgets.filter((b) => !monthCategoryIds.has(String((b.category as unknown as { _id: mongoose.Types.ObjectId })._id))),
   ]
 
-  const categoryIds = budgets
-    .map((b) => (b.category as unknown as { _id: mongoose.Types.ObjectId } | null)?._id)
-    .filter((id): id is mongoose.Types.ObjectId => id != null)
+  const categoryIds = budgets.map(
+    (b) => (b.category as unknown as { _id: mongoose.Types.ObjectId })._id,
+  )
 
   const actuals: { _id: mongoose.Types.ObjectId; total: number }[] =
     await Transaction.aggregate([
@@ -67,7 +71,6 @@ export async function listBudgets(
   const actualMap = new Map(actuals.map((a) => [String(a._id), a.total]))
 
   const results = budgets
-    .filter((b) => b.category != null)
     .map((b) => {
       const cat = b.category as unknown as { _id: mongoose.Types.ObjectId; name: string; color: string; icon: string }
       const limit = fromDecimal128(b.limit as mongoose.Types.Decimal128)
@@ -90,7 +93,7 @@ export async function listBudgets(
   // Only fires for budgets that crossed a threshold this load; existing alerts for the same
   // budgetId+month are ignored by the sparse unique check on { user, meta.budgetId, month }.
   const alerts = results
-    .filter((b) => b.pct >= Math.min(b.alertThreshold / 100, 1.0))
+    .filter((b) => shouldTriggerAlert(b.pct, b.alertThreshold, b.limit))
     .map((b) => ({
       user: new mongoose.Types.ObjectId(userId),
       kind: 'budget_alert' as const,
@@ -102,7 +105,7 @@ export async function listBudgets(
         b.pct >= 1.0
           ? `You've spent ${(b.pct * 100).toFixed(0)}% of your ${b.month} budget for ${b.category.name}.`
           : `You've used ${(b.pct * 100).toFixed(0)}% of your ${userCurrency} ${b.limit.toLocaleString()} limit.`,
-      meta: { budgetId: b._id, pct: b.pct },
+      meta: { budgetId: b._id, month, pct: b.pct },
       isRead: false,
     }))
 
@@ -155,14 +158,23 @@ export async function updateBudget(
     if (input.recurring) {
       update.month = 'recurring'
     }
-    // When turning off recurring, leave month as-is (the existing budget's month value stays)
   }
 
   try {
-    const result = await Budget.updateOne(
-      { _id: budgetId, user: new mongoose.Types.ObjectId(userId) },
-      { $set: update },
-    )
+    const uid = new mongoose.Types.ObjectId(userId)
+
+    // Turning recurring off on a budget stored with month='recurring' would
+    // orphan it (never matched by any month query) — pin it to the current month
+    if (input.recurring === false) {
+      const existing = await Budget.findOne({ _id: budgetId, user: uid }).select('month').lean()
+      if (!existing) return { ok: false, error: 'Budget not found.' }
+      if (existing.month === 'recurring') {
+        const now = new Date()
+        update.month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+      }
+    }
+
+    const result = await Budget.updateOne({ _id: budgetId, user: uid }, { $set: update })
     if (result.matchedCount === 0) return { ok: false, error: 'Budget not found.' }
     return { ok: true }
   } catch (err: unknown) {

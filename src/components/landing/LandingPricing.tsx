@@ -86,7 +86,7 @@ export function LandingPricing() {
               <div className="mt-6 p-4 rounded-xl bg-zinc-50 border border-zinc-100">
                 <p className="text-xs font-medium text-zinc-600 mb-1">Already saving time</p>
                 <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  "I uploaded three months of statements in one go and immediately saw I was spending 4× more on dining than I thought."
+                  &ldquo;I uploaded three months of statements in one go and immediately saw I was spending 4× more on dining than I thought.&rdquo;
                 </p>
               </div>
             </div>

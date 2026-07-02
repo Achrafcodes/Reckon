@@ -68,7 +68,8 @@ export class KeywordCategorizer implements Categorizer {
 }
 
 // Backwards-compatible singleton (KeywordCategorizer)
-export const categorizer: Categorizer = new KeywordCategorizer()
+// Typed as the concrete class so callers can invalidate() the per-user cache
+export const categorizer = new KeywordCategorizer()
 
 /**
  * Factory that returns the best available categorizer at runtime.

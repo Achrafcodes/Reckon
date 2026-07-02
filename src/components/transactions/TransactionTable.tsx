@@ -20,8 +20,13 @@ export function TransactionTable({ transactions, categories }: TransactionTableP
   const [rows, setRows] = useState(transactions)
   const [isPending, startTransition] = useTransition()
 
-  // Sync rows when the server pushes fresh props (e.g. after revalidation)
-  useEffect(() => { setRows(transactions) }, [transactions])
+  // Sync rows when the server pushes fresh props (e.g. after revalidation).
+  // Render-time reset instead of an effect — avoids a wasted extra render pass.
+  const [prevTransactions, setPrevTransactions] = useState(transactions)
+  if (prevTransactions !== transactions) {
+    setPrevTransactions(transactions)
+    setRows(transactions)
+  }
 
   // Dismiss armed state on outside click
   useEffect(() => {

@@ -36,17 +36,12 @@ export function Combobox({
     ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
     : options
 
-  useEffect(() => {
-    if (open) {
-      setQuery('')
-      setFocusedIdx(0)
-      setTimeout(() => searchRef.current?.focus(), 10)
-    }
-  }, [open])
-
-  useEffect(() => {
+  function openDropdown() {
+    setQuery('')
     setFocusedIdx(0)
-  }, [query])
+    setOpen(true)
+    setTimeout(() => searchRef.current?.focus(), 10)
+  }
 
   useEffect(() => {
     if (open && focusedIdx >= 0) {
@@ -99,7 +94,7 @@ export function Combobox({
           aria-expanded={open}
           aria-haspopup="listbox"
           disabled={disabled}
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => (open ? setOpen(false) : openDropdown())}
           className={[
             'input-base w-full text-left flex items-center justify-between gap-2 pr-8',
             !selected ? 'text-ink-faint' : 'text-ink',
@@ -131,7 +126,7 @@ export function Combobox({
                   ref={searchRef}
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => { setQuery(e.target.value); setFocusedIdx(0) }}
                   onKeyDown={onSearchKeyDown}
                   placeholder={searchPlaceholder}
                   className="input-base pl-9 py-1.5 text-sm"

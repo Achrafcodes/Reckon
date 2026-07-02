@@ -128,7 +128,7 @@ export function LandingFeatures() {
             Features
           </p>
           <h2 className="font-display text-3xl sm:text-4xl font-normal text-zinc-900 leading-tight">
-            Everything you need.<br />Nothing you don't.
+            Everything you need.<br />Nothing you don&apos;t.
           </h2>
         </div>
 

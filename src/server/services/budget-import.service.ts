@@ -263,7 +263,7 @@ export async function importBudgetSummary(
         merchant,
       })
 
-      const txType: 'expense' = 'expense'
+      const txType = 'expense' as const
       txOps.push({
         updateOne: {
           filter: { user: uid, dedupeHash },

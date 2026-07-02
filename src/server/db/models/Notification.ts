@@ -27,6 +27,15 @@ const notificationSchema = new Schema<INotification>(
 // Compound index covers the primary query pattern: unread notifications for a user, newest first
 notificationSchema.index({ user: 1, isRead: 1, createdAt: -1 })
 
+// One budget alert per budget per month — insertMany({ ordered: false }) in
+// budget.service relies on this to silently skip already-created alerts
+notificationSchema.index(
+  { user: 1, 'meta.budgetId': 1, 'meta.month': 1 },
+  // meta.month $exists keeps legacy alerts (created without meta.month) from
+  // colliding on a shared null key and blocking the index build
+  { unique: true, partialFilterExpression: { kind: 'budget_alert', 'meta.month': { $exists: true } } },
+)
+
 export const Notification: Model<INotification> =
   mongoose.models.Notification ??
   mongoose.model<INotification>('Notification', notificationSchema)

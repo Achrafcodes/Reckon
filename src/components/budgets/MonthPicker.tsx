@@ -1,10 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function MonthPicker({ value }: { value: string }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [year, setYear] = useState(() => parseInt(value.split('-')[0]))
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -29,9 +33,9 @@ export function MonthPicker({ value }: { value: string }) {
   function select(monthIdx: number) {
     const mm = String(monthIdx + 1).padStart(2, '0')
     const newValue = `${year}-${mm}`
-    const url = new URL(window.location.href)
-    url.searchParams.set('month', newValue)
-    window.location.href = url.toString()
+    const params = new URLSearchParams(searchParams)
+    params.set('month', newValue)
+    router.push(`${pathname}?${params.toString()}`)
     setOpen(false)
   }
 
