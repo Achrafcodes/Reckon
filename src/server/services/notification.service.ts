@@ -11,12 +11,14 @@ export interface NotificationRow {
   createdAt: string
 }
 
-export async function getUnreadNotifications(userId: string): Promise<NotificationRow[]> {
+export async function getRecentNotifications(userId: string): Promise<NotificationRow[]> {
   await connectDB()
 
-  const docs = await Notification.find({ user: userId, isRead: false })
+  // Unread first, newest first — read ones fill the remainder so the panel
+  // still shows recent history (dimmed) after "mark all read"
+  const docs = await Notification.find({ user: userId })
     .select('kind title body isRead createdAt')
-    .sort({ createdAt: -1 })
+    .sort({ isRead: 1, createdAt: -1 })
     .limit(20)
     .lean()
 

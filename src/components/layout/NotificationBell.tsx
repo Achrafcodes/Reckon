@@ -1,7 +1,9 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { markReadAction, markAllReadAction } from '@/server/actions/notifications'
+import { markReadAction, markAllReadAction, listNotificationsAction } from '@/server/actions/notifications'
 import type { NotificationRow } from '@/server/services/notification.service'
+
+const POLL_INTERVAL_MS = 30_000
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
@@ -116,9 +118,48 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
   const [isPending, setIsPending] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  // Ids optimistically marked read locally — applied over polled server data so
+  // an in-flight poll can't briefly resurrect them as unread
+  const locallyReadRef = useRef<Set<string>>(new Set())
 
   const unreadCount = notifications.filter((n) => !n.isRead).length
   const visible = notifications.slice(0, 10)
+
+  const refresh = useCallback(async () => {
+    try {
+      const rows = await listNotificationsAction()
+      setNotifications(
+        rows.map((n) => (locallyReadRef.current.has(n._id) ? { ...n, isRead: true } : n)),
+      )
+      // Server confirmed these as read — no need to track them anymore
+      for (const n of rows) {
+        if (n.isRead) locallyReadRef.current.delete(n._id)
+      }
+    } catch {
+      // Network hiccup — keep showing what we have, next poll will catch up
+    }
+  }, [])
+
+  // Real-time-ish sync: poll on an interval, and refresh immediately when the
+  // tab regains focus/visibility
+  useEffect(() => {
+    const interval = setInterval(refresh, POLL_INTERVAL_MS)
+    function onVisible() {
+      if (document.visibilityState === 'visible') refresh()
+    }
+    window.addEventListener('focus', onVisible)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('focus', onVisible)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [refresh])
+
+  // Fetch fresh data the moment the panel opens
+  useEffect(() => {
+    if (open) refresh()
+  }, [open, refresh])
 
   useEffect(() => {
     function handle(e: Event) {
@@ -137,15 +178,14 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
   }, [open])
 
   const handleMarkRead = useCallback((id: string) => {
-    setNotifications((prev) => {
-      const notif = prev.find((n) => n._id === id)
-      if (!notif || notif.isRead) return prev
-      return prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-    })
+    if (locallyReadRef.current.has(id)) return
+    locallyReadRef.current.add(id)
+    setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)))
     markReadAction(id).catch(() => undefined)
   }, [])
 
   function handleMarkAllRead() {
+    for (const n of notifications) locallyReadRef.current.add(n._id)
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
     setIsPending(true)
     markAllReadAction()

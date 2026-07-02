@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser, getSession } from '@/server/auth/session'
-import { getUnreadNotifications } from '@/server/services/notification.service'
+import { getRecentNotifications } from '@/server/services/notification.service'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { SessionProvider } from '@/components/providers/SessionProvider'
 import type { Metadata } from 'next'
@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const [user, notifications] = await Promise.all([
     getCurrentUser(),
-    getUnreadNotifications(session.userId),
+    getRecentNotifications(session.userId),
   ])
 
   if (!user) {
