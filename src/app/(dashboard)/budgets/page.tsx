@@ -1,6 +1,7 @@
 import { getSession } from '@/server/auth/session'
 import { listBudgets } from '@/server/services/budget.service'
 import { listCategories } from '@/server/services/category.service'
+import { getLatestTransactionMonth } from '@/server/services/analytics.service'
 import { BudgetCard } from '@/components/budgets/BudgetCard'
 import { AddBudgetForm } from '@/components/budgets/AddBudgetForm'
 import { MonthPicker } from '@/components/budgets/MonthPicker'
@@ -19,9 +20,9 @@ export default async function BudgetsPage({
 
   // Default to most recent month with data — let user override via ?month=
   const now = new Date()
-  const currentMonth = sp.month ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentMonth = sp.month ?? (await getLatestTransactionMonth(session.userId)) ?? thisMonth
 
-  
   const userCurrency = session.baseCurrency ?? 'CAD'
   const [budgets, categories] = await Promise.all([
     listBudgets(session.userId, currentMonth, userCurrency),
