@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { markReadAction, markAllReadAction } from '@/server/actions/notifications'
 import type { NotificationRow } from '@/server/services/notification.service'
 
@@ -113,7 +113,7 @@ interface NotificationBellProps {
 export function NotificationBell({ initialNotifications }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<NotificationRow[]>(initialNotifications)
   const [open, setOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
@@ -140,14 +140,17 @@ export function NotificationBell({ initialNotifications }: NotificationBellProps
     setNotifications((prev) => {
       const notif = prev.find((n) => n._id === id)
       if (!notif || notif.isRead) return prev
-      startTransition(async () => { await markReadAction(id) })
       return prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
     })
-  }, [startTransition])
+    markReadAction(id).catch(() => undefined)
+  }, [])
 
   function handleMarkAllRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-    startTransition(async () => { await markAllReadAction() })
+    setIsPending(true)
+    markAllReadAction()
+      .catch(() => undefined)
+      .finally(() => setIsPending(false))
   }
 
   return (
