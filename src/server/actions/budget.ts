@@ -45,9 +45,13 @@ export async function updateBudgetAction(budgetId: string, formData: FormData) {
     return { ok: false as const, error: parsed.error.issues[0].message }
   }
 
-  const result = await updateBudget(String(user._id), budgetId, parsed.data)
-  revalidatePath('/budgets')
-  return result
+  try {
+    const result = await updateBudget(String(user._id), budgetId, parsed.data)
+    revalidatePath('/budgets')
+    return result
+  } catch {
+    return { ok: false as const, error: 'Failed to update budget. Please try again.' }
+  }
 }
 
 export async function deleteBudgetAction(budgetId: string) {

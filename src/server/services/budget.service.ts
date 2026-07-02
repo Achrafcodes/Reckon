@@ -152,16 +152,25 @@ export async function updateBudget(
   if (input.alertThreshold !== undefined) update.alertThreshold = input.alertThreshold
   if (input.recurring !== undefined) {
     update.recurring = input.recurring
-    update.month = input.recurring ? 'recurring' : update.month
+    if (input.recurring) {
+      update.month = 'recurring'
+    }
+    // When turning off recurring, leave month as-is (the existing budget's month value stays)
   }
 
-  const result = await Budget.updateOne(
-    { _id: budgetId, user: new mongoose.Types.ObjectId(userId) },
-    { $set: update },
-  )
-
-  if (result.matchedCount === 0) return { ok: false, error: 'Budget not found.' }
-  return { ok: true }
+  try {
+    const result = await Budget.updateOne(
+      { _id: budgetId, user: new mongoose.Types.ObjectId(userId) },
+      { $set: update },
+    )
+    if (result.matchedCount === 0) return { ok: false, error: 'Budget not found.' }
+    return { ok: true }
+  } catch (err: unknown) {
+    if ((err as { code?: number }).code === 11000) {
+      return { ok: false, error: 'A recurring budget for this category already exists.' }
+    }
+    throw err
+  }
 }
 
 export async function deleteBudget(
