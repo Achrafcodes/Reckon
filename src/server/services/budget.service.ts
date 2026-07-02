@@ -89,28 +89,36 @@ export async function listBudgets(
       }
     })
 
-  // Bulk-insert budget alert notifications — one insertMany instead of N individual creates.
-  // Only fires for budgets that crossed a threshold this load; existing alerts for the same
-  // budgetId+month are ignored by the sparse unique check on { user, meta.budgetId, month }.
-  const alerts = results
-    .filter((b) => shouldTriggerAlert(b.pct, b.alertThreshold, b.limit))
-    .map((b) => ({
-      user: new mongoose.Types.ObjectId(userId),
-      kind: 'budget_alert' as const,
-      title:
-        b.pct >= 1.0
-          ? `Budget exceeded: ${b.category.name}`
-          : `${b.category.name} budget at ${(b.pct * 100).toFixed(0)}%`,
-      body:
-        b.pct >= 1.0
-          ? `You've spent ${(b.pct * 100).toFixed(0)}% of your ${b.month} budget for ${b.category.name}.`
-          : `You've used ${(b.pct * 100).toFixed(0)}% of your ${userCurrency} ${b.limit.toLocaleString()} limit.`,
-      meta: { budgetId: b._id, month, pct: b.pct },
-      isRead: false,
+  // Upsert budget alert notifications — one per budget per month. Uses an
+  // app-level upsert (not a DB unique index) so dedup doesn't depend on a
+  // background index build succeeding; re-crossing the threshold on a later
+  // page view never spawns a second unread notification for the same month.
+  const alertCandidates = results.filter((b) => shouldTriggerAlert(b.pct, b.alertThreshold, b.limit))
+  if (alertCandidates.length > 0) {
+    const uidObj = new mongoose.Types.ObjectId(userId)
+    const ops = alertCandidates.map((b) => ({
+      updateOne: {
+        filter: { user: uidObj, kind: 'budget_alert' as const, 'meta.budgetId': b._id, 'meta.month': month },
+        update: {
+          $setOnInsert: {
+            user: uidObj,
+            kind: 'budget_alert' as const,
+            title:
+              b.pct >= 1.0
+                ? `Budget exceeded: ${b.category.name}`
+                : `${b.category.name} budget at ${(b.pct * 100).toFixed(0)}%`,
+            body:
+              b.pct >= 1.0
+                ? `You've spent ${(b.pct * 100).toFixed(0)}% of your ${b.month} budget for ${b.category.name}.`
+                : `You've used ${(b.pct * 100).toFixed(0)}% of your ${userCurrency} ${b.limit.toLocaleString()} limit.`,
+            meta: { budgetId: b._id, month, pct: b.pct },
+            isRead: false,
+          },
+        },
+        upsert: true,
+      },
     }))
-
-  if (alerts.length > 0) {
-    Notification.insertMany(alerts, { ordered: false }).catch(() => undefined)
+    Notification.bulkWrite(ops, { ordered: false }).catch(() => undefined)
   }
 
   return results
