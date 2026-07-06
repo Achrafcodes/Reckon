@@ -277,6 +277,8 @@ export async function POST(request: NextRequest) {
         rawAmount = credit - debit
       }
       const currency = String(safe['currency'] ?? safe['ccy'] ?? safe['devise'] ?? '').toUpperCase().slice(0, 3) || 'CAD'
+      const rawMcc = safe['mcc'] ?? safe['merchant category code'] ?? safe['category code'] ?? safe['mcc code']
+      const mcc = rawMcc !== undefined && rawMcc !== '' ? String(rawMcc).trim() : undefined
 
       let date: string
       if (rawDate instanceof Date) {
@@ -296,7 +298,7 @@ export async function POST(request: NextRequest) {
             ? 'transfer'
             : 'income'
 
-      return { date, description, merchant: description, amount, currency, type, accountType } satisfies ParsedRow
+      return { date, description, merchant: description, amount, currency, type, accountType, mcc } satisfies ParsedRow
     })
     }
 

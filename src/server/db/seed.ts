@@ -63,6 +63,8 @@ const SYSTEM_CATEGORIES = [
       'nando', 'wagamama', 'pho', 'sushi',
       // Other common
       'poulet royal', 'b12burger', 'ramen', 'boba', 'bubble tea',
+      // Truncated bank-statement abbreviations
+      'sbux', 'mcd ', "mcd's",
     ],
   },
   {
@@ -75,7 +77,7 @@ const SYSTEM_CATEGORIES = [
       'clothing', 'clothes', 'apparel', 'fashion', 'shoes', 'footwear',
       'boutique', 'vêtements', 'vetements', 'mode',
       // Global e-commerce
-      'amazon', 'aliexpress', 'ali express', 'ebay', 'etsy', 'wish ',
+      'amazon', 'amzn', 'aliexpress', 'ali express', 'ebay', 'etsy', 'wish ',
       'shein', 'temu', 'asos', 'zalando',
       // Global retail
       'ikea', 'h&m', 'zara', 'uniqlo', 'primark', 'gap ', 'old navy',

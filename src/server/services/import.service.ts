@@ -14,6 +14,9 @@ export interface ParsedRow {
   currency: string
   type: 'income' | 'expense' | 'transfer'
   accountType?: 'debit' | 'credit'
+  /** Merchant Category Code, when the source file provides one — takes
+   * priority over keyword matching since it's an authoritative signal. */
+  mcc?: string
 }
 
 export interface ImportResult {
@@ -52,7 +55,7 @@ export async function importTransactions(
         amount: row.amount,
         merchant,
       })
-      const categoryId = await categorizer.categorize(row.description, userId)
+      const categoryId = await categorizer.categorize(row.description, userId, row.mcc)
 
       ops.push({
         updateOne: {
