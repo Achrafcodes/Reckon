@@ -12,7 +12,8 @@ export interface SummaryResult {
 }
 
 export interface CategorySpend {
-  categoryId: string
+  // null for spend on transactions with no category (deleted/uncategorized)
+  categoryId: string | null
   name: string
   color: string
   total: number

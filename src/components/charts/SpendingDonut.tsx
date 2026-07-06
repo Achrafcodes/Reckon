@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { useSession } from '@/components/providers/SessionProvider'
 
 interface CategorySpend {
-  categoryId: string
+  categoryId: string | null
   name: string
   color: string
   total: number

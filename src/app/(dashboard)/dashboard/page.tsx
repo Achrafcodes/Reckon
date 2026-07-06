@@ -101,7 +101,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     },
     {
       label: 'Top category',
-      href: topCategories[0] ? `/transactions?category=${topCategories[0].categoryId}` : '/transactions',
+      href: topCategories[0]?.categoryId ? `/transactions?category=${topCategories[0].categoryId}` : '/transactions',
       value: topCategories[0]?.name ?? '—',
       sub: topCategories[0] ? `${fmt(topCategories[0].total)} ${currency} spent` : 'No expenses yet',
       icon: (

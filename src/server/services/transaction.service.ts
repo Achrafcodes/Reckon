@@ -45,7 +45,9 @@ export async function listTransactions(
   }
 
   if (input.type) filter.type = input.type
-  if (input.category) filter.category = new mongoose.Types.ObjectId(input.category)
+  if (input.category && mongoose.isValidObjectId(input.category)) {
+    filter.category = new mongoose.Types.ObjectId(input.category)
+  }
   if (input.from || input.to) {
     filter.date = {}
     if (input.from) filter.date.$gte = new Date(input.from)
