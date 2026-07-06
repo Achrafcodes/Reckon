@@ -436,6 +436,7 @@ function FormatGuide() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
           <ul className="text-xs text-ink-muted space-y-1 flex-1">
             <li>• Also supports separate <strong className="text-ink font-medium">Debit</strong> / <strong className="text-ink font-medium">Credit</strong> columns</li>
+            <li>• No header row? No problem — columns are detected automatically</li>
             <li>• PDFs must be text-based (not scanned images)</li>
             <li>• Date format: YYYY-MM-DD or DD/MM/YYYY</li>
           </ul>

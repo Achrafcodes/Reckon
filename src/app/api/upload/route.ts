@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/server/auth/session'
 import { importTransactions, type ParsedRow } from '@/server/services/import.service'
 import { detectBudgetSummary, importBudgetSummary } from '@/server/services/budget-import.service'
+import { inferColumns, extractRows } from '@/lib/column-inference'
 import { rateLimit } from '@/lib/rate-limit'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -207,21 +208,55 @@ export async function POST(request: NextRequest) {
         }, { status: 201 })
       }
 
-      // Not a recognised format
-      const sample = namedHeaders.slice(0, 5).map((h) => `"${h}"`).join(', ')
-      const hint = sample ? `Found columns: ${sample}.` : 'No column headers detected.'
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            `File format not recognised. Expected a transaction list with columns like "Date", "Description", "Amount" — or a budget summary with category columns and rows like "Week 1", "Budget Limit". ` +
-            `${hint}`,
-          hint: 'format_mismatch',
-        },
-        { status: 422 },
-      )
-    }
+      // ── Headerless / unrecognized headers → infer columns from the data ───
+      // CSV: re-read with raw:true so cells stay as the original text — SheetJS
+      // otherwise destroys "01/06/2026" at read() time by parsing it as a US
+      // month-first Date. XLSX keeps the normal parse (serial dates are exact).
+      const isCsv = ext === '.csv' || file.type.includes('csv')
+      const gridSheet = isCsv
+        ? (() => {
+            const wbRaw = read(buffer, { type: 'buffer', raw: true })
+            return wbRaw.Sheets[wbRaw.SheetNames[0]]
+          })()
+        : sheet
+      const grid = utils.sheet_to_json<unknown[]>(gridSheet, { header: 1, defval: '' })
+      const mapping = inferColumns(grid)
+      const inferredRows = mapping ? extractRows(grid, mapping) : []
 
+      if (inferredRows.length === 0) {
+        // Not a recognised format
+        const sample = namedHeaders.slice(0, 5).map((h) => `"${h}"`).join(', ')
+        const hint = sample ? `Found columns: ${sample}.` : 'No column headers detected.'
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              `File format not recognised. Expected a transaction list with columns like "Date", "Description", "Amount" — or a budget summary with category columns and rows like "Week 1", "Budget Limit". ` +
+              `${hint}`,
+            hint: 'format_mismatch',
+          },
+          { status: 422 },
+        )
+      }
+
+      rows = inferredRows.map((r) => {
+        const type: 'income' | 'expense' | 'transfer' =
+          r.amount < 0
+            ? 'expense'
+            : accountType === 'credit'
+              ? 'transfer'
+              : 'income'
+        return {
+          date: r.date,
+          description: r.description,
+          merchant: r.description,
+          amount: r.amount.toFixed(2),
+          currency: r.currency ?? 'CAD',
+          type,
+          accountType,
+        } satisfies ParsedRow
+      })
+    } else {
     // ── Parse as transaction list ──────────────────────────────────────────
     rows = raw.map((r, i) => {
       const safe: Record<string, unknown> = Object.create(null)
@@ -261,8 +296,9 @@ export async function POST(request: NextRequest) {
             ? 'transfer'
             : 'income'
 
-      return { date, description, merchant: description, amount, currency, type, accountType } satisfies import('@/server/services/import.service').ParsedRow
+      return { date, description, merchant: description, amount, currency, type, accountType } satisfies ParsedRow
     })
+    }
 
     if (rows.length === 0) {
       return NextResponse.json(
