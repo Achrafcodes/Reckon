@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { EditTransactionModal } from '@/components/transactions/EditTransactionModal'
+import { CategoryPicker } from '@/components/transactions/CategoryPicker'
 import { deleteTransactionAction } from '@/server/actions/transactions'
 import { useSession } from '@/components/providers/SessionProvider'
 import type { TransactionRow } from '@/server/services/transaction.service'
@@ -55,6 +56,10 @@ export function TransactionTable({ transactions, categories }: TransactionTableP
     })
   }
 
+  function handleCategorySaved(id: string, category: TransactionRow['category']) {
+    setRows((prev) => prev.map((tx) => (tx._id === id ? { ...tx, category } : tx)))
+  }
+
   return (
     <>
       {/* Mobile card stack — shown only below md */}
@@ -75,17 +80,12 @@ export function TransactionTable({ transactions, categories }: TransactionTableP
                     year: 'numeric',
                   })}
                 </span>
-                {tx.category && (
-                  <span
-                    className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium"
-                    style={{
-                      background: tx.category.color + '18',
-                      color: tx.category.color,
-                    }}
-                  >
-                    {tx.category.name}
-                  </span>
-                )}
+                <CategoryPicker
+                  transactionId={tx._id}
+                  category={tx.category}
+                  categories={categories}
+                  onSaved={(cat) => handleCategorySaved(tx._id, cat)}
+                />
               </div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0" data-delete-controls>
@@ -184,19 +184,12 @@ export function TransactionTable({ transactions, categories }: TransactionTableP
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  {tx.category ? (
-                    <span
-                      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap"
-                      style={{
-                        background: tx.category.color + '18',
-                        color: tx.category.color,
-                      }}
-                    >
-                      {tx.category.name}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-ink-muted/60 italic">Uncategorized</span>
-                  )}
+                  <CategoryPicker
+                    transactionId={tx._id}
+                    category={tx.category}
+                    categories={categories}
+                    onSaved={(cat) => handleCategorySaved(tx._id, cat)}
+                  />
                 </td>
                 <td className="px-4 py-3 text-right">
                   <span

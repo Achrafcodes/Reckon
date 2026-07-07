@@ -16,15 +16,19 @@ interface ComboboxProps {
   label?: string
   error?: string
   className?: string
+  /** Opens the dropdown immediately on mount — for inline pickers spawned by
+   * a separate trigger (e.g. clicking a category pill), where a second click
+   * to open would be redundant. */
+  autoOpen?: boolean
 }
 
 export function Combobox({
   id, name, value = '', onChange, options, placeholder = 'Select…',
-  searchPlaceholder = 'Search…', disabled, required, label, error, className = '',
+  searchPlaceholder = 'Search…', disabled, required, label, error, className = '', autoOpen = false,
 }: ComboboxProps) {
   const uid = useId()
   const triggerId = id ?? uid
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(autoOpen)
   const [query, setQuery] = useState('')
   const [focusedIdx, setFocusedIdx] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -42,6 +46,11 @@ export function Combobox({
     setOpen(true)
     setTimeout(() => searchRef.current?.focus(), 10)
   }
+
+  useEffect(() => {
+    if (autoOpen) setTimeout(() => searchRef.current?.focus(), 10)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (open && focusedIdx >= 0) {
