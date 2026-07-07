@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { updateTransactionAction } from '@/server/actions/transactions'
 import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import type { CategorySummary } from '@/server/services/category.service'
@@ -21,7 +21,6 @@ export function CategoryPicker({ transactionId, category, categories, onSaved, a
   const [open, setOpen] = useState(false)
   const [optimistic, setOptimistic] = useState<PickedCategory>(category)
   const [error, setError] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   // Keep in sync when the server sends fresh data (e.g. after a full page revalidation)
   const [prevCategory, setPrevCategory] = useState(category)
@@ -29,19 +28,6 @@ export function CategoryPicker({ transactionId, category, categories, onSaved, a
     setPrevCategory(category)
     setOptimistic(category)
   }
-
-  useEffect(() => {
-    if (!open) return
-    function onOutside(e: Event) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onOutside)
-    document.addEventListener('touchstart', onOutside)
-    return () => {
-      document.removeEventListener('mousedown', onOutside)
-      document.removeEventListener('touchstart', onOutside)
-    }
-  }, [open])
 
   const options: ComboboxOption[] = categories.map((c) => ({
     value: c._id,
@@ -71,12 +57,13 @@ export function CategoryPicker({ transactionId, category, categories, onSaved, a
   }
 
   return (
-    <div ref={containerRef} className={`relative inline-block ${align === 'right' ? 'text-right' : ''}`}>
+    <div className={`relative inline-block ${align === 'right' ? 'text-right' : ''}`}>
       {open ? (
-        <div className="w-48 animate-scale-in inline-block text-left">
+        <div className="w-48 inline-block text-left">
           <Combobox
             value={optimistic?._id ?? ''}
             onChange={handleSelect}
+            onClose={() => setOpen(false)}
             options={options}
             placeholder="Select category…"
             searchPlaceholder="Search categories…"
