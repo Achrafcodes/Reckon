@@ -51,7 +51,7 @@ const SYSTEM_CATEGORIES = [
     keywords: [
       // Universal descriptors
       'restaurant', 'cafe', 'café', 'brasserie', 'bistro', 'diner',
-      'ristorante', 'pizzeria', 'trattoria', 'tavern', 'pub ',
+      'ristorante', 'pizzeria', 'trattoria', 'tavern', 'pub ', 'cafeteria',
       // Global fast food & coffee chains
       'mcdonalds', 'mcdonald', 'burger king', 'burgerking',
       'kfc', 'popeyes', 'chick-fil', 'wendys', "wendy's",
@@ -64,7 +64,7 @@ const SYSTEM_CATEGORIES = [
       // Other common
       'poulet royal', 'b12burger', 'ramen', 'boba', 'bubble tea',
       // Truncated bank-statement abbreviations
-      'sbux', 'mcd ', "mcd's",
+      'sbux', 'mcd ', "mcd's", 'mccafe',
     ],
   },
   {
@@ -186,6 +186,7 @@ const SYSTEM_CATEGORIES = [
       'apple.com/bill', 'apple.com',
       // Delivery passes
       'walmart delivery pass', 'instacart express', 'amazon prime',
+      'uberone', 'uber one',
     ],
   },
   {
@@ -200,6 +201,7 @@ const SYSTEM_CATEGORIES = [
       'epic games', 'epicgames', 'blizzard', 'battle.net',
       'ea ', 'ea games', 'ubisoft', 'riot ', 'riot*',
       'roblox', 'minecraft', 'genshin', 'league of legends',
+      'ankama', 'instant gaming',
       // Cinemas
       'cinema', 'cinéma', 'cineplex', 'vue ', 'odeon ', 'cineworld',
       'pathé', 'pathe', 'amc ', 'regal ',
@@ -230,6 +232,8 @@ const SYSTEM_CATEGORIES = [
       'cvs ', 'walgreens', 'rite aid', 'duane reade',
       // Europe chains
       'boots ', 'lloyds pharmacy',
+      // Quebec dental clinics
+      'oralvie',
     ],
   },
   {
@@ -287,7 +291,7 @@ const SYSTEM_CATEGORIES = [
     keywords: [
       // Booking platforms
       'booking.com', 'airbnb', 'expedia', 'trivago', 'kayak',
-      'hotels.com', 'agoda', 'hostelworld', 'vrbo',
+      'hotels.com', 'agoda', 'hostelworld', 'vrbo', 'trip.com',
       // Airlines (major)
       'airline', 'air canada', 'aircanada', 'westjet', 'sunwing', 'transat',
       'air france', 'lufthansa', 'british airways', 'iberia', 'alitalia',

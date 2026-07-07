@@ -52,12 +52,20 @@ export class KeywordCategorizer implements Categorizer {
 
     const lower = description.toLowerCase().trim()
 
-    // 2. Keyword match (substring scan — handles truncated bank descriptions)
+    // 2. Keyword match (substring scan — handles truncated bank descriptions).
+    // Picks the LONGEST matching keyword across all categories, not the first
+    // category in array order — otherwise a generic keyword (e.g. "uber" in
+    // Transport) can shadow a more specific one (e.g. "uber holdings canada"
+    // in Food Delivery, "uberone" in Subscriptions) purely by DB load order.
+    let best: { id: mongoose.Types.ObjectId; kwLength: number } | null = null
     for (const cat of cats) {
       for (const kw of cat.keywords) {
-        if (lower.includes(kw)) return cat._id
+        if (lower.includes(kw) && (!best || kw.length > best.kwLength)) {
+          best = { id: cat._id, kwLength: kw.length }
+        }
       }
     }
+    if (best) return best.id
 
     // 3. Bank suffix codes — catch patterns like "MERCHANT NAME BPY" or "SEND E-TFR ***xxx"
     for (const [code, categoryName] of Object.entries(BANK_SUFFIX_MAP)) {
