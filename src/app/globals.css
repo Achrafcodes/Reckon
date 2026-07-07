@@ -281,41 +281,49 @@ body {
   .loader-bar { animation: none !important; transform: scaleY(1); }
 }
 
-/* ─── Form element base (shared by input, select, textarea, date) ─────────── */
-.input-base {
-  width: 100%;
-  border-radius: 0.5rem;         /* rounded-lg */
-  border: 1px solid var(--c-input-border);
-  background-color: var(--c-input-bg);
-  color: var(--c-ink);
-  padding: 0.5rem 0.75rem;       /* px-3 py-2 */
-  font-size: 0.875rem;            /* text-sm */
-  line-height: 1.5;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  color-scheme: light;
-}
+/* ─── Form element base (shared by input, select, textarea, date) ───────────
+   Wrapped in @layer components: Tailwind v4 utilities live in the (higher-
+   priority) utilities layer, but unlayered CSS beats ALL layers regardless
+   of specificity or source order. Without this @layer, this class's
+   `padding` shorthand permanently won over utility overrides like `pl-9`
+   (used to make room for a search icon) — the icon and input text visually
+   overlapped since the utility was silently a no-op. */
+@layer components {
+  .input-base {
+    width: 100%;
+    border-radius: 0.5rem;         /* rounded-lg */
+    border: 1px solid var(--c-input-border);
+    background-color: var(--c-input-bg);
+    color: var(--c-ink);
+    padding: 0.5rem 0.75rem;       /* px-3 py-2 */
+    font-size: 0.875rem;            /* text-sm */
+    line-height: 1.5;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    color-scheme: light;
+  }
 
-/* Defeat browser dark-mode autofill override on light surfaces */
-.input-base:autofill,
-.input-base:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #09090b !important;
-  caret-color: #09090b;
-}
+  /* Defeat browser dark-mode autofill override on light surfaces */
+  .input-base:autofill,
+  .input-base:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    -webkit-text-fill-color: #09090b !important;
+    caret-color: #09090b;
+  }
 
-.input-base::placeholder {
-  color: var(--c-ink-faint);
-}
+  .input-base::placeholder {
+    color: var(--c-ink-faint);
+  }
 
-.input-base:focus {
-  outline: none;
-  border-color: var(--color-brand-ring);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-ring) 30%, transparent);
-}
+  .input-base:focus {
+    outline: none;
+    border-color: var(--color-brand-ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-ring) 30%, transparent);
+  }
 
-.input-base:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  .input-base:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* Force dark/light colour-scheme on native date/month pickers so the
