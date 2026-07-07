@@ -1,9 +1,11 @@
 import 'server-only'
 import mongoose from 'mongoose'
 import { connectDB } from '@/server/db/connect'
-import { Transaction } from '@/server/db/models'
+import { Transaction, MerchantRule } from '@/server/db/models'
 import { toDecimal128, fromDecimal128 } from '@/lib/money'
 import { computeDedupeHash } from '@/lib/dedupe'
+import { normalizeMerchantKey } from '@/lib/merchant-key'
+import { categorizer } from './categorization'
 import type { CreateTransactionInput, UpdateTransactionInput, ListTransactionsInput } from '@/schemas/transaction'
 
 export interface TransactionRow {
@@ -161,12 +163,30 @@ export async function updateTransaction(
   }
   if (input.notes !== undefined) update.notes = input.notes
 
-  const result = await Transaction.updateOne(
-    { _id: transactionId, user: new mongoose.Types.ObjectId(userId) },
+  const uid = new mongoose.Types.ObjectId(userId)
+  const doc = await Transaction.findOneAndUpdate(
+    { _id: transactionId, user: uid },
     { $set: update },
-  )
+    { returnDocument: 'after' },
+  ).select('merchant description category').lean()
 
-  if (result.matchedCount === 0) return { ok: false, error: 'Transaction not found.' }
+  if (!doc) return { ok: false, error: 'Transaction not found.' }
+
+  // Learn from this correction: remember merchant → category for this user
+  // so future imports of the same merchant auto-categorize, no seed-data
+  // or code change needed. Skipped when clearing a category (input.category === '').
+  if (input.category !== undefined && doc.category) {
+    const merchantKey = normalizeMerchantKey(doc.merchant || doc.description)
+    if (merchantKey) {
+      await MerchantRule.updateOne(
+        { user: uid, merchantKey },
+        { $set: { category: doc.category } },
+        { upsert: true },
+      )
+      categorizer.invalidate(userId)
+    }
+  }
+
   return { ok: true }
 }
 

@@ -1,8 +1,9 @@
 import 'server-only'
 import { connectDB } from '@/server/db/connect'
-import { Category } from '@/server/db/models'
+import { Category, MerchantRule } from '@/server/db/models'
 import { env } from '@/lib/env'
 import { categoryForMcc } from '@/lib/mcc-categories'
+import { normalizeMerchantKey } from '@/lib/merchant-key'
 import type mongoose from 'mongoose'
 
 export interface Categorizer {
@@ -24,6 +25,8 @@ const BANK_SUFFIX_MAP: Record<string, string> = {
 export class KeywordCategorizer implements Categorizer {
   // Keyed by userId — prevents user A's categories leaking into user B's import session
   private cacheByUser = new Map<string, Array<{ _id: mongoose.Types.ObjectId; name: string; keywords: string[] }>>()
+  // Learned merchant → category rules, keyed by userId (see MerchantRule model)
+  private rulesByUser = new Map<string, Array<{ merchantKey: string; category: mongoose.Types.ObjectId }>>()
 
   async categorize(description: string, userId: string, mcc?: string): Promise<mongoose.Types.ObjectId | null> {
     if (!this.cacheByUser.has(userId)) {
@@ -39,9 +42,25 @@ export class KeywordCategorizer implements Categorizer {
       this.cacheByUser.set(userId, docs.map((d) => ({ ...d, keywords: d.keywords ?? [] })))
     }
 
-    const cats = this.cacheByUser.get(userId)!
+    if (!this.rulesByUser.has(userId)) {
+      await connectDB()
+      const rules = await MerchantRule.find({ user: userId })
+        .select('merchantKey category')
+        .lean()
+        .exec() as Array<{ merchantKey: string; category: mongoose.Types.ObjectId }>
+      this.rulesByUser.set(userId, rules)
+    }
 
-    // 1. Merchant Category Code — authoritative when the source file provides one
+    const cats = this.cacheByUser.get(userId)!
+    const rules = this.rulesByUser.get(userId)!
+
+    // 1. Learned merchant rules — most authoritative: the user told us
+    // explicitly by correcting this merchant's category before
+    const merchantKey = normalizeMerchantKey(description)
+    const rule = rules.find((r) => r.merchantKey === merchantKey)
+    if (rule) return rule.category
+
+    // 2. Merchant Category Code — authoritative when the source file provides one
     if (mcc) {
       const categoryName = categoryForMcc(mcc)
       if (categoryName) {
@@ -52,7 +71,7 @@ export class KeywordCategorizer implements Categorizer {
 
     const lower = description.toLowerCase().trim()
 
-    // 2. Keyword match (substring scan — handles truncated bank descriptions).
+    // 3. Keyword match (substring scan — handles truncated bank descriptions).
     // Picks the LONGEST matching keyword across all categories, not the first
     // category in array order — otherwise a generic keyword (e.g. "uber" in
     // Transport) can shadow a more specific one (e.g. "uber holdings canada"
@@ -67,7 +86,7 @@ export class KeywordCategorizer implements Categorizer {
     }
     if (best) return best.id
 
-    // 3. Bank suffix codes — catch patterns like "MERCHANT NAME BPY" or "SEND E-TFR ***xxx"
+    // 4. Bank suffix codes — catch patterns like "MERCHANT NAME BPY" or "SEND E-TFR ***xxx"
     for (const [code, categoryName] of Object.entries(BANK_SUFFIX_MAP)) {
       if (lower.endsWith(code) || lower.includes(` ${code}`) || lower.includes(`/${code}`)) {
         const match = cats.find((c) => c.name === categoryName)
@@ -81,8 +100,10 @@ export class KeywordCategorizer implements Categorizer {
   invalidate(userId?: string) {
     if (userId) {
       this.cacheByUser.delete(userId)
+      this.rulesByUser.delete(userId)
     } else {
       this.cacheByUser.clear()
+      this.rulesByUser.clear()
     }
   }
 }
