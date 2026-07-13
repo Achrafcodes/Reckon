@@ -41,7 +41,7 @@ const FAQ_SCHEMA = [
   { q: 'What file formats does Reckon support?', a: 'CSV, Excel (XLSX/XLS), and text-based PDF exports from any bank.' },
   { q: 'Is my financial data private?', a: 'Yes. Your data is stored in your private account and never shared or sold.' },
   { q: 'How does auto-categorization work?', a: 'Reckon matches transaction descriptions against keyword rules for each category.' },
-  { q: 'Can I cancel my subscription?', a: 'Yes. Cancel any time. Your data remains accessible until the end of your billing period.' },
+  { q: 'When do I get access?', a: "Reckon isn't open for signups yet. Join the early-access list for an email invite at launch." },
   { q: 'What currencies are supported?', a: 'MAD, USD, EUR, GBP, AED, SAR, CAD, CHF, and more.' },
   { q: 'Does Reckon work on mobile?', a: 'Yes — Reckon is a responsive web app and can be installed as a PWA on iOS and Android.' },
 ]

@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { KPICard } from '@/components/dashboard/KPICard'
 import { InsightsPanel } from '@/components/dashboard/InsightsPanel'
 import { ReckLogo } from '@/components/ui/ReckLogo'
+import { DemoBanner } from '@/components/landing/DemoBanner'
+import { DemoHeaderCta } from '@/components/landing/DemoHeaderCta'
 import type { Insight } from '@/server/services/insights.service'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://reckon.app'
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${APP_URL}/demo` },
   openGraph: {
     title: 'Live Demo — Reckon Expense Tracker',
-    description: 'Interactive demo with sample financial data. See budgets, analytics, and insights before subscribing.',
+    description: 'Interactive demo with sample financial data. See budgets, analytics, and insights before joining early access.',
     url: `${APP_URL}/demo`,
     type: 'website',
   },
@@ -134,13 +136,7 @@ export default function DemoPage() {
   return (
     <div className="min-h-dvh bg-bg">
       {/* ── Demo banner ─────────────────────────────────────────────────────── */}
-      <div className="bg-brand text-white text-xs font-medium text-center py-2 px-4">
-        <span className="opacity-80">You&apos;re viewing a demo with sample data.</span>
-        {' '}
-        <Link href="/#pricing" className="underline underline-offset-2 font-semibold hover:opacity-90 transition-opacity">
-          Subscribe to use Reckon with your own data →
-        </Link>
-      </div>
+      <DemoBanner />
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-sm">
@@ -153,20 +149,7 @@ export default function DemoPage() {
               Demo
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className="px-3 py-1.5 text-sm font-medium text-ink-muted hover:text-ink transition-colors rounded-lg hover:bg-surface-r"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/#pricing"
-              className="px-4 py-1.5 text-sm font-semibold text-white bg-brand hover:bg-brand-h rounded-lg transition-colors"
-            >
-              Subscribe
-            </Link>
-          </div>
+          <DemoHeaderCta />
         </div>
       </header>
 

@@ -50,15 +50,8 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">4. Subscription & Payments</h2>
-            <p>Access to the full features of Reckon requires an active paid subscription. Subscription fees are billed in advance on a monthly or annual basis. All payments are processed securely through our payment provider.</p>
-            <ul className="list-disc pl-5 space-y-1.5 mt-3">
-              <li>Subscriptions automatically renew unless cancelled before the renewal date</li>
-              <li>You may cancel your subscription at any time from your account settings</li>
-              <li>Upon cancellation, you retain access until the end of your current billing period</li>
-              <li>We do not offer refunds for partial billing periods</li>
-              <li>We reserve the right to change pricing with 30 days&apos; notice</li>
-            </ul>
+            <h2 className="text-xl font-semibold text-zinc-900 mb-3">4. Pricing & Payments</h2>
+            <p>Reckon is currently in early access and does not charge for the Service. Planned pricing is shown on our <Link href="/#pricing" className="text-zinc-900 underline underline-offset-2">pricing page</Link> for reference; early-access members will lock in that rate when paid plans launch. When billing is introduced, these terms will be updated in advance and you will be notified before any charge applies to your account.</p>
           </section>
 
           <section>
