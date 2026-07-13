@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/server/auth/session'
+import { isApprovedAccount } from '@/lib/admin'
 import { importTransactions, type ParsedRow } from '@/server/services/import.service'
 import { detectBudgetSummary, importBudgetSummary } from '@/server/services/budget-import.service'
 import { inferColumns, extractRows } from '@/lib/column-inference'
@@ -93,6 +94,9 @@ export async function POST(request: NextRequest) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!isApprovedAccount(user)) {
+    return NextResponse.json({ ok: false, error: 'Your account is pending approval.' }, { status: 403 })
   }
 
   const limit = rateLimit(`upload:${user._id}`, 10, 5 * 60 * 1000)

@@ -6,6 +6,7 @@ import { getCurrentUser } from '@/server/auth/session'
 import { connectDB } from '@/server/db/connect'
 import { Transaction, Category } from '@/server/db/models'
 import { rateLimit } from '@/lib/rate-limit'
+import { isApprovedAccount } from '@/lib/admin'
 
 function fmt(n: number) {
   return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
@@ -14,6 +15,7 @@ function fmt(n: number) {
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isApprovedAccount(user)) return NextResponse.json({ error: 'Your account is pending approval.' }, { status: 403 })
 
   const limit = rateLimit(`report:${user._id}`, 20, 5 * 60 * 1000)
   if (!limit.ok) {
