@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${APP_URL}/demo` },
   openGraph: {
     title: 'Live Demo — Reckon Expense Tracker',
-    description: 'Interactive demo with sample financial data. See budgets, analytics, and insights before joining early access.',
+    description: 'Interactive demo with sample financial data. See budgets, analytics, and insights before requesting access.',
     url: `${APP_URL}/demo`,
     type: 'website',
   },

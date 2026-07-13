@@ -16,8 +16,8 @@ const FAQ = [
     a: 'Reckon matches transaction descriptions against keyword rules for each category (groceries, transport, dining, etc.) and assigns the best match. You can edit or reassign any category at any time.',
   },
   {
-    q: 'When do I get access?',
-    a: "Reckon isn't open for signups yet. Join the early-access list and you'll get an email invite as soon as it launches. Early-access members lock in the launch price.",
+    q: 'How do I get access?',
+    a: "Reckon isn't open for self-serve signups yet. Email us and we'll set your account up personally, at the launch price.",
   },
   {
     q: 'What currencies are supported?',

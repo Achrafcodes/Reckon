@@ -1,7 +1,6 @@
-'use client'
 import Link from 'next/link'
 import { ReckLogo } from '@/components/ui/ReckLogo'
-import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
+import { ACCESS_MAILTO } from '@/lib/contact'
 
 export function LandingNavbar() {
   return (
@@ -20,17 +19,12 @@ export function LandingNavbar() {
           <Link href="/login" className="px-3 py-1.5 text-sm text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-100 transition-colors">
             Sign in
           </Link>
-          <EarlyAccessModal source="navbar">
-            {({ onClick }) => (
-              <button
-                type="button"
-                onClick={onClick}
-                className="ml-1 px-4 py-1.5 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-700 rounded-lg transition-colors"
-              >
-                Get early access
-              </button>
-            )}
-          </EarlyAccessModal>
+          <a
+            href={ACCESS_MAILTO}
+            className="ml-1 px-4 py-1.5 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-700 rounded-lg transition-colors"
+          >
+            Request access
+          </a>
         </nav>
       </div>
     </header>
