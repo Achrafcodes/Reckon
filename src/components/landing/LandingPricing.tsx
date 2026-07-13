@@ -11,7 +11,7 @@ const INCLUDED = [
   'Auto-generated spending insights',
   'Recurring subscription detection',
   'PDF & Excel export',
-  'Private — no third-party tracking',
+  'Private, no third-party tracking',
   'Priority support',
 ]
 
@@ -70,7 +70,7 @@ export function LandingPricing() {
                   <p className="text-xs text-zinc-400">/ month</p>
                 </div>
               </div>
-              <p className="mt-2 text-xs text-zinc-400">or 490 MAD / year — 2 months free</p>
+              <p className="mt-2 text-xs text-zinc-400">or 490 MAD / year (2 months free)</p>
 
               <div className="my-6 border-t border-zinc-100" />
 

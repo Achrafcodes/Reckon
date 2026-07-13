@@ -39,8 +39,8 @@ const FEATURES = [
   },
   {
     num: '02',
-    title: 'Budgets that actually warn you.',
-    body: 'Set a monthly limit per category. Reckon computes actuals from your real transactions and alerts you before you overspend — not after.',
+    title: 'Budgets that warn you before you overspend.',
+    body: 'Set a monthly limit per category. Reckon computes actuals from your real transactions and alerts you as you approach the limit.',
     detail: 'Budget pace, overspend projection, and spending insights are generated automatically every time you import.',
     visual: (
       <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">

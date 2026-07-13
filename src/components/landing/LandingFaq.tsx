@@ -9,7 +9,7 @@ const FAQ = [
   },
   {
     q: 'Is my financial data private?',
-    a: 'Yes — your data is stored in your private account and never shared or sold. All connections use HTTPS, passwords are bcrypt-hashed, and sessions use signed JWT cookies.',
+    a: 'Yes. Your data is stored in your private account and never shared or sold. All connections use HTTPS, passwords are bcrypt-hashed, and sessions use signed JWT cookies.',
   },
   {
     q: 'How does auto-categorization work?',
@@ -17,7 +17,7 @@ const FAQ = [
   },
   {
     q: 'When do I get access?',
-    a: "Reckon isn't open for signups yet. Join the early-access list and you'll get an email invite as soon as it launches — early-access members lock in the launch price.",
+    a: "Reckon isn't open for signups yet. Join the early-access list and you'll get an email invite as soon as it launches. Early-access members lock in the launch price.",
   },
   {
     q: 'What currencies are supported?',

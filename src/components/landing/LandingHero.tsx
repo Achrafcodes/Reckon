@@ -58,7 +58,7 @@ export function LandingHero() {
           transition={{ duration: 0.65, delay: 0.18, ease }}
         >
           Upload your bank statement. Reckon categorises spending, tracks budgets,
-          and surfaces insights — automatically.
+          and surfaces insights automatically.
         </motion.p>
 
         {/* CTAs */}
@@ -94,7 +94,7 @@ export function LandingHero() {
         >
           {[
             { value: '< 5 s',     label: 'to parse a statement' },
-            { value: '100 %',     label: 'private — no tracking' },
+            { value: '100 %',     label: 'private, no tracking' },
             { value: 'PDF + XLS', label: 'export formats' },
           ].map((s) => (
             <div key={s.label} className="flex items-baseline gap-2">
