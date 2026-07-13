@@ -289,7 +289,7 @@ export default function DemoPage() {
               href="/#pricing"
               className="w-full sm:w-auto px-6 py-3 text-sm font-semibold bg-white text-brand hover:bg-blue-50 rounded-xl transition-colors shadow-lg"
             >
-              View pricing & subscribe
+              View pricing
             </Link>
             <Link
               href="/"

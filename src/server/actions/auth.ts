@@ -46,7 +46,7 @@ export async function registerAction(
 
   await setAuthCookies(accessToken, refreshToken)
 
-  return { ok: true, data: { redirectTo: '/subscribe' } }
+  return { ok: true, data: { redirectTo: '/dashboard' } }
 }
 
 export async function loginAction(
@@ -89,8 +89,10 @@ export async function loginAction(
   await setAuthCookies(accessToken, refreshToken)
   await User.findByIdAndUpdate(userId, { lastLoginAt: new Date() })
 
-  const redirectTo = subscriptionStatus === 'active' ? '/dashboard' : '/subscribe'
-  return { ok: true, data: { redirectTo } }
+  // Payments aren't accepted yet — see docs/archive/payment-integration.md.
+  // Every account gets full access; subscriptionStatus is still signed into
+  // the JWT for when billing is reintroduced.
+  return { ok: true, data: { redirectTo: '/dashboard' } }
 }
 
 export async function logoutAction(): Promise<void> {

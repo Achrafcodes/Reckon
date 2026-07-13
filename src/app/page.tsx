@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ReckLogo } from '@/components/ui/ReckLogo'
+import { LandingNavbar } from '@/components/landing/LandingNavbar'
 import { LandingHero } from '@/components/landing/LandingHero'
 import { LandingMockup } from '@/components/landing/LandingMockup'
 import { LandingFeatures } from '@/components/landing/LandingFeatures'
@@ -55,7 +56,7 @@ const jsonLd = {
       operatingSystem: 'Web, iOS, Android',
       url: APP_URL,
       description: 'Personal expense tracker and budget analytics app. Import bank statements, categorize spending, set budgets, and export reports.',
-      offers: { '@type': 'Offer', price: '49', priceCurrency: 'MAD', availability: 'https://schema.org/InStock' },
+      offers: { '@type': 'Offer', price: '49', priceCurrency: 'MAD', availability: 'https://schema.org/PreOrder' },
       screenshot: `${APP_URL}/opengraph-image`,
     },
     {
@@ -81,31 +82,7 @@ export default function LandingPage() {
     <div className="min-h-dvh flex flex-col">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* ── Nav ─────────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-zinc-200/80">
-        <div className="mx-auto max-w-6xl px-6 sm:px-8 flex h-14 items-center justify-between">
-          <Link href="/" aria-label="Reckon home">
-            <ReckLogo width={88} color="#09090b" markBg="#09090b" />
-          </Link>
-          <nav className="flex items-center gap-1 sm:gap-2" aria-label="Primary">
-            <Link href="/demo" className="hidden sm:inline px-3 py-1.5 text-sm text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-100 transition-colors">
-              Demo
-            </Link>
-            <Link href="/#pricing" className="hidden sm:inline px-3 py-1.5 text-sm text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-100 transition-colors">
-              Pricing
-            </Link>
-            <Link href="/login" className="px-3 py-1.5 text-sm text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-100 transition-colors">
-              Sign in
-            </Link>
-            <Link
-              href="/#pricing"
-              className="ml-1 px-4 py-1.5 text-sm font-semibold text-white bg-zinc-900 hover:bg-zinc-700 rounded-lg transition-colors"
-            >
-              Subscribe
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <LandingNavbar />
 
       <main id="main-content">
         <LandingHero />

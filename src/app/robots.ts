@@ -18,7 +18,6 @@ export default function robots(): MetadataRoute.Robots {
           '/reports',
           '/upload',
           '/settings',
-          '/subscribe',
           '/login',
           '/register',
         ],

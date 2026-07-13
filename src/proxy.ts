@@ -3,8 +3,6 @@ import { jwtVerify, SignJWT } from 'jose'
 
 const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/demo', '/privacy', '/terms'])
 const PUBLIC_PREFIXES = ['/login', '/register', '/demo', '/privacy', '/terms']
-const SUBSCRIBE_EXACT = new Set(['/subscribe'])
-const SUBSCRIBE_PREFIXES = ['/subscribe']
 
 const AUTH_COOKIES = ['access_token', 'refresh_token']
 
@@ -73,10 +71,6 @@ export async function proxy(request: NextRequest) {
     PUBLIC_EXACT.has(pathname) ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p + '/'))
 
-  const isSubscribePath =
-    SUBSCRIBE_EXACT.has(pathname) ||
-    SUBSCRIBE_PREFIXES.some((p) => pathname.startsWith(p + '/'))
-
   const accessToken  = request.cookies.get('access_token')?.value
   const refreshToken = request.cookies.get('refresh_token')?.value
 
@@ -106,13 +100,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Check subscription gate for protected routes
-  if (isAuthenticated && !isPublicPath && !isSubscribePath) {
-    const status = payload?.subscriptionStatus ?? 'pending'
-    if (status !== 'active') {
-      return NextResponse.redirect(new URL('/subscribe', request.url))
-    }
-  }
+  // No subscription gate — payments aren't accepted yet, so every
+  // authenticated user gets full access. See docs/archive/payment-integration.md.
 
   const res = NextResponse.next()
 
