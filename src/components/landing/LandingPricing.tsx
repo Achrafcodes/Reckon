@@ -1,6 +1,6 @@
 'use client'
 import { motion, useReducedMotion } from 'motion/react'
-import Link from 'next/link'
+import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 const INCLUDED = [
   'Unlimited transactions & imports',
@@ -74,21 +74,21 @@ export function LandingPricing() {
 
               <div className="my-6 border-t border-zinc-100" />
 
-              <Link
-                href="/register"
-                className="block w-full rounded-xl bg-zinc-900 hover:bg-zinc-700 py-3.5 text-center text-sm font-semibold text-white transition-colors"
-              >
-                Subscribe now
-              </Link>
+              <EarlyAccessModal source="pricing">
+                {({ onClick }) => (
+                  <button
+                    type="button"
+                    onClick={onClick}
+                    className="block w-full rounded-xl bg-zinc-900 hover:bg-zinc-700 py-3.5 text-center text-sm font-semibold text-white transition-colors"
+                  >
+                    Get early access
+                  </button>
+                )}
+              </EarlyAccessModal>
 
-              <p className="mt-3 text-center text-xs text-zinc-400">7-day free trial · Cancel any time</p>
-
-              <div className="mt-6 p-4 rounded-xl bg-zinc-50 border border-zinc-100">
-                <p className="text-xs font-medium text-zinc-600 mb-1">Already saving time</p>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  &ldquo;I uploaded three months of statements in one go and immediately saw I was spending 4× more on dining than I thought.&rdquo;
-                </p>
-              </div>
+              <p className="mt-3 text-center text-xs text-zinc-400">
+                Launch pricing — early-access members lock it in.
+              </p>
             </div>
           </motion.div>
         </div>
