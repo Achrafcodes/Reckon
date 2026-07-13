@@ -1,6 +1,6 @@
 'use client'
 import { motion, useReducedMotion } from 'motion/react'
-import { ACCESS_MAILTO } from '@/lib/contact'
+import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 const INCLUDED = [
   'Unlimited transactions & imports',
@@ -74,12 +74,17 @@ export function LandingPricing() {
 
               <div className="my-6 border-t border-zinc-100" />
 
-              <a
-                href={ACCESS_MAILTO}
-                className="block w-full rounded-xl bg-zinc-900 hover:bg-zinc-700 py-3.5 text-center text-sm font-semibold text-white transition-colors"
-              >
-                Request access
-              </a>
+              <EarlyAccessModal source="pricing">
+                {({ onClick }) => (
+                  <button
+                    type="button"
+                    onClick={onClick}
+                    className="block w-full rounded-xl bg-zinc-900 hover:bg-zinc-700 py-3.5 text-center text-sm font-semibold text-white transition-colors"
+                  >
+                    Request access
+                  </button>
+                )}
+              </EarlyAccessModal>
 
               <p className="mt-3 text-center text-xs text-zinc-400">
                 Launch pricing. Request access now to lock it in.

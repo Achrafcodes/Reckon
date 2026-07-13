@@ -1,5 +1,6 @@
+'use client'
 import Link from 'next/link'
-import { ACCESS_MAILTO } from '@/lib/contact'
+import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 export function DemoHeaderCta() {
   return (
@@ -10,12 +11,17 @@ export function DemoHeaderCta() {
       >
         Sign in
       </Link>
-      <a
-        href={ACCESS_MAILTO}
-        className="px-4 py-1.5 text-sm font-semibold text-white bg-brand hover:bg-brand-h rounded-lg transition-colors"
-      >
-        Request access
-      </a>
+      <EarlyAccessModal source="demo-header">
+        {({ onClick }) => (
+          <button
+            type="button"
+            onClick={onClick}
+            className="px-4 py-1.5 text-sm font-semibold text-white bg-brand hover:bg-brand-h rounded-lg transition-colors"
+          >
+            Request access
+          </button>
+        )}
+      </EarlyAccessModal>
     </div>
   )
 }

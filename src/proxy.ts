@@ -100,8 +100,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // No subscription gate — payments aren't accepted yet, so every
-  // authenticated user gets full access. See docs/archive/payment-integration.md.
+  // No access-approval gate here on purpose: the access token's
+  // subscriptionStatus claim goes stale between admin approvals and the
+  // user's next login (tokens aren't re-signed on approval), and gating
+  // here — before any DB read — would either block a just-approved user or
+  // create a redirect loop with /access-pending. The real, DB-backed check
+  // lives in the (dashboard) layout and on /access-pending itself. See
+  // docs/archive/payment-integration.md for why this isn't a payment gate.
 
   const res = NextResponse.next()
 

@@ -20,6 +20,8 @@ export default function robots(): MetadataRoute.Robots {
           '/settings',
           '/login',
           '/register',
+          '/admin',
+          '/access-pending',
         ],
       },
     ],

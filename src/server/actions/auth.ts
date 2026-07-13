@@ -7,6 +7,7 @@ import { connectDB } from '@/server/db/connect'
 import { User } from '@/server/db/models'
 import { signAccessToken, signRefreshToken, setAuthCookies, clearAuthCookies } from '@/server/auth/session'
 import { rateLimit } from '@/lib/rate-limit'
+import { isAdminEmail } from '@/lib/admin'
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -46,7 +47,8 @@ export async function registerAction(
 
   await setAuthCookies(accessToken, refreshToken)
 
-  return { ok: true, data: { redirectTo: '/dashboard' } }
+  const redirectTo = isAdminEmail(email) ? '/dashboard' : '/access-pending'
+  return { ok: true, data: { redirectTo } }
 }
 
 export async function loginAction(
@@ -89,10 +91,11 @@ export async function loginAction(
   await setAuthCookies(accessToken, refreshToken)
   await User.findByIdAndUpdate(userId, { lastLoginAt: new Date() })
 
-  // Payments aren't accepted yet — see docs/archive/payment-integration.md.
-  // Every account gets full access; subscriptionStatus is still signed into
-  // the JWT for when billing is reintroduced.
-  return { ok: true, data: { redirectTo: '/dashboard' } }
+  // Accounts are approved by hand — see docs/archive/payment-integration.md.
+  // Admin always gets full access; everyone else needs subscriptionStatus
+  // 'active' (flipped from the admin dashboard) or lands on the pending page.
+  const redirectTo = isAdminEmail(email) || subscriptionStatus === 'active' ? '/dashboard' : '/access-pending'
+  return { ok: true, data: { redirectTo } }
 }
 
 export async function logoutAction(): Promise<void> {

@@ -3,6 +3,7 @@ import { getCurrentUser, getSession } from '@/server/auth/session'
 import { getRecentNotifications } from '@/server/services/notification.service'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { SessionProvider } from '@/components/providers/SessionProvider'
+import { isAdminEmail } from '@/lib/admin'
 import type { Metadata } from 'next'
 import type { SafeUser } from '@/types'
 
@@ -25,6 +26,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) {
     redirect('/login')
+  }
+
+  // Re-check against the DB, not the JWT — the access token can be stale for
+  // up to its lifetime after an admin approval (the token isn't re-signed
+  // until the user's next login), so trusting proxy.ts alone here would
+  // block a just-approved user until they log out and back in.
+  if (user.subscription?.status !== 'active' && !isAdminEmail(user.email)) {
+    redirect('/access-pending')
   }
 
   const safeUser: SafeUser = {

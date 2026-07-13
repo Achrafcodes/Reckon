@@ -1,12 +1,12 @@
 'use client'
 import { motion, useReducedMotion } from 'motion/react'
-import { ACCESS_MAILTO } from '@/lib/contact'
+import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 const STEPS = [
   {
     n: '1',
     title: 'Get access',
-    body: 'Email us and we\'ll set your account up personally — or try the live demo right now.',
+    body: "Request access and we'll set your account up personally — or try the live demo right now.",
   },
   {
     n: '2',
@@ -41,15 +41,20 @@ export function LandingHowItWorks() {
               Up and running<br />in three steps.
             </h2>
             <div className="mt-8">
-              <a
-                href={ACCESS_MAILTO}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-colors"
-              >
-                Get started
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-              </a>
+              <EarlyAccessModal source="how-it-works">
+                {({ onClick }) => (
+                  <button
+                    type="button"
+                    onClick={onClick}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-colors"
+                  >
+                    Get started
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </button>
+                )}
+              </EarlyAccessModal>
             </div>
           </motion.div>
 

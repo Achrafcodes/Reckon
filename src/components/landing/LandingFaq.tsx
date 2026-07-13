@@ -17,7 +17,7 @@ const FAQ = [
   },
   {
     q: 'How do I get access?',
-    a: "Reckon isn't open for self-serve signups yet. Email us and we'll set your account up personally, at the launch price.",
+    a: "Reckon isn't open for self-serve signups yet. Request access with your email and we'll set your account up personally, at the launch price.",
   },
   {
     q: 'What currencies are supported?',
