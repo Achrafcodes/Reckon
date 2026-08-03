@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/server/auth/session'
 import { isApprovedAccount } from '@/lib/admin'
 import { importTransactions, type ParsedRow } from '@/server/services/import.service'
 import { detectBudgetSummary, importBudgetSummary } from '@/server/services/budget-import.service'
-import { inferColumns, extractRows, normalizeDateCell } from '@/lib/column-inference'
+import { inferColumns, extractRows, normalizeDateCell, detectDateFormat } from '@/lib/column-inference'
 import { rateLimit } from '@/lib/rate-limit'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -263,6 +263,17 @@ export async function POST(request: NextRequest) {
       })
     } else {
     // ── Parse as transaction list ──────────────────────────────────────────
+    const getRawDate = (r: Record<string, unknown>): unknown => {
+      const safe: Record<string, unknown> = Object.create(null)
+      for (const key of Object.keys(r)) {
+        if (key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {
+          safe[normaliseKey(key)] = r[key]
+        }
+      }
+      return safe['date'] ?? safe['transaction date'] ?? safe['trans date'] ?? safe['value date'] ?? safe['posting date']
+    }
+    const dateFormat = detectDateFormat(raw.map(getRawDate)) ?? 'DMY'
+
     rows = raw.map((r, i) => {
       const safe: Record<string, unknown> = Object.create(null)
       for (const key of Object.keys(r)) {
@@ -285,7 +296,7 @@ export async function POST(request: NextRequest) {
       const rawMcc = safe['mcc'] ?? safe['merchant category code'] ?? safe['category code'] ?? safe['mcc code']
       const mcc = rawMcc !== undefined && rawMcc !== '' ? String(rawMcc).trim() : undefined
 
-      const normalizedDate = normalizeDateCell(rawDate)
+      const normalizedDate = normalizeDateCell(rawDate, dateFormat)
       const date = normalizedDate ?? ''
 
       const amount = isNaN(rawAmount) ? '0.00' : rawAmount.toFixed(2)

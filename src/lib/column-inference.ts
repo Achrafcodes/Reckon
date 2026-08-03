@@ -67,8 +67,28 @@ function isEmptyCell(v: unknown): boolean {
   return v === undefined || v === null || String(v).trim() === ''
 }
 
+export type AmbiguousDateFormat = 'DMY' | 'MDY'
+
+/**
+ * Scan a column of raw date cells for an unambiguous a/b slash-date (one part
+ * > 12) to infer whether the column is day-first or month-first. Returns
+ * null when no cell disambiguates — callers should fall back to a default.
+ */
+export function detectDateFormat(values: unknown[]): AmbiguousDateFormat | null {
+  for (const v of values) {
+    if (typeof v !== 'string') continue
+    const m = v.trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2}|\d{4})$/)
+    if (!m) continue
+    const a = Number(m[1])
+    const b = Number(m[2])
+    if (a > 12 && b <= 12) return 'DMY'
+    if (b > 12 && a <= 12) return 'MDY'
+  }
+  return null
+}
+
 /** Convert a date cell to YYYY-MM-DD; null when unparseable. */
-export function normalizeDateCell(v: unknown): string | null {
+export function normalizeDateCell(v: unknown, ambiguousFormat: AmbiguousDateFormat = 'DMY'): string | null {
   if (v instanceof Date) {
     return isNaN(v.getTime()) ? null : v.toISOString().split('T')[0]
   }
@@ -82,13 +102,22 @@ export function normalizeDateCell(v: unknown): string | null {
   if (m) {
     const year = m[3].length === 2 ? `20${m[3]}` : m[3]
     const [a, b] = [Number(m[1]), Number(m[2])]
-    // a/b ambiguity: >12 disambiguates; otherwise assume day-first (matches
-    // the documented DD/MM/YYYY format in the upload guide)
-    let day = a
-    let month = b
-    if (a <= 12 && b > 12) {
+    // a/b ambiguity: >12 disambiguates; otherwise fall back to ambiguousFormat
+    // (defaults to day-first, matching the documented DD/MM/YYYY upload guide)
+    let day: number
+    let month: number
+    if (a > 12 && b <= 12) {
+      day = a
+      month = b
+    } else if (b > 12 && a <= 12) {
       month = a
       day = b
+    } else if (ambiguousFormat === 'MDY') {
+      month = a
+      day = b
+    } else {
+      day = a
+      month = b
     }
     if (month < 1 || month > 12 || day < 1 || day > 31) return null
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -245,10 +274,12 @@ export function inferColumns(grid: unknown[][]): InferredColumns | null {
 export function extractRows(grid: unknown[][], mapping: InferredColumns): InferredRow[] {
   const rows = grid.filter((r) => Array.isArray(r) && r.some((c) => !isEmptyCell(c)))
   const out: InferredRow[] = []
+  const dateFormat =
+    detectDateFormat(rows.slice(mapping.headerRows).map((r) => r[mapping.dateCol])) ?? 'DMY'
 
   for (let i = mapping.headerRows; i < rows.length; i++) {
     const row = rows[i]
-    const date = normalizeDateCell(row[mapping.dateCol])
+    const date = normalizeDateCell(row[mapping.dateCol], dateFormat)
     if (!date) continue
 
     let amount: number | null = null

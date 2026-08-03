@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { inferColumns, extractRows, normalizeDateCell, parseAmountLike } from './column-inference'
+import { inferColumns, extractRows, normalizeDateCell, detectDateFormat, parseAmountLike } from './column-inference'
 
 describe('normalizeDateCell', () => {
   it('handles ISO dates', () => {
@@ -28,6 +28,30 @@ describe('normalizeDateCell', () => {
     expect(normalizeDateCell('hello')).toBeNull()
     expect(normalizeDateCell('99/99/2026')).toBeNull()
     expect(normalizeDateCell(42)).toBeNull()
+  })
+
+  it('honors an explicit month-first format for ambiguous slash dates', () => {
+    expect(normalizeDateCell('7/3/2026', 'MDY')).toBe('2026-07-03')
+  })
+})
+
+describe('detectDateFormat', () => {
+  it('infers month-first from an unambiguous cell (day > 12) elsewhere in the column', () => {
+    // A Canadian/US bank export: 7/3, 7/6, 7/8, 7/9 are ambiguous on their
+    // own, but 7/17 in the same column disambiguates the whole column as
+    // month-first (M/D/Y) — regression for a bug where ambiguous cells were
+    // silently misread as day-first (7/3/2026 -> March 7 instead of July 3).
+    const column = ['7/3/2026', '7/6/2026', '7/8/2026', '7/9/2026', '7/17/2026', '7/31/2026']
+    expect(detectDateFormat(column)).toBe('MDY')
+  })
+
+  it('infers day-first from an unambiguous cell (month > 12 position) elsewhere in the column', () => {
+    const column = ['01/06/2026', '15/06/2026']
+    expect(detectDateFormat(column)).toBe('DMY')
+  })
+
+  it('returns null when nothing in the column disambiguates', () => {
+    expect(detectDateFormat(['01/06/2026', '02/06/2026'])).toBeNull()
   })
 })
 
@@ -147,6 +171,18 @@ describe('extractRows', () => {
     expect(rows).toHaveLength(2)
     expect(rows[0]).toEqual({ date: '2026-06-01', description: 'COFFEE SHOP', amount: -4.5, currency: null })
     expect(rows[1].amount).toBe(2100)
+  })
+
+  it('resolves ambiguous month-first dates using unambiguous cells in the same column', () => {
+    const grid = [
+      ['Date', 'Details', 'Amount'],
+      ['7/3/2026', 'DEPANNEUR', '-10.95'],
+      ['7/6/2026', 'RBC PAYPLAN', '-142.57'],
+      ['7/17/2026', 'PAY DEPOSIT', '2710.90'],
+    ]
+    const m = inferColumns(grid)!
+    const rows = extractRows(grid, m)
+    expect(rows.map((r) => r.date)).toEqual(['2026-07-03', '2026-07-06', '2026-07-17'])
   })
 
   it('computes signed amounts from a debit/credit pair', () => {
