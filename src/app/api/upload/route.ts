@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/server/auth/session'
 import { isApprovedAccount } from '@/lib/admin'
 import { importTransactions, type ParsedRow } from '@/server/services/import.service'
 import { detectBudgetSummary, importBudgetSummary } from '@/server/services/budget-import.service'
-import { inferColumns, extractRows } from '@/lib/column-inference'
+import { inferColumns, extractRows, normalizeDateCell } from '@/lib/column-inference'
 import { rateLimit } from '@/lib/rate-limit'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
   const { read, utils } = await import('xlsx')
 
   let rows: ParsedRow[]
+  let undatedRows = 0
   try {
     const workbook = read(buffer, { type: 'buffer', cellDates: true })
     const sheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -284,13 +285,8 @@ export async function POST(request: NextRequest) {
       const rawMcc = safe['mcc'] ?? safe['merchant category code'] ?? safe['category code'] ?? safe['mcc code']
       const mcc = rawMcc !== undefined && rawMcc !== '' ? String(rawMcc).trim() : undefined
 
-      let date: string
-      if (rawDate instanceof Date) {
-        date = rawDate.toISOString().split('T')[0]
-      } else {
-        const d = new Date(String(rawDate))
-        date = isNaN(d.getTime()) ? new Date().toISOString().split('T')[0] : d.toISOString().split('T')[0]
-      }
+      const normalizedDate = normalizeDateCell(rawDate)
+      const date = normalizedDate ?? ''
 
       const amount = isNaN(rawAmount) ? '0.00' : rawAmount.toFixed(2)
       // Credit card: positive = card payment (transfer), negative = purchase (expense)
@@ -326,6 +322,15 @@ export async function POST(request: NextRequest) {
     }
 
     rows = rows.filter((r) => Number(r.amount) !== 0 || !/^Row \d+$/.test(r.description))
+
+    undatedRows = rows.filter((r) => !r.date).length
+    rows = rows.filter((r) => r.date)
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { ok: false, error: 'None of the rows had a recognizable date. Check that the date column is formatted as a real date, not free text.' },
+        { status: 422 },
+      )
+    }
   } catch {
     return NextResponse.json({ ok: false, error: 'Failed to parse file. Is it a valid spreadsheet or CSV?' }, { status: 422 })
   }
@@ -336,7 +341,7 @@ export async function POST(request: NextRequest) {
     ok: true,
     data: {
       imported: result.imported,
-      skipped: result.skipped,
+      skipped: result.skipped + undatedRows,
       batchId: result.batchId,
       format: 'transactions',
     },
