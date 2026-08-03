@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/next'
 import { Inter, JetBrains_Mono, Calistoga } from 'next/font/google'
 import { ThemeProvider } from '@/components/ui/ThemeProvider'
 import './globals.css'
@@ -111,6 +112,7 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
